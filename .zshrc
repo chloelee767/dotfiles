@@ -80,7 +80,7 @@ source $ZSH/oh-my-zsh.sh
 # export ARCHFLAGS="-arch x86_64"
 
 # Path and aliases
-source .profile
+source ~/.profile
 
 ### PLUGINS
 

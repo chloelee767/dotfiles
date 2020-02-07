@@ -1,7 +1,7 @@
 # Dotfiles
 My configuration files for Doom Emacs, Zshell and Neovim.
 
-## Locations
+## Where everything goes
 - **.doom.d/** : HOME
 - **.profile:** HOME
 - **.zshrc** : HOME

@@ -181,9 +181,12 @@
 
 ;; Theme
 (setq doom-theme 'doom-oceanic-next)
-;; (setq doom-theme 'doom-vibrant)
-;; (setq doom-theme 'doom-nord-light)
-;; (setq doom-theme 'doom-spacegrey)
+;; Other themes which are not bad:
+;; doom vibrant/doom one
+;; spacegrey
+;; gruvbox
+;; opera
+;; wilmersdorf
 
 ;; (setq doom-theme 'doom-one-light)
 ;; TODO: figure out how to change the colour of DONE in org mode

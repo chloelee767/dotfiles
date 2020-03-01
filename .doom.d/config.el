@@ -27,8 +27,18 @@
   (setq org-use-property-inheritance t)
 
   ;; agenda
-  (setq org-agenda-start-on-weekday 1) ;; start on monday
+  ;; (setq org-agenda-start-on-weekday 1) ;; start on monday
+  ;; make org agenda start on today
+  (setq org-agenda-start-on-weekday nil)
+  (setq org-agenda-start-day "0d")
+
   (setq org-deadline-warning-days 0) ;; don't clutter today with future deadlines
+  (setq org-agenda-skip-scheduled-if-deadline-is-shown t) ;; don't show scheduled and deadline on same day
+
+  ;; don't show done items in agenda view
+  (setq org-agenda-skip-deadline-if-done t)
+  (setq org-agenda-skip-scheduled-if-done t)
+
   ;; TODO is there a way to truncate the breadcrumbs? Or ideally display properties
   (setq org-agenda-prefix-format '((agenda . " %i %-12:c %?-12t %s %-20b")
                                    (todo . " %i %-12:c %-20b")
@@ -37,10 +47,13 @@
 
   (setq org-agenda-custom-commands '(("q" "Agenda with unscheduled items"
                                       ((agenda "" ((org-agenda-span 7)))
-                                       (tags "+DEADLINE=\"\"+SCHEDULED=\"\"/!")
+                                       (tags "-longterm+DEADLINE=\"\"+SCHEDULED=\"\"/!")
                                        ))
                                      ("u" "Unscheduled items"
-                                      ((tags "+DEADLINE=\"\"+SCHEDULED=\"\"/!"))
+                                      ((tags "-longterm+DEADLINE=\"\"+SCHEDULED=\"\"/!"))
+                                      )
+                                     ("l" "Long term"
+                                      ((tags "+longterm/!")) ;; /! : match not done TODOs
                                       )))
 
   ;; (setq org-agenda-overriding-columns-format "%CATEGORY %LABEL %TODO %3PRIORITY %ITEM %DEADLINE %SCHEDULED %TAGS")
@@ -58,3 +71,4 @@
                                       ("not in" . ?∉)))
 
 (set-frame-font "Meslo LG S DZ for Powerline" nil t)
+;; (set-frame-font "Source Code Pro for Powerline" nil t)

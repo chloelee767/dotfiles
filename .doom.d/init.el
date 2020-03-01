@@ -182,6 +182,7 @@
 ;; Theme
 (setq doom-theme 'doom-oceanic-next)
 ;; Other themes which are not bad:
+;; oceanic next
 ;; doom vibrant/doom one
 ;; spacegrey
 ;; gruvbox

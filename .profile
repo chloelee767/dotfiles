@@ -21,7 +21,8 @@ alias gd="git diff"
 alias gb="git branch"
 
 ## PATHS
-export PATH=$PATH:$HOME/bin
+export PATH=$PATH:$HOME/Documents/Code/scripts
+export PATH=$PATH:$HOME/Documents/Code/uni-scripts
 
 # Rust
 export PATH="$HOME/.cargo/bin:$PATH"

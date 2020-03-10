@@ -17,6 +17,9 @@
                                    (?B . "■")
                                    (?C . "■")))
 )
+(auto-fill-mode -1)
+(add-hook 'org-mode-hook 'turn-off-auto-fill)
+(add-hook 'text-mode-hook 'turn-off-auto-fill)
 
 ;; Org Todo and Agenda
 (after! org

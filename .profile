@@ -27,6 +27,9 @@ export PATH=$PATH:$HOME/Documents/Code/uni-scripts
 # Rust
 export PATH="$HOME/.cargo/bin:$PATH"
 
+# LSM3241 bcftools
+export BCFTOOLS_PLUGINS=$HOME/Documents/Code/bcftools/plugins
+
 # keyboard: swap caps and escape
 setxkbmap -option "caps:swapescape"
 

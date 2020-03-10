@@ -19,17 +19,6 @@
 (global-visual-line-mode 1)
 
 ;; turn off auto-fill mode
-;; (auto-fill-mode -1)
-(remove-hook 'text-mode-hook #'turn-on-auto-fill)
-
-(use-package! org-fancy-priorities
-  :hook
-  (org-mode . org-fancy-priorities-mode)
-  :config
-  (setq org-fancy-priorities-list '((?A . "■")
-                                   (?B . "■")
-                                   (?C . "■")))
-)
 (auto-fill-mode -1)
 (add-hook 'org-mode-hook 'turn-off-auto-fill)
 (add-hook 'text-mode-hook 'turn-off-auto-fill)

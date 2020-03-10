@@ -27,7 +27,6 @@
   (setq org-use-property-inheritance t)
 
   ;; agenda
-  ;; (setq org-agenda-start-on-weekday 1) ;; start on monday
   ;; make org agenda start on today
   (setq org-agenda-start-on-weekday nil)
   (setq org-agenda-start-day "0d")
@@ -46,7 +45,7 @@
                                    (search . " %i %-12:c %-20b")))
 
   (setq org-agenda-custom-commands '(("q" "Agenda with unscheduled items"
-                                      ((agenda "" ((org-agenda-span 7)))
+                                      ((agenda "" ((org-agenda-span 12)))
                                        (tags "-longterm+DEADLINE=\"\"+SCHEDULED=\"\"/!")
                                        ))
                                      ("u" "Unscheduled items"

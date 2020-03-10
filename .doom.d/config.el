@@ -2,7 +2,20 @@
 
 ;; Place your private configuration here
 
+;; Theme
+(setq doom-theme 'doom-opera)
+;; Other themes which are not bad:
+;; oceanic next
+;; doom vibrant/doom one
+;; spacegrey
+;; gruvbox
+;; opera
+;; wilmersdorf
+
+;; (setq doom-theme 'doom-one-light)
+;; TODO: figure out how to change the colour of DONE in org mode
 ;; enable line wrapping
+
 (global-visual-line-mode 1)
 
 ;; turn off auto-fill mode

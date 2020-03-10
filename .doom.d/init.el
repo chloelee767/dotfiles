@@ -180,16 +180,3 @@
        :config
        ;;literate
        (default +bindings +smartparens))
-
-;; Theme
-(setq doom-theme 'doom-oceanic-next)
-;; Other themes which are not bad:
-;; oceanic next
-;; doom vibrant/doom one
-;; spacegrey
-;; gruvbox
-;; opera
-;; wilmersdorf
-
-;; (setq doom-theme 'doom-one-light)
-;; TODO: figure out how to change the colour of DONE in org mode

@@ -19,10 +19,11 @@
 ;; Enable line wrapping
 (global-visual-line-mode 1)
 
-;; turn off auto-fill mode
+;; Turn off auto-fill mode
 (auto-fill-mode -1)
 (add-hook 'org-mode-hook 'turn-off-auto-fill)
 (add-hook 'text-mode-hook 'turn-off-auto-fill)
+(remove-hook 'text-mode-hook #'auto-fill-mode)
 
 ;; Org Todo and Agenda
 (after! org

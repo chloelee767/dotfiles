@@ -3,7 +3,7 @@
 ;; Place your private configuration here
 
 ;; Theme
-(setq doom-theme 'doom-opera)
+(setq doom-theme 'doom-peacock)
 ;; Other themes which are not bad:
 ;; oceanic next
 ;; doom vibrant/doom one
@@ -11,11 +11,12 @@
 ;; gruvbox
 ;; opera
 ;; wilmersdorf
+;; tomorrow night
 
-;; (setq doom-theme 'doom-one-light)
-;; TODO: figure out how to change the colour of DONE in org mode
-;; enable line wrapping
+;; Font
+(set-frame-font "Fira Mono for Powerline" nil t)
 
+;; Enable line wrapping
 (global-visual-line-mode 1)
 
 ;; turn off auto-fill mode
@@ -63,7 +64,7 @@
   ;; (setq org-agenda-overriding-columns-format "%CATEGORY %LABEL %TODO %3PRIORITY %ITEM %DEADLINE %SCHEDULED %TAGS")
 )
 
-;; pretty symbols
+;; Pretty symbols
 (global-prettify-symbols-mode 1)
 (defvar base-prettify-symbols-alist '(("<=" . ?≤)
                                       (">=" . ?≥)
@@ -73,6 +74,3 @@
                                       ("null"   . ?∅)
                                       ("in"     . ?∈)
                                       ("not in" . ?∉)))
-
-(set-frame-font "Meslo LG S DZ for Powerline" nil t)
-;; (set-frame-font "Source Code Pro for Powerline" nil t)

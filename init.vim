@@ -19,6 +19,9 @@ Plug 'junegunn/fzf.vim'
 Plug 'scrooloose/nerdcommenter'
 call plug#end()
 
+"remap escape to jk
+inoremap jk <Esc> 
+
 nmap <Space>, :Buffers<CR>
 nmap <Space>. :Files<CR>
 "nnoremap <C-;> <Leader>c<Space>

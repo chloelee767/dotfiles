@@ -2,19 +2,15 @@
 
 ;; Place your private configuration here
 
+(toggle-frame-maximized)
+
 ;; Theme
 (setq doom-theme 'doom-peacock)
-;; Other themes which are not bad:
-;; oceanic next
-;; doom vibrant/doom one
-;; spacegrey
-;; gruvbox
-;; opera
-;; wilmersdorf
-;; tomorrow night
+(setq doom-peacock-brighter-comments t)
 
 ;; Font
-(set-frame-font "Fira Mono for Powerline" nil t)
+(setq doom-font (font-spec :family "RobotoMono Nerd Font" :size 16)
+      doom-unicode-font (font-spec :family "RobotoMono Nerd Font" :size 16))
 
 ;; Enable line wrapping
 (global-visual-line-mode 1)

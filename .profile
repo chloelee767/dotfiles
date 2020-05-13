@@ -1,6 +1,7 @@
 export EDITOR=/usr/bin/nvim
 
 ## ALIASES
+
 alias rm="rm -i"
 alias cp="cp -i"
 alias mv="mv -i"
@@ -21,8 +22,9 @@ alias gd="git diff"
 alias gb="git branch"
 
 ## PATHS
-export PATH=$PATH:$HOME/Documents/Code/scripts
-export PATH=$PATH:$HOME/Documents/Code/uni-scripts
+
+# scripts
+export PATH=$PATH:$HOME/dotfiles/scripts
 
 # Rust
 export PATH="$HOME/.cargo/bin:$PATH"

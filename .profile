@@ -51,3 +51,6 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 # Laundro RPis
 export PI_L9="pi@10.130.0.126"
 export PI_L17="pi@10.130.0.84"
+
+# cinnabot server
+export cinnabot="root@188.166.247.136"

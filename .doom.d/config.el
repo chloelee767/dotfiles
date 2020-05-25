@@ -23,8 +23,6 @@
 
 ;; Org
 (after! org
-  (setq line-spacing 0.2)
-
   ;; org ref
   (setq org-ref-completion-library 'org-ref-ivy-cite)
   (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))

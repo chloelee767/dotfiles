@@ -5,7 +5,7 @@
 (toggle-frame-maximized)
 
 ;; Theme
-(setq doom-theme 'doom-peacock)
+(setq doom-theme 'doom-solarized-light)
 (setq doom-peacock-brighter-comments t)
 
 ;; Font
@@ -34,6 +34,11 @@
 
   (setq org-use-property-inheritance t)
 
+  ;; To Do setup
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "PROJ(p)" "NEXT(n)" "|" "DONE(d!)")
+          (sequence "WAIT(w)" "HOLD(h)" "|" "KILL(k)")))
+
   ;; agenda
   ;; make org agenda start on today
   (setq org-agenda-start-on-weekday nil)
@@ -43,31 +48,91 @@
   (setq org-agenda-skip-deadline-if-done t)
   (setq org-agenda-skip-scheduled-if-done t)
 
-  ;; Show headings in agenda
-  (setq org-agenda-prefix-format '((agenda . " %i %-12:c %?-12t %s %-12b")
-                                   (todo . " %i %-12:c %-12b")
-                                   (tags . " %i %-12:c %-12b")
-                                   (search . " %i %-12:c %-12b")))
+  ;; (setq org-columns-default-format
+  ;;       "%TODO %3PRIORITY %25ITEM %DEADLINE %TAGS")
+  ;; (setq org-agenda-view-columns-initially t)
+  ;; Agenda items format
+  ;; (setq org-agenda-prefix-format '((agenda . " %i %-12:c %?-12t %s")
+  ;;                                  (todo . " %i %-12:c")
+  ;;                                  (tags . " %i %-12:c")
+  ;;                                  (search . " %i %-12:c")
+  ;;                                  ))
 
-  (setq org-agenda-custom-commands '(
-    ("s" "2 week agenda"
-     ((agenda "" (
-                  (org-agenda-span 14)
-                  (org-deadline-warning-days 0) ;; don't clutter with future deadlines
-                  ))))
-    ("q" "Daily agenda"
-     ((agenda "" (
-                  (org-agenda-span 1)
-                  (org-deadline-warning-days 31) ;; up to 1 month warning
-                  ))
-      (tags-todo "-longterm+DEADLINE=\"\"+SCHEDULED=\"\"") ;; unscheduled TOODs
-      ))
-    ("u" "Unscheduled TODOs"
-      ((tags-todo "-longterm+DEADLINE=\"\"+SCHEDULED=\"\"")))
-    ("l" "Long term, unscheduled TODOs"
-      ((tags-todo "+longterm+DEADLINE=\"\"+SCHEDULED=\"\"")))
-                                     ))
-)
+  (setq org-agenda-custom-commands
+        '(
+          (" " "Default agenda"
+           ;; Things today
+           ((agenda ""
+                    ((org-agenda-span 1)
+                     (org-deadline-warning-days 31)
+                     (org-agenda-overriding-header "Deadlines for the next month")
+                     ))
+
+            ;; NEXT items
+            (tags "/NEXT"
+                  ((org-agenda-overriding-header "Next")))
+
+            ;; TODO items
+            (tags "CATEGORY!=\"refile\"-SOMEDAY/TODO"
+                  ((org-agenda-overriding-header "To Do")))
+
+            ;; Projects
+            (tags "CATEGORY!=\"refile\"-SOMEDAY/PROJ"
+                  ((org-agenda-overriding-header "Projects")))
+
+            ;; WAIT items
+            (tags "CATEGORY!=\"refile\"-SOMEDAY/WAIT"
+                  ((org-agenda-overriding-header "Waiting")))
+
+            ;; HOLD items
+            (tags "CATEGORY!=\"refile\"=SOMEDAY/HOLD"
+                  ((org-agenda-overriding-header "Undecided")))
+
+            ;; Refile items
+            (tags "CATEGORY=\"refile\"/"
+                  ((org-agenda-overriding-header "Notes and To Dos to Refile")))
+
+            ))
+
+          ("c" "Calendar"
+           ((agenda ""
+                    ((org-agenda-span 14)
+                     (org-deadline-warning-days 0) ;; don't clutter with future deadlines
+                     ))))
+
+          ("s" "Someday"
+           (
+            ;; Projects
+            (tags "+SOMEDAY/PROJ"
+                  ((org-agenda-overriding-header "Projects")))
+
+            ;; NEXT items
+            (tags "+SOMEDAY/NEXT"
+                  ((org-agenda-overriding-header "Next")))
+
+            ;; TODO items
+            (tags "+SOMEDAY/TODO"
+                  ((org-agenda-overriding-header "To Do")))
+
+            ;; WAIT items
+            (tags "+SOMEDAY/WAIT"
+                  ((org-agenda-overriding-header "Waiting")))
+
+            ;; HOLD items
+            (tags "+SOMEDAY/HOLD"
+                  ((org-agenda-overriding-header "Undecided")))
+            ))
+          ))
+
+  ;; so projects aren't dimmed
+  (setq org-agenda-dim-blocked-tasks nil)
+
+  ;; org capture
+  (setq chloe/org-refile "~/Documents/Org/refile.org")
+  (setq org-capture-templates
+        '(("t" "todo" entry (file chloe/org-refile) "* TODO %?")
+          ("n" "note" entry (file chloe/org-refile) "* %?")))
+  )
 
 ;; Pretty symbols
 (global-prettify-symbols-mode 1)

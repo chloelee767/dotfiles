@@ -73,19 +73,19 @@
                   ((org-agenda-overriding-header "Next")))
 
             ;; TODO items
-            (tags "CATEGORY!=\"refile\"-SOMEDAY/TODO"
+            (tags "CATEGORY<>\"refile\"-SOMEDAY/TODO"
                   ((org-agenda-overriding-header "To Do")))
 
             ;; Projects
-            (tags "CATEGORY!=\"refile\"-SOMEDAY/PROJ"
+            (tags "CATEGORY<>\"refile\"-SOMEDAY/PROJ"
                   ((org-agenda-overriding-header "Projects")))
 
             ;; WAIT items
-            (tags "CATEGORY!=\"refile\"-SOMEDAY/WAIT"
+            (tags "CATEGORY<>\"refile\"-SOMEDAY/WAIT"
                   ((org-agenda-overriding-header "Waiting")))
 
             ;; HOLD items
-            (tags "CATEGORY!=\"refile\"=SOMEDAY/HOLD"
+            (tags "CATEGORY<>\"refile\"=SOMEDAY/HOLD"
                   ((org-agenda-overriding-header "Undecided")))
 
             ;; Refile items

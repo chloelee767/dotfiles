@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: lh-header
+# key: lh-header
+# condition: t
+# group: latex-header
+# --
+\usepackage{fancyhdr} \pagestyle{$1:fancyplain} \lhead{$2} \rhead{$3} \setlength{\headheight}{$4:12pt} $0

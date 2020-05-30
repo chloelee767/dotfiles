@@ -2,15 +2,14 @@
 
 ;; Place your private configuration here
 
-(toggle-frame-maximized)
+;; (toggle-frame-maximized)
 
 ;; Theme
 (setq doom-theme 'doom-solarized-light)
 (setq doom-peacock-brighter-comments t)
 
 ;; Font
-(setq doom-font (font-spec :family "RobotoMono Nerd Font" :size 16)
-      doom-unicode-font (font-spec :family "RobotoMono Nerd Font" :size 16))
+(setq doom-font (font-spec :family "Iosevka" :size 16))
 
 ;; Enable line wrapping
 (global-visual-line-mode 1)
@@ -23,115 +22,82 @@
 
 ;; Org
 (after! org
-  ;; org ref
-  (setq org-ref-completion-library 'org-ref-ivy-cite)
-  (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
-  (require 'org-ref)
+  ;; directories and files
+  (setq org-files-directory "~/Documents/org/"
+        org-roam-directory (concat org-files-directory "notes/")
+        deft-directory org-roam-directory
+        deft-recursive t
+        cl/org-agenda-directory (concat org-files-directory "todos/")
+        ;; (setq org-roam-index-file "index.org") ;; access the index file using org-roam-jump-to-index
+        org-agenda-files (list cl/org-agenda-directory)
+        cl/org-refile-file (concat cl/org-agenda-directory "refile.org"))
 
-  ;; org directory
-  (setq org-files-directory "~/Documents/Org")
-  (setq org-agenda-files (list org-files-directory))
+   ;; (setq org-use-property-inheritance t)
 
-  (setq org-use-property-inheritance t)
-
-  ;; To Do setup
   (setq org-todo-keywords
         '((sequence "TODO(t)" "PROJ(p)" "NEXT(n)" "|" "DONE(d!)")
-          (sequence "WAIT(w)" "HOLD(h)" "|" "KILL(k)")))
+          (sequence "WAIT(w)" "|" "KILL(k)")))
 
-  ;; agenda
-  ;; make org agenda start on today
-  (setq org-agenda-start-on-weekday nil)
-  (setq org-agenda-start-day "0d")
+   ;; org ref
+   (setq org-ref-completion-library 'org-ref-ivy-cite)
+   (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
+   (require 'org-ref)
 
-  ;; don't show done items in agenda view
-  (setq org-agenda-skip-deadline-if-done t)
-  (setq org-agenda-skip-scheduled-if-done t)
+  ;; org roam templates
+  (setq org-roam-capture-templates
+        '(("d" "default" plain (function org-roam--capture-get-point)
+             "%?"
+             :file-name "%<%Y%m%d%H%M%S>-${slug}"
+             :head "#+TITLE: ${title}\n"
+             :unnarrowed t)
+         ;; resources go to res/ folder
+         ("r" "resource" plain (function org-roam--capture-get-point)
+             :file-name "res/%<%Y%m%d%H%M%S>-${slug}"
+             :head "#+TITLE: ${title}\n"
+             :unnarrowed t)))
 
-  ;; (setq org-columns-default-format
-  ;;       "%TODO %3PRIORITY %25ITEM %DEADLINE %TAGS")
-  ;; (setq org-agenda-view-columns-initially t)
-  ;; Agenda items format
-  ;; (setq org-agenda-prefix-format '((agenda . " %i %-12:c %?-12t %s")
-  ;;                                  (todo . " %i %-12:c")
-  ;;                                  (tags . " %i %-12:c")
-  ;;                                  (search . " %i %-12:c")
-  ;;                                  ))
+   ;; org capture
+   (setq org-capture-templates '(("t" "todo" entry (file cl/org-refile-file) "* TODO %?")))
 
-  (setq org-agenda-custom-commands
-        '(
-          (" " "Default agenda"
-           ;; Things today
-           ((agenda ""
-                    ((org-agenda-span 1)
-                     (org-deadline-warning-days 31)
-                     (org-agenda-overriding-header "Deadlines for the next month")
-                     ))
+   ;; agenda
+   ;; make org agenda start on today
+   (setq org-agenda-start-on-weekday nil)
+   (setq org-agenda-start-day "0d")
 
-            ;; NEXT items
-            (tags "/NEXT"
-                  ((org-agenda-overriding-header "Next")))
+   ;; don't show done items in agenda view
+   (setq org-agenda-skip-deadline-if-done t)
+   (setq org-agenda-skip-scheduled-if-done t)
 
-            ;; TODO items
-            (tags "CATEGORY<>\"refile\"-SOMEDAY/TODO"
-                  ((org-agenda-overriding-header "To Do")))
+   (setq org-agenda-custom-commands
+         '(
+           (" " "Default agenda"
+            ;; Things today
+            ((agenda ""
+                     ((org-agenda-span 1)
+                      (org-deadline-warning-days 31)
+                      (org-agenda-overriding-header "Deadlines for the next month")
+                      ))
+             (tags "/NEXT" ((org-agenda-overriding-header "Next")))
+             (tags "CATEGORY<>\"refile\"-SOMEDAY/TODO" ((org-agenda-overriding-header "To Do")))
+             (tags "CATEGORY<>\"refile\"-SOMEDAY/PROJ" ((org-agenda-overriding-header "Projects")))
+             (tags "CATEGORY<>\"refile\"-SOMEDAY/WAIT" ((org-agenda-overriding-header "Waiting")))
+             (tags "CATEGORY=\"refile\"/" ((org-agenda-overriding-header "Refile")))
+             ))
 
-            ;; Projects
-            (tags "CATEGORY<>\"refile\"-SOMEDAY/PROJ"
-                  ((org-agenda-overriding-header "Projects")))
+           ("c" "Calendar"
+            ((agenda "" ((org-agenda-span 14) (org-deadline-warning-days 0)))))
 
-            ;; WAIT items
-            (tags "CATEGORY<>\"refile\"-SOMEDAY/WAIT"
-                  ((org-agenda-overriding-header "Waiting")))
+           ("s" "Someday"
+            ((tags "+SOMEDAY/PROJ" ((org-agenda-overriding-header "Projects")))
+             (tags "+SOMEDAY/NEXT" ((org-agenda-overriding-header "Next")))
+             (tags "+SOMEDAY/TODO" ((org-agenda-overriding-header "To Do")))
+             (tags "+SOMEDAY/WAIT" ((org-agenda-overriding-header "Waiting")))
+             ))
 
-            ;; HOLD items
-            (tags "CATEGORY<>\"refile\"=SOMEDAY/HOLD"
-                  ((org-agenda-overriding-header "Undecided")))
-
-            ;; Refile items
-            (tags "CATEGORY=\"refile\"/"
-                  ((org-agenda-overriding-header "Notes and To Dos to Refile")))
-
-            ))
-
-          ("c" "Calendar"
-           ((agenda ""
-                    ((org-agenda-span 14)
-                     (org-deadline-warning-days 0) ;; don't clutter with future deadlines
-                     ))))
-
-          ("s" "Someday"
-           (
-            ;; Projects
-            (tags "+SOMEDAY/PROJ"
-                  ((org-agenda-overriding-header "Projects")))
-
-            ;; NEXT items
-            (tags "+SOMEDAY/NEXT"
-                  ((org-agenda-overriding-header "Next")))
-
-            ;; TODO items
-            (tags "+SOMEDAY/TODO"
-                  ((org-agenda-overriding-header "To Do")))
-
-            ;; WAIT items
-            (tags "+SOMEDAY/WAIT"
-                  ((org-agenda-overriding-header "Waiting")))
-
-            ;; HOLD items
-            (tags "+SOMEDAY/HOLD"
-                  ((org-agenda-overriding-header "Undecided")))
-            ))
-          ))
-
-  ;; so projects aren't dimmed
-  (setq org-agenda-dim-blocked-tasks nil)
-
-  ;; org capture
-  (setq chloe/org-refile "~/Documents/Org/refile.org")
-  (setq org-capture-templates
-        '(("t" "todo" entry (file chloe/org-refile) "* TODO %?")
-          ("n" "note" entry (file chloe/org-refile) "* %?")))
+           ("d" "Deadlines overview"
+            ((agenda "" ((org-agenda-span 1) (org-deadline-warning-days 365)))))
+           ))
+   (setq org-agenda-dim-blocked-tasks nil) ;; so projects aren't dimmed
   )
 
 ;; Pretty symbols

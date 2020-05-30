@@ -19,11 +19,11 @@
 ;;      Alternatively, press 'gd' (or 'C-c g d') on a module to browse its
 ;;      directory (for easy access to its source code).
 
-(use-package! evil
-  :init
-  ;; avoid bug when setting respect-visual-line-mode
-  (setq evil-want-keybinding nil)
-  (setq evil-respect-visual-line-mode t))
+;; (use-package! evil
+;;   :init
+;;   ;; avoid bug when setting respect-visual-line-mode
+;;   (setq evil-want-keybinding nil)
+;;   (setq evil-respect-visual-line-mode t))
 
 (doom! :input
        ;;chinese
@@ -36,7 +36,7 @@
        ivy               ; a search engine for love and life
 
        :ui
-       ;;deft              ; notational velocity for Emacs
+       deft              ; notational velocity for Emacs
        doom              ; what makes DOOM look the way it does
        doom-dashboard    ; a nifty splash screen for Emacs
        doom-quit         ; DOOM quit-message prompts when you quit Emacs
@@ -142,10 +142,11 @@
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ;
        (java
+        ;; +lsp
         ;; +meghanada
         ) ; the poster child for carpal tunnel syndrome
-       javascript        ; all(hope(abandon(ye(who(enter(here))))))
-       ;;julia             ; a better, faster MATLAB
+       ;; javascript        ; all(hope(abandon(ye(who(enter(here))))))
+       ;; julia             ; a better, faster MATLAB
        ;;kotlin            ; a better, slicker Java(Script)
        latex             ; writing papers in Emacs has never been so fun
        ;;lean
@@ -161,7 +162,8 @@
         +ipython         ; ipython/jupyter support for babel
         +pandoc          ; export-with-pandoc support
         ;;+pomodoro        ; be fruitful with the tomato technique
-        +present)        ; using org-mode for presentations
+        +present         ; using org-mode for presentations
+        +roam)
        ;;perl              ; write code no one else can comprehend
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
@@ -181,7 +183,7 @@
        ;;solidity          ; do you need a blockchain? No.
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
-       web               ; the tubes
+       ;; web               ; the tubes
 
        :email
        ;;(mu4e +gmail)

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: attr_latex
+# key: <lat
+# condition: t
+# --
+#+attr_latex: $1

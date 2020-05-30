@@ -1,4 +1,5 @@
 export EDITOR=/usr/bin/nvim
+export TERMINAL=/usr/bin/kitty # doesn't work?
 
 ## ALIASES
 
@@ -40,8 +41,8 @@ export JAVA_HOME=/lib/jvm/java-13-jdk
 export PATH=$PATH:$JAVA_HOME/bin
 
 # Go
-export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
+#export GOPATH=$HOME/go
+#export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:/usr/local/go/bin
 
 # nvm

@@ -309,7 +309,7 @@ exec_always --no-startup-id fix_xcursor
 # Same logic applied to everything else.
 set_from_resource $term_background background
 set_from_resource $term_foreground foreground
-sjtrset_from_resource $term_color0     color0
+set_from_resource $term_color0     color0
 set_from_resource $term_color1     color1
 set_from_resource $term_color2     color2
 set_from_resource $term_color3     color3

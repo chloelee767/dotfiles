@@ -3,4 +3,4 @@
 *.log
 tmp/
 
-.config/nvim/plugged
+neovim/.config/nvim/plugged

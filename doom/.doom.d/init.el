@@ -132,7 +132,10 @@
        ;;elm               ; care for a cup of TEA?
        emacs-lisp        ; drown in parentheses
        ;;erlang            ; an elegant language for a more civilized age
-       ess               ; emacs speaks statistics
+       (ess               ; emacs speaks statistics
+        +lsp
+        +lintr
+       )
        ;;faust             ; dsp, but you get to keep your soul
        ;;fsharp           ; ML stands for Microsoft's Language
        (go                ; the hipster dialect
@@ -142,10 +145,12 @@
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ;
        (java
-        ;; +lsp
+        +lsp
         ;; +meghanada
-        ) ; the poster child for carpal tunnel syndrome
-       ;; javascript        ; all(hope(abandon(ye(who(enter(here))))))
+       ) ; the poster child for carpal tunnel syndrome
+       (javascript        ; all(hope(abandon(ye(who(enter(here))))))
+        +lsp
+       )
        ;; julia             ; a better, faster MATLAB
        ;;kotlin            ; a better, slicker Java(Script)
        latex             ; writing papers in Emacs has never been so fun
@@ -176,14 +181,20 @@
        ;;rest              ; Emacs as a REST client
        ;;rst               ; ReST in peace
        ;;ruby              ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-       rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+       (rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+        +lsp
+       )
        ;;scala             ; java, but good
        ;;scheme            ; a fully conniving family of lisps
-       sh                ; she sells {ba,z,fi}sh shells on the C xor
+       (sh                ; she sells {ba,z,fi}sh shells on the C xor
+        +lsp
+       )
        ;;solidity          ; do you need a blockchain? No.
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
-       ;; web               ; the tubes
+       (web               ; the tubes
+        +lsp
+       )
 
        :email
        ;;(mu4e +gmail)

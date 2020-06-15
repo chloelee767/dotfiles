@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cd ~/Documents/org
+cd ~/Documents/Org
 git add -u # stage deleted files
 git add * # stage everything else
 git commit -m "Automated backup"

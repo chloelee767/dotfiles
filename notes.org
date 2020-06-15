@@ -1,0 +1,21 @@
+#+TITLE: Notes to self
+* Other useful programs
+** Pulse Secure on Linux (for NUS VPN)
+- Install pulse-secure from AUR
+- Install webkitgtk from AUR for UI to work (BEWARE: takes a long time to compile. 45 mins on current laptop)
+  https://aur.archlinux.org/packages/webkitgtk/
+  Maybe try with parallel flag (-j<no of vCPUs + 1> eg. -j9) next time? But seems parallel by default, based on CPU utilisation.
+- URL to add: https://webvpn.nus.edu.sg/stu
+- UI program name is pulseUi
+* I3
+** multi monitor
+# external monitor to the left
+xrandr --output HDMI1 --auto --left-of eDP1
+
+# turn off external monitor
+xrandr --output HDMI1 --off
+
+# duplicate
+xrandr --output HDMI1 --auto --same-as eDP1
+
+note: names of screen depends on computer

@@ -70,7 +70,7 @@ export ZSH="$HOME/.oh-my-zsh"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(z)
+plugins=(z zsh-syntax-highlighting)
 # (z zsh-syntax-highlighting) 
 
 source $ZSH/oh-my-zsh.sh
@@ -80,10 +80,9 @@ source $ZSH/oh-my-zsh.sh
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
 
-# Path and aliases
-source ~/.profile
+source ~/.shell_aliases
 
-### PLUGINS
+###### Plugins #####
 
 # fzf key bindings
 [ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh

@@ -5,11 +5,11 @@
 ;; (toggle-frame-maximized)
 
 ;; Theme
-(setq doom-theme 'doom-solarized-light)
+(setq doom-theme 'doom-peacock)
 (setq doom-peacock-brighter-comments t)
 
 ;; Font
-(setq doom-font (font-spec :family "Iosevka" :size 16))
+(setq doom-font (font-spec :family "Iosevka Nerd Font" :size 16))
 
 ;; Enable line wrapping
 (global-visual-line-mode 1)
@@ -23,7 +23,7 @@
 ;; Org
 (after! org
   ;; directories and files
-  (setq org-files-directory "~/Documents/org/"
+  (setq org-files-directory "~/Documents/Org/"
         org-roam-directory (concat org-files-directory "notes/")
         deft-directory org-roam-directory
         deft-recursive t
@@ -79,27 +79,22 @@
                      (org-agenda-overriding-header "Deadlines for the next month")
                      ))
             (tags "/NEXT" ((org-agenda-overriding-header "Next")))
-            (tags "CATEGORY<>\"refile\"-SOMEDAY/TODO" ((org-agenda-overriding-header "To Do")))
-            (tags "CATEGORY<>\"refile\"-SOMEDAY/PROJ" ((org-agenda-overriding-header "Projects")))
+            (tags "CATEGORY<>\"refile\"-SOMEDAY/TODO" ((org-agenda-overriding-header "To Do (now)")))
             (tags "CATEGORY<>\"refile\"-SOMEDAY/WAIT" ((org-agenda-overriding-header "Waiting")))
             (tags "CATEGORY=\"refile\"/" ((org-agenda-overriding-header "Refile")))
+            (tags "CATEGORY<>\"refile\"+SOMEDAY/!" ((org-agenda-overriding-header "To Do (someday)")))
             ))
 
           ("c" "Calendar"
            ((agenda "" ((org-agenda-span 14) (org-deadline-warning-days 0)))))
-
-          ("s" "Someday"
-           ((tags "+SOMEDAY/PROJ" ((org-agenda-overriding-header "Projects")))
-            (tags "+SOMEDAY/NEXT" ((org-agenda-overriding-header "Next")))
-            (tags "+SOMEDAY/TODO" ((org-agenda-overriding-header "To Do")))
-            (tags "+SOMEDAY/WAIT" ((org-agenda-overriding-header "Waiting")))
-            ))
 
           ("d" "Deadlines overview"
            ((agenda "" ((org-agenda-span 1) (org-deadline-warning-days 365)))))
           ))
   (setq org-agenda-dim-blocked-tasks nil) ;; so projects aren't dimmed
   )
+
+(load "~/.doom.d/private.el")
 
 ;; Pretty symbols
 (global-prettify-symbols-mode 1)
@@ -112,3 +107,6 @@
                                       ("in"     . ?∈)
                                       ("not in" . ?∉)))
 
+;; use microsoft python lsp
+(after! lsp-python-ms
+  (set-lsp-priority! 'mspyls 1))

@@ -4,3 +4,5 @@
 tmp/
 
 neovim/.config/nvim/plugged
+
+private.el

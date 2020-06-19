@@ -103,3 +103,4 @@
 ;; use microsoft python lsp
 (after! lsp-python-ms
   (set-lsp-priority! 'mspyls 1))
+(map! :n "C-!" #'rotate-text-backward)

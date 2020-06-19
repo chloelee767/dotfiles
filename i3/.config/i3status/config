@@ -5,16 +5,17 @@ general {
     interval = 5
 }
 
-order += "ipv6" # ip address
+order += "disk /"
+order += "cpu_temperature 1" # hard drive temp
 
+order += "ipv6" # ip address
 order += "wireless wlp4s0"
 order += "ethernet enp2s0"
 
 order += "memory"
 
 order += "cpu_usage"
-
-order += "cpu_temperature 0"
+order += "cpu_temperature 0" # cpu temp
 
 order += "battery all"
 
@@ -23,18 +24,26 @@ order += "volume master"
 order += "time"
 
 wireless wlp4s0 {
-    format_up = "直 :%quality at %essid, %ip"
-    format_down = "直 :down"
+    format_up = "直 %quality at %essid"
+    format_down = "直 down"
 }
 
 ethernet enp2s0 {
-    format_up = " : %speed, %ip"
-    format_down = " : down"
+    format_up = "  %speed"
+    format_down = "  down"
 }
 
 cpu_usage {
-    format = "CPU: %usage"    
+    format = "CPU %usage"
+    separator = false
+    separator_block_width = 10
 }
+
+cpu_temperature 0 {
+    format = "%degrees ℃"
+    path = "/sys/class/hwmon/hwmon3/temp1_input" # CPU temp
+}
+
 
 battery all {
     format = "%status %percentage"
@@ -49,15 +58,26 @@ battery all {
 }
 
 memory {
-    format = "MEM: %used / %total"
+    format = "MEM %used / %total"
 }
 
 volume master {
-    format = "墳 : %volume"
-    format_muted = "墳 :  muted (%volume)"
+    format = "墳  %volume"
+    format_muted = "墳  muted (%volume)"
     device = "default"
     mixer = "Master"
     mixer_idx = 0
+}
+
+disk "/" {
+    format = "  %free"
+    separator = false
+    separator_block_width = 10
+}
+
+cpu_temperature 1 {
+    format = "%degrees ℃"
+    path = "/sys/class/hwmon/hwmon0/temp1_input" # hard drive temp
 }
 
 time {

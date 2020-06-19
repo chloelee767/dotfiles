@@ -25,7 +25,7 @@ sudo pacman -S $YES neovim ranger fzf
 sudo pacman -S $YES unzip fd ripgrep cmake stow # note: fd and ripgrep are dependencies for doom
 
 # zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" # say no to change shell, otherwise script will stop
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
 curl -fsSL https://starship.rs/install.sh | bash
 

@@ -97,15 +97,8 @@
 (load "~/.doom.d/private.el")
 
 ;; Pretty symbols
+;; TODO only works for lambda
 (global-prettify-symbols-mode 1)
-(defvar base-prettify-symbols-alist '(("<=" . ?≤)
-                                      (">=" . ?≥)
-                                      ("!=" . ?≠)
-                                      ("lambda" . ?λ)
-                                      ("None"   . ?∅)
-                                      ("null"   . ?∅)
-                                      ("in"     . ?∈)
-                                      ("not in" . ?∉)))
 
 ;; use microsoft python lsp
 (after! lsp-python-ms

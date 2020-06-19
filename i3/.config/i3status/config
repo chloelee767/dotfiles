@@ -25,7 +25,7 @@ order += "time"
 
 wireless wlp4s0 {
     format_up = "直 %quality at %essid"
-    format_down = "直 down"
+    format_down = "直  down"
 }
 
 ethernet enp2s0 {

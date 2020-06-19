@@ -103,4 +103,7 @@
 ;; use microsoft python lsp
 (after! lsp-python-ms
   (set-lsp-priority! 'mspyls 1))
+
+(setq ispell-dictionary "en_GB")
+
 (map! :n "C-!" #'rotate-text-backward)

@@ -1,6 +1,7 @@
 export EDITOR=/usr/bin/nvim
 export TERMINAL=/usr/bin/kitty # doesn't work?
-setxkbmap -option "ctrl:swapcaps"
+# location of setxkbmap layouts, options, etc.: /usr/share/X11/xkb/rules/base.lst
+setxkbmap -option "ctrl:swapcaps" -option "altwin:swap_alt_win"
 
 ##### Paths #####
 

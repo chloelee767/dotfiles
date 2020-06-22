@@ -41,7 +41,8 @@ cpu_usage {
 
 cpu_temperature 0 {
     format = "%degrees ℃"
-    path = "/sys/class/hwmon/hwmon3/temp1_input" # CPU temp
+    max_threshold = 80
+    path = "/sys/class/hwmon/hwmon4/temp1_input" # CPU temp
 }
 
 
@@ -77,6 +78,7 @@ disk "/" {
 
 cpu_temperature 1 {
     format = "%degrees ℃"
+    max_threshold = 80
     path = "/sys/class/hwmon/hwmon0/temp1_input" # hard drive temp
 }
 

@@ -249,7 +249,7 @@ bar {
 
 ## Autostart applications
 # exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
-# exec --no-startup-id nitrogen --restore; sleep 1; compton -b
+exec --no-startup-id nitrogen --restore; sleep 1; compton -b
 exec --no-startup-id compton -b
 exec --no-startup-id xautolock -time 10 -locker blurlock
 

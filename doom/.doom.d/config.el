@@ -104,5 +104,24 @@
 
 (setq ispell-dictionary "en_GB")
 
+;;;; Keybindings ;;;;
 (map! :n "C-!" #'rotate-text-backward)
+
+(map!
+ :nv "j" #'evil-next-visual-line
+ :nv "k" #'evil-previous-visual-line
+ :nv "0" #'evil-beginning-of-visual-line
+ :nv "^" #'evil-first-non-blank-of-visual-line
+ :nv "$" #'evil-end-of-visual-line
+
+ :nv "gj" #'evil-next-line
+ :nv "gk" #'evil-previous-line
+ :nv "g0" #'evil-beginning-of-line
+ :nv "g^" #'evil-first-non-blank-of-line
+ :nv "g$" #'evil-end-of-line
+ )
+
+;; looks interesting: https://github.com/hlissner/doom-emacs/blob/develop/docs/api.org#create-a-paste-transient-state-to-cycle-through-kill-ring-on-paste
+
+
 (load! "private.el")

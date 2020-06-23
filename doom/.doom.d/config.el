@@ -98,9 +98,13 @@
 ;; TODO only works for lambda
 (global-prettify-symbols-mode 1)
 
+;;;; LSP ;;;;
 ;; use microsoft python lsp
 (after! lsp-python-ms
   (set-lsp-priority! 'mspyls 1))
+
+;; fix lsp showing outdated errors: https://github.com/hlissner/doom-emacs/issues/3267
+(setq flycheck-check-syntax-automatically '(save idle-change new-line mode-enabled))
 
 (setq ispell-dictionary "en_GB")
 

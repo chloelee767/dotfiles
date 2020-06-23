@@ -94,8 +94,6 @@
   (setq org-agenda-dim-blocked-tasks nil) ;; so projects aren't dimmed
   )
 
-(load "~/.doom.d/private.el")
-
 ;; Pretty symbols
 ;; TODO only works for lambda
 (global-prettify-symbols-mode 1)
@@ -107,3 +105,4 @@
 (setq ispell-dictionary "en_GB")
 
 (map! :n "C-!" #'rotate-text-backward)
+(load! "private.el")

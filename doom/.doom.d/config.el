@@ -1,26 +1,24 @@
 ;;; .doom.d/config.el -*- lexical-binding: t; -*-
 
-;; Place your private configuration here
-
-;; (toggle-frame-maximized)
-
-;; Theme
+;;;; Appearance ;;;;
+;; TODO change font comment font colours
 (setq doom-theme 'doom-peacock)
 (setq doom-peacock-brighter-comments t)
-
-;; Font
 (setq doom-font (font-spec :family "Iosevka Nerd Font" :size 16))
+
+(global-prettify-symbols-mode 1)
+;; (toggle-frame-maximized)
 
 ;; Enable line wrapping
 (global-visual-line-mode 1)
 
 ;; Turn off auto-fill mode
 (auto-fill-mode -1)
-(add-hook 'org-mode-hook 'turn-off-auto-fill)
-(add-hook 'text-mode-hook 'turn-off-auto-fill)
+(add-hook 'org-mode-hook #'turn-off-auto-fill)
+(add-hook 'text-mode-hook #'turn-off-auto-fill)
 (remove-hook 'text-mode-hook #'auto-fill-mode)
 
-;; Org
+;;;; Org ;;;;
 (after! org
   ;; directories and files
   (setq org-files-directory "~/Documents/Org/"
@@ -33,6 +31,7 @@
         cl/org-refile-file (concat cl/org-agenda-directory "refile.org"))
 
   (setq org-list-allow-alphabetical t)
+  (setq org-superstar-headline-bullets-list '("▶"))
   ;; (setq org-use-property-inheritance t)
 
   (setq org-todo-keywords
@@ -44,7 +43,7 @@
   (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
   (require 'org-ref)
 
-  ;; org roam templates
+  ;; org roam
   (setq org-roam-capture-templates
         '(("d" "default" plain (function org-roam--capture-get-point)
            "%?"
@@ -56,6 +55,7 @@
            :file-name "res/%<%Y%m%d%H%M%S>-${slug}"
            :head "#+TITLE: ${title}\n"
            :unnarrowed t)))
+  (setq org-roam-buffer-width 0.2)
 
   ;; org capture
   (setq org-capture-templates '(("t" "todo" entry (file cl/org-refile-file) "* TODO %?")))
@@ -94,10 +94,6 @@
   (setq org-agenda-dim-blocked-tasks nil) ;; so projects aren't dimmed
   )
 
-;; Pretty symbols
-;; TODO only works for lambda
-(global-prettify-symbols-mode 1)
-
 ;;;; LSP ;;;;
 ;; use microsoft python lsp
 (after! lsp-python-ms
@@ -106,6 +102,7 @@
 ;; fix lsp showing outdated errors: https://github.com/hlissner/doom-emacs/issues/3267
 (setq flycheck-check-syntax-automatically '(save idle-change new-line mode-enabled))
 
+;;;; Spellcheck ;;;;
 (setq ispell-dictionary "en_GB")
 
 ;;;; Keybindings ;;;;

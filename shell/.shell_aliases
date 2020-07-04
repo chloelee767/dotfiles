@@ -1,6 +1,6 @@
 ##### Aliases #####
 
-alias rm="rm -i"
+alias rm="rm -I" # only prompt once for multiple/recursive deletes
 alias cp="cp -i"
 alias mv="mv -i"
 

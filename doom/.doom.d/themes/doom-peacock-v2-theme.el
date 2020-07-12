@@ -29,7 +29,7 @@ determine the exact padding."
 
 ;;
 (def-doom-theme doom-peacock-v2
-  "Peacock theme from daylerees themes "
+  "Doom's Peacock theme with minor tweaks"
 
   ;; darker background (taken from doom-monokai-classic)
   ((bg         '("#272822" nil       nil          ))
@@ -48,11 +48,13 @@ determine the exact padding."
 
    (grey       base4)
    (white      '("#f8f8f0" "base4"   "base4"        ))
-   (red        '("#ff5d38" "#ff6655" "red"          )) ;; peacock todo 16
+   ;; (red        '("#ff5d38" "#ff6655" "red"          )) ;; peacock todo 16
+   (red        '("#fc6823" "#ff6655" "red"          )) ;; peacock todo 16
    ;; (orange     '("#cb4b16" "#dd8844" "brightred"    ))
    (orange     '("#FD971F" "#FD971F" "brightred")) ;; lighter
    (green      '("#98be65" "#99bb66" "green"        ))
    (teal       '("#26a6a6" "#44b9b1" "brightgreen"  )) ;; peacock
+   ;; (teal       '("#01bfbf" "#44b9b1" "brightgreen"  )) ;; peacock
    (yellow     '("#bcd42a" "#ECBE7B" "yellow"       )) ;; peacock, todo 16
    (blue       '("#51afef" "#51afef" "brightblue"   ))
    (dark-blue  '("#2257A0" "#2257A0" "blue"         ))
@@ -72,14 +74,14 @@ determine the exact padding."
    ;; (comments       (if doom-peacock-v2-brighter-comments dark-cyan base5)) ;; TODO
    ;; (doc-comments   (doom-lighten (if doom-peacock-v2-brighter-comments dark-cyan base5) 0.25)) ;; TODO
    (constants      red)        ;; done
-   (functions      yellow)     ;; done
+   (functions      red)     ;; done
    (keywords       teal)       ;; done
-   (methods        yellow)     ;; not sure how to test this.
-   (operators      red)        ;; not showing up on `=` etc.
+   (methods        functions)     ;; not sure how to test this.
+   (operators      white)        ;; not showing up on `=` etc.
    (type           white)      ;;
    (strings        yellow)
-   (variables      white)      ;; done
-   (numbers        red)        ;; done
+   (variables      (doom-lighten blue 0.3))      ;; done
+   (numbers        orange)        ;; done
 
    (region         `(,(doom-lighten (car bg-alt) 0.15) ,@(doom-lighten (cdr base0) 0.35)))
    (error          red)
@@ -120,6 +122,10 @@ determine the exact padding."
    (font-lock-doc-face
     :inherit 'font-lock-comment-face
     :foreground doc-comments
+    :slant 'italic
+    :weight 'bold)
+   (font-lock-type-face
+    :foreground type
     :slant 'italic
     :weight 'bold)
 
@@ -196,6 +202,16 @@ determine the exact padding."
    (org-level-6 :foreground cyan :weight 'bold)
    (org-level-7 :foreground blue :weight 'bold)
    (org-level-8 :foreground yellow :weight 'bold)
+
+   ;; (org-level-1 :foreground teal :weight 'bold :height 1.1)
+   ;; (org-level-2 :foreground teal :weight 'bold :height 1.1)
+   ;; (org-level-3 :foreground teal :weight 'bold :height 1.1)
+   ;; (org-level-4 :foreground teal :weight 'bold :height 1.1)
+   ;; (org-level-5 :foreground teal :weight 'bold :height 1.1)
+   ;; (org-level-6 :foreground teal :weight 'bold :height 1.1)
+   ;; (org-level-7 :foreground teal :weight 'bold :height 1.1)
+   ;; (org-level-8 :foreground teal :weight 'bold :height 1.1)
+
    (org-link :foreground red :underline t)
    )
 

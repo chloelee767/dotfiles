@@ -6,3 +6,5 @@ tmp/
 neovim/.config/nvim/plugged
 
 private.el
+
+org-roam.db

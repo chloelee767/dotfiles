@@ -9,3 +9,6 @@
 ;; (package! org-super-agenda)
 (package! org-ref)
 (package! org-gcal)
+;; (package! org-variable-pitch
+;;   :recipe (:local-repo doom-private-dir
+;;            :files ("org-variable-pitch.el")))

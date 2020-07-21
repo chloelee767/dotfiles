@@ -3,7 +3,8 @@
 ;;;; Appearance ;;;;
 ;; TODO set treemacs font to be the same as doom-font
 (setq doom-theme 'doom-peacock-v2)
-(setq doom-font (font-spec :family "Iosevka Nerd Font" :size 16))
+(setq doom-font (font-spec :family "Iosevka Nerd Font" :size 16)
+      doom-variable-pitch-font (font-spec :family "Roboto"))
 
 (global-prettify-symbols-mode 1)
 
@@ -17,8 +18,14 @@
 (remove-hook 'text-mode-hook #'auto-fill-mode)
 
 ;;;; Org ;;;;
-(setq org-files-directory "~/Documents/Org/"
+;; (use-package org-variable-pitch :load-path doom-private-dir
+;;   :config
+;;   (setq org-variable-pitch-fixed-font "Iosevka")
+;;   )
+;; (add-hook 'org-mode-hook 'org-variable-pitch-minor-mode)
+(setq org-files-directory "~/Dropbox/Org/"
       org-roam-directory (concat org-files-directory "notes/")
+      org-roam-db-location (concat doom-private-dir "org-roam.db") ;; avoid syncing org-roam.db file to dropbox
       deft-directory org-roam-directory
       deft-recursive t
       cl/org-agenda-directory (concat org-roam-directory "agenda/")
@@ -27,7 +34,6 @@
 
 (after! org
   (map! :map org-mode-map :localleader (:prefix "s" "y" #'org-copy-subtree))
-  ;; directories and files
   (setq org-list-allow-alphabetical t)
   (setq org-superstar-headline-bullets-list '("▶"))
   ;; (setq org-use-property-inheritance t)
@@ -142,8 +148,6 @@
 (map! :nv "z s" (lambda () (interactive)(ispell-word)))
 
 ;;;; Misc ;;;;
-(map! :n "C-!" #'rotate-text-backward)
-
 (map!
  :nv "j" #'evil-next-visual-line
  :nv "k" #'evil-previous-visual-line
@@ -156,10 +160,12 @@
  :nv "g0" #'evil-beginning-of-line
  :nv "g^" #'evil-first-non-blank-of-line
  :nv "g$" #'evil-end-of-line
+
+ :n "C-!" #'rotate-text-backward
+
+ :nv "C-w" #'ace-window
  )
 ;; looks interesting: https://github.com/hlissner/doom-emacs/blob/develop/docs/api.org#create-a-paste-transient-state-to-cycle-through-kill-ring-on-paste
-
-(map! :nv "C-w" #'ace-window)
 
 (setq delete-by-moving-to-trash t)
 

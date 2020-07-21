@@ -24,13 +24,13 @@ order += "volume master"
 order += "time"
 
 wireless wlp4s0 {
-    format_up = "直 %quality at %essid"
-    format_down = "直  down"
+    format_up = "直  %essid /%quality"
+    format_down = "直 "
 }
 
 ethernet enp2s0 {
     format_up = "  %speed"
-    format_down = "  down"
+    format_down = " "
 }
 
 cpu_usage {

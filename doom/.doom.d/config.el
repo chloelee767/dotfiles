@@ -1,15 +1,17 @@
 ;;; .doom.d/config.el -*- lexical-binding: t; -*-
 
-;;;; Appearance ;;;;
-;; TODO set treemacs font to be the same as doom-font
-(setq doom-theme 'doom-peacock-v2)
-(setq doom-font (font-spec :family "Iosevka Nerd Font" :size 16)
-      doom-variable-pitch-font (font-spec :family "Roboto"))
+;;;; General ;;;;
+(setq doom-theme 'doom-peacock-v2
+      doom-font (font-spec :family "Iosevka Nerd Font" :size 12.0)
+      ;; doom-variable-pitch-font (font-spec :family "iA Writer Quattro S" :size 12.0) ;; why does this appear bold? Looks fine in other programs
+      doom-variable-pitch-font (font-spec :family "Noto Sans" :size 11.0)
+
+      delete-by-moving-to-trash t
+      x-select-enable-clipboard-manager nil ;; don't save to x clipboard manager on quit since it takes a long time
+      )
 
 (global-prettify-symbols-mode 1)
-
-;; Enable line wrapping
-(global-visual-line-mode 1)
+(global-visual-line-mode 1) ;; Enable line wrapping
 
 ;; Turn off auto-fill mode
 (auto-fill-mode -1)
@@ -17,12 +19,33 @@
 (add-hook 'text-mode-hook #'turn-off-auto-fill)
 (remove-hook 'text-mode-hook #'auto-fill-mode)
 
+(map!
+ :nv "j" #'evil-next-visual-line
+ :nv "k" #'evil-previous-visual-line
+ :nv "0" #'evil-beginning-of-visual-line
+ :nv "^" #'evil-first-non-blank-of-visual-line
+ :nv "$" #'evil-end-of-visual-line
+ :nv "gj" #'evil-next-line
+ :nv "gk" #'evil-previous-line
+ :nv "g0" #'evil-beginning-of-line
+ :nv "g^" #'evil-first-non-blank-of-line
+ :nv "g$" #'evil-end-of-line
+
+ :n "C-!" #'rotate-text-backward
+
+ :nv "C-w" #'ace-window
+ )
+;; looks interesting: https://github.com/hlissner/doom-emacs/blob/develop/docs/api.org#create-a-paste-transient-state-to-cycle-through-kill-ring-on-paste
+
+(load! "private.el")
+
 ;;;; Org ;;;;
 ;; (use-package org-variable-pitch :load-path doom-private-dir
 ;;   :config
 ;;   (setq org-variable-pitch-fixed-font "Iosevka")
 ;;   )
 ;; (add-hook 'org-mode-hook 'org-variable-pitch-minor-mode)
+;; (add-hook 'org-mode-hook #'variable-pitch-mode)
 (setq org-files-directory "~/Dropbox/Org/"
       org-roam-directory (concat org-files-directory "notes/")
       org-roam-db-location (concat doom-private-dir "org-roam.db") ;; avoid syncing org-roam.db file to dropbox
@@ -32,7 +55,8 @@
       org-agenda-files (list cl/org-agenda-directory)
       cl/org-refile-file (concat cl/org-agenda-directory "refile.org"))
 
-(after! org
+(use-package! org
+  :config
   (map! :map org-mode-map :localleader (:prefix "s" "y" #'org-copy-subtree))
   (setq org-list-allow-alphabetical t)
   (setq org-superstar-headline-bullets-list '("▶"))
@@ -146,27 +170,3 @@
 ;; ispell-word and flyspell-correct-at-point are both bound to z =
 ;; HACK binding directly to the ispell-word function causes flyspell-correct-at-point to be called for some reason
 (map! :nv "z s" (lambda () (interactive)(ispell-word)))
-
-;;;; Misc ;;;;
-(map!
- :nv "j" #'evil-next-visual-line
- :nv "k" #'evil-previous-visual-line
- :nv "0" #'evil-beginning-of-visual-line
- :nv "^" #'evil-first-non-blank-of-visual-line
- :nv "$" #'evil-end-of-visual-line
-
- :nv "gj" #'evil-next-line
- :nv "gk" #'evil-previous-line
- :nv "g0" #'evil-beginning-of-line
- :nv "g^" #'evil-first-non-blank-of-line
- :nv "g$" #'evil-end-of-line
-
- :n "C-!" #'rotate-text-backward
-
- :nv "C-w" #'ace-window
- )
-;; looks interesting: https://github.com/hlissner/doom-emacs/blob/develop/docs/api.org#create-a-paste-transient-state-to-cycle-through-kill-ring-on-paste
-
-(setq delete-by-moving-to-trash t)
-
-(load! "private.el")

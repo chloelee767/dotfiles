@@ -19,14 +19,8 @@
 ;;      Alternatively, press 'gd' (or 'C-c g d') on a module to browse its
 ;;      directory (for easy access to its source code).
 
-;; (use-package! evil
-;;   :init
-;;   ;; avoid bug when setting respect-visual-line-mode
-;;   (setq evil-want-keybinding nil)
-;;   (setq evil-respect-visual-line-mode t))
-
 (doom! :input
-       ;;chinese
+       chinese
        ;;japanese
 
        :completion
@@ -104,7 +98,9 @@
        ;;gist              ; interacting with github gists
        (lookup           ; helps you navigate your code and documentation
         +docsets)        ; ...or in Dash docsets locally
-       lsp
+       (lsp
+        +peek
+       )
        ;;macos             ; MacOS-specific commands
        magit             ; a git porcelain for Emacs
        ;;make              ; run make tasks from Emacs

@@ -9,7 +9,9 @@
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
+# Tips:
 # To find key name: run xev in terminal
+# Find window class using: xprop | grep -i class
 
 set $mod Mod4
 
@@ -24,10 +26,6 @@ font pango:Iosevka Nerd Font Semibold 12
 
 smart_borders on
 default_border pixel
-
-# xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
-# screen before suspend. Use loginctl lock-session to lock your screen.
-# exec --no-startup-id xss-lock --transfer-sleep-lock -- i3lock --nofork
 
 # Use pactl to adjust volume in PulseAudio.
 set $refresh_i3status killall -SIGUSR1 i3status
@@ -46,7 +44,7 @@ floating_modifier $mod
 
 # start a terminal
 bindsym $mod+Return exec i3-sensible-terminal
-# bindsym $mod+Shift+Return exec i3-sensible-terminal --class "floating"
+# bindsym $mod+Shift+Return exec i3-sensible-terminal; sleep 0.5; i3-msg "floating toggle"
 
 # rofi
 bindsym $mod+space exec rofi -modi "drun#window#run" -show drun
@@ -55,6 +53,10 @@ bindsym $mod+Shift+space exec rofi -modi "drun#window#run" -show window
 # shipping a .desktop file. It is a wrapper around dmenu, so you need that
 # installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+
+# thunar (file manager)
+bindsym $mod+grave exec thunar
+bindsym $mod+backslash exec thunar
 
 # change focus
 bindsym $mod+h focus left
@@ -91,7 +93,7 @@ set $ws6 "6"
 set $ws7 "7"
 set $ws8 "8"
 set $ws9 "9"
-set $ws10 "10:  "
+set $ws10 "10: "
 
 bindsym $mod+Tab workspace back_and_forth
 
@@ -197,13 +199,13 @@ mode "resize" {
         # back to normal: Enter or Escape or $mod+r
         bindsym Return mode "default"
         bindsym Escape mode "default"
-        bindsym $mod+r mode "default"
+        bindsym $mod+m mode "default"
 }
 
 bindsym $mod+m mode "resize"
 
 # Set shut down, restart and locking features
-bindsym $mod+grave mode "$mode_system"
+bindsym $mod+BackSpace mode "$mode_system"
 set $mode_system (l)ock, (e)xit, switch_(u)ser, (s)uspend, (h)ibernate, (r)eboot, (Shift+s)hutdown
 mode "$mode_system" {
     bindsym l exec --no-startup-id i3exit lock, mode "default"
@@ -215,6 +217,20 @@ mode "$mode_system" {
     bindsym Shift+s exec --no-startup-id i3exit shutdown, mode "default"
 
     # exit system mode: "Enter" or "Escape"
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+
+
+bindsym $mod+Escape mode "$mode_window_actions"
+set $mode_window_actions (`)close | toggle (1)fullscreen (2)sticky (3)floating
+mode "$mode_window_actions" {
+    bindsym grave kill, mode "default"
+    bindsym 1 fullscreen toggle, mode "default"
+    bindsym 2 sticky toggle, mode "default"
+    bindsym 3 floating toggle, mode "default"
+
+    # exit mode: "Enter" or "Escape"
     bindsym Return mode "default"
     bindsym Escape mode "default"
 }
@@ -234,15 +250,20 @@ bindsym $mod+Ctrl+m exec pavucontrol # sound settings
 # Dedicated shortcuts for frequently used commands (less keystrokes)
 # bindsym $mod+c python3 -m i3grid center
 
-# find window class using: xprop | grep -i class
-
 # Open specific applications in floating mode
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="bubble"] floating enable
+for_window [window_role="task_dialog"] floating enable
+for_window [window_role="Preferences"] floating enable
+for_window [window_type="dialog"] floating enable
+for_window [window_type="menu"] floating enable
 for_window [class="Pavucontrol"] floating enable
 for_window [class="Blueman-manager"] floating enable
 for_window [class="Thunar"] floating enable;
 for_window [class="Nitrogen"] floating enable;
 for_window [class="Engrampa"] floating enable; # unarchiver
-# for_window [role="^floating$"] floating enable; resize set 500 800
+for_window [title="^htop$"] floating enable;
+# for_window [role="^floating$"] floating enable;
 
 # Open applications on specific workspaces
 for_window [class="Spotify"] move to workspace $ws8
@@ -263,7 +284,11 @@ bar {
 ## Autostart applications
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 # needed for authentication by pamac-manager
 exec --no-startup-id nitrogen --restore; sleep 1; picom -b; autorandr -c
-exec --no-startup-id xautolock -time 10 -locker blurlock
+# exec --no-startup-id xautolock -time 10 -locker blurlock
+# xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
+# screen before suspend. Use loginctl lock-session to lock your screen.
+exec --no-startup-id xss-lock --transfer-sleep-lock -- blurlock --nofork
+
 
 exec --no-startup-id xfce4-power-manager # handles brightness (no system tray icon)
 exec --no-startup-id nm-applet # networks
@@ -271,6 +296,7 @@ exec --no-startup-id pamac-tray # software updates
 exec --no-startup-id xfce4-clipman # clipboard
 exec --no-startup-id blueman-applet # bluetooth
 exec --no-startup-id pa-applet # volume icon
+exec --no-startup-id fcitx
 
 exec --no-startup-id dropbox
 exec --no-startup-id telegram-desktop

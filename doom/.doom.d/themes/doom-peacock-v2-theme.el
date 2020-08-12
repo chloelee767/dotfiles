@@ -46,6 +46,20 @@ determine the exact padding."
    (fg         '("#F8F8F2" "#DFDFDF" "brightwhite"))
    (fg-alt     '("#556172" "#4D4D4D" "white"))
 
+  ;; ((bg         '("#2b2a27" nil       nil            ))
+  ;;  (bg-alt     '("#1F1E1D" nil       nil            ))
+  ;;  (base0      '("#2b2a27" "black"   "black"        ))
+  ;;  (base1      '("#1c1f24" "#1e1e1e" "brightblack"  ))
+  ;;  (base2      '("#202328" "#2e2e2e" "brightblack"  ))
+  ;;  (base3      '("#23272e" "#262626" "brightblack"  ))
+  ;;  (base4      '("#3f444a" "#3f3f3f" "brightblack"  ))
+  ;;  (base5      '("#5B6268" "#525252" "brightblack"  ))
+  ;;  (base6      '("#73797e" "#6b6b6b" "brightblack"  ))
+  ;;  (base7      '("#9ca0a4" "#979797" "brightblack"  ))
+  ;;  (base8      '("#DFDFDF" "#dfdfdf" "white"        ))
+  ;;  (fg         '("#ede0ce" "#bfbfbf" "brightwhite"  ))
+  ;;  (fg-alt     '("#5B6268" "#2d2d2d" "white"        ))
+
    (grey       base4)
    (white      '("#f8f8f0" "base4"   "base4"        ))
    ;; (red        '("#ff5d38" "#ff6655" "red"          )) ;; peacock todo 16

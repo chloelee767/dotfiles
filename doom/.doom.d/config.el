@@ -19,6 +19,7 @@
 (add-hook 'text-mode-hook #'turn-off-auto-fill)
 (remove-hook 'text-mode-hook #'auto-fill-mode)
 
+;; editor keybindings
 (map!
  :nv "j" #'evil-next-visual-line
  :nv "k" #'evil-previous-visual-line
@@ -37,6 +38,35 @@
  )
 ;; looks interesting: https://github.com/hlissner/doom-emacs/blob/develop/docs/api.org#create-a-paste-transient-state-to-cycle-through-kill-ring-on-paste
 
+(setq org-files-directory "~/Dropbox/Org/"
+      org-roam-directory (concat org-files-directory "notes/")
+      chloe/org-agenda-directory (concat org-files-directory "agenda/")
+      chloe/org-refile-file (concat chloe/org-agenda-directory "refile.org")
+      chloe/documents-directory "~/Documents/"
+      chloe/nus-directory (concat chloe/documents-directory "NUS/")
+      chloe/nus-current-sem-directory (concat chloe/nus-directory "Y3S1/")
+
+      ;; tool specific
+      org-agenda-files (list chloe/org-agenda-directory)
+      org-roam-db-location (concat doom-private-dir "org-roam.db") ;; avoid syncing org-roam.db file to dropbox
+      deft-directory org-roam-directory
+      deft-recursive t)
+
+;; shortcuts to useful folders
+(map! :leader (:prefix "f" (:prefix ("a" . "favourites")
+               :desc "Home" "h" (lambda () (interactive)(doom-project-browse "~/"))
+               :desc "Documents" "d" (lambda () (interactive)(doom-project-browse chloe/documents-directory))
+               :desc "Code" "c" (lambda () (interactive)(doom-project-browse "~/Code/"))
+               :desc "Dotfiles" "f" (lambda () (interactive)(doom-project-find-file "~/dotfiles/"))
+               :desc "Agenda folder" "a" (lambda () (interactive)(doom-project-browse chloe/org-agenda-directory))
+               :desc "Org folder" "o" (lambda () (interactive)(doom-project-browse org-files-directory))
+
+               :desc "NUS" "n" (lambda () (interactive)(doom-project-browse chloe/nus-directory))
+               :desc "Current semester" "s" (lambda () (interactive)(doom-project-browse chloe/nus-current-sem-directory))
+               :desc "CS1010S Teaching" "t" (lambda () (interactive)(doom-project-browse (concat chloe/nus-directory "CS1010S-Teaching/")))
+               :desc "cs1010sx" "x" (lambda () (interactive)(doom-project-browse (concat chloe/nus-directory "CS1010S-Teaching/cs1010sx/")))
+               )))
+
 (load! "private.el")
 
 ;;;; Org ;;;;
@@ -46,14 +76,6 @@
 ;;   )
 ;; (add-hook 'org-mode-hook 'org-variable-pitch-minor-mode)
 ;; (add-hook 'org-mode-hook #'variable-pitch-mode)
-(setq org-files-directory "~/Dropbox/Org/"
-      org-roam-directory (concat org-files-directory "notes/")
-      org-roam-db-location (concat doom-private-dir "org-roam.db") ;; avoid syncing org-roam.db file to dropbox
-      deft-directory org-roam-directory
-      deft-recursive t
-      cl/org-agenda-directory (concat org-roam-directory "agenda/")
-      org-agenda-files (list cl/org-agenda-directory)
-      cl/org-refile-file (concat cl/org-agenda-directory "refile.org"))
 
 (use-package! org
   :config
@@ -66,7 +88,7 @@
           (sequence "WAIT(w)" "|" "KILL(k)")))
 
   ;; org capture
-  (setq org-capture-templates '(("t" "todo" entry (file cl/org-refile-file) "* TODO %?")))
+  (setq org-capture-templates '(("t" "todo" entry (file chloe/org-refile-file) "* TODO %?")))
 
   (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
   ;; agenda

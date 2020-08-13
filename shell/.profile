@@ -1,7 +1,7 @@
 export EDITOR=/usr/bin/nvim
 export TERMINAL=/usr/bin/kitty # doesn't work?
 # location of setxkbmap layouts, options, etc.: /usr/share/X11/xkb/rules/base.lst
-setxkbmap -option "ctrl:swapcaps" -option "altwin:swap_alt_win"
+setxkbmap -option "ctrl:swapcaps_hyper,altwin:swap_alt_win"
 
 ##### Paths #####
 
@@ -18,13 +18,18 @@ export PATH="$HOME/.cargo/bin:$PATH"
 export PATH=$PATH:$HOME/.emacs.d/bin
 
 # Java
-#export JAVA_HOME=/lib/jvm/java-13-jdk
+#export JAVA_HOME=/usr/lib/jvm/java-14-openjdk
 #export PATH=$PATH:$JAVA_HOME/bin
+export PATH=$PATH:$HOME/.jenv/bin
 
 # Go
 #export GOPATH=$HOME/go
 #export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:/usr/local/go/bin
+
+# nvm
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
 ##### Other shortcuts #####
 # Laundro RPis

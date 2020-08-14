@@ -1,7 +1,7 @@
 ;;; .doom.d/config.el -*- lexical-binding: t; -*-
 
 ;;;; General ;;;;
-(setq doom-theme 'doom-peacock-v2
+(setq doom-theme 'doom-monokai-v2
       doom-font (font-spec :family "Iosevka Nerd Font" :size 12.0)
       ;; doom-variable-pitch-font (font-spec :family "iA Writer Quattro S" :size 12.0) ;; why does this appear bold? Looks fine in other programs
       doom-variable-pitch-font (font-spec :family "Noto Sans" :size 11.0)
@@ -166,6 +166,11 @@
 
           ("w" "website" plain (function org-roam--capture-get-point)
            :file-name "res/websites/%<%Y%m%d%H%M%S>-${slug}"
+           :head "#+TITLE: ${title}\n"
+           :unnarrowed t)
+
+          ("t" "talk" plain (function org-roam--capture-get-point)
+           :file-name "res/talks/%<%Y%m%d%H%M%S>-${slug}"
            :head "#+TITLE: ${title}\n"
            :unnarrowed t)
 

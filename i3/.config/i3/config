@@ -235,20 +235,23 @@ mode "$mode_window_actions" {
     bindsym Escape mode "default"
 }
 
-# print screen shortcuts
-bindsym Print exec --no-startup-id i3-scrot
-bindsym Ctrl+Print --release exec --no-startup-id i3-scrot -w # print current window
-bindsym Shift+Print --release exec --no-startup-id i3-scrot -s # print selected region
+# Print screen shortcuts
+bindsym Print exec --no-startup-id flameshot gui -p ~/Pictures/Screenshots
+# 3 sec delay
+bindsym Ctrl+Print --release exec --no-startup-id flameshot gui -d 3000 -p ~/Pictures/Screenshots
+# immediately, copy to clipboard
+# copying to clipboard doesn't seem to work though?
+bindsym Shift+Print --release exec --no-startup-id flameshot full -c -p ~/Pictures/Screenshots
 
 # application shortcuts
 bindsym $mod+Ctrl+m exec pavucontrol # sound settings
 
-# i3-grid -- not working for now
+# i3-grid
 # https://github.com/justahuman1/i3-grid
 # This is the default shortcut, but feel free to change to a more preferable key.
 # bindsym $mod+o ~/.config/i3grid/manager.sh
 # Dedicated shortcuts for frequently used commands (less keystrokes)
-# bindsym $mod+c python3 -m i3grid center
+bindsym $mod+b exec --no-startup-id ~/.config/i3grid/manager.sh
 
 # Open specific applications in floating mode
 for_window [window_role="pop-up"] floating enable
@@ -287,7 +290,7 @@ exec --no-startup-id nitrogen --restore; sleep 1; picom -b; autorandr -c
 # exec --no-startup-id xautolock -time 10 -locker blurlock
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
-exec --no-startup-id xss-lock --transfer-sleep-lock -- blurlock --nofork
+# exec --no-startup-id xss-lock --transfer-sleep-lock -- blurlock --nofork # try to rely on xfce power mananger
 
 
 exec --no-startup-id xfce4-power-manager # handles brightness (no system tray icon)

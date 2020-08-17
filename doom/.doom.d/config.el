@@ -53,7 +53,9 @@
       deft-recursive t)
 
 ;; shortcuts to useful folders
-(map! :leader (:prefix "f" (:prefix ("a" . "favourites")
+;; SPC f f is already bound counsel-find-file, but I don't mind since find file is bound to SPC . as well
+(map! :leader (:prefix "f" "f" nil))
+(map! :leader (:prefix "f" (:prefix ("f" . "favourites")
                :desc "Home" "h" (lambda () (interactive)(doom-project-browse "~/"))
                :desc "Documents" "d" (lambda () (interactive)(doom-project-browse chloe/documents-directory))
                :desc "Code" "c" (lambda () (interactive)(doom-project-browse "~/Code/"))

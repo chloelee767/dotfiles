@@ -8,7 +8,6 @@ general {
 order += "disk /"
 order += "cpu_temperature 1" # hard drive temp
 
-order += "ipv6" # ip address
 order += "wireless wlp4s0"
 order += "ethernet enp2s0"
 

@@ -1,7 +1,7 @@
 export EDITOR=/usr/bin/nvim
 export TERMINAL=/usr/bin/kitty # doesn't work?
 # location of setxkbmap layouts, options, etc.: /usr/share/X11/xkb/rules/base.lst
-setxkbmap -option "ctrl:swapcaps_hyper,altwin:swap_alt_win"
+setxkbmap -option "ctrl:swapcaps_hyper,altwin:swap_lalt_lwin"
 
 ##### Paths #####
 
@@ -26,6 +26,8 @@ export PATH=$PATH:$HOME/.jenv/bin
 #export GOPATH=$HOME/go
 #export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:$HOME/go/bin
+export GO111MODULE=auto
 
 # nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"

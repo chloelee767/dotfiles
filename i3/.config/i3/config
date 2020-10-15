@@ -14,6 +14,18 @@
 # Find window class using: xprop | grep -i class
 
 set $mod Mod4
+# Define names for default workspaces for which we configure key bindings later on.
+# We use variables to avoid repeating the names in multiple places.
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+set $ws6 "6"
+set $ws7 "7"
+set $ws8 "8"
+set $ws9 "9"
+set $ws10 "10: "
 
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
@@ -22,7 +34,7 @@ set $mod Mod4
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
 #font pango:DejaVu Sans Mono 10
-font pango:Iosevka Nerd Font Semibold 12
+font pango:Iosevka Nerd Font 12
 
 smart_borders on
 default_border pixel
@@ -44,6 +56,7 @@ floating_modifier $mod
 
 # start a terminal
 bindsym $mod+Return exec i3-sensible-terminal
+# bindsym $mod+Shift+Return i3-msg 'workspace 9; exec i3-sensible-terminal'
 # bindsym $mod+Shift+Return exec i3-sensible-terminal; sleep 0.5; i3-msg "floating toggle"
 
 # rofi
@@ -82,20 +95,8 @@ bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
-# Define names for default workspaces for which we configure key bindings later on.
-# We use variables to avoid repeating the names in multiple places.
-set $ws1 "1"
-set $ws2 "2"
-set $ws3 "3"
-set $ws4 "4"
-set $ws5 "5"
-set $ws6 "6"
-set $ws7 "7"
-set $ws8 "8"
-set $ws9 "9"
-set $ws10 "10: "
-
 bindsym $mod+Tab workspace back_and_forth
+# bindsym $mod+comma [urgent=latest] focus
 
 # switch to workspace
 bindsym $mod+q workspace $ws1
@@ -133,11 +134,28 @@ bindsym $mod+Shift+d move container to workspace $ws8; workspace $ws8
 bindsym $mod+Shift+f move container to workspace $ws9; workspace $ws9
 bindsym $mod+Shift+g move container to workspace $ws10; workspace $ws10
 
-# multi monitor: move workspace to specific screen
-bindsym $mod+1 move workspace to eDP
-bindsym $mod+2 move workspace to HDMI-A-0
-bindsym $mod+3 move workspace to DisplayPort-0
-bindsym $mod+4 move workspace to DisplayPort-1
+# multi monitor
+
+set $laptopScreen eDP
+set $hdmiScreen HDMI-A-0
+set $dp0Screen DisplayPort-0
+set $dp1Screen DisplayPort-1
+
+bindsym $mod+1 move workspace to $laptopScreen
+bindsym $mod+2 move workspace to $hdmiScreen
+bindsym $mod+3 move workspace to $dp0Screen
+bindsym $mod+4 move workspace to $dp1Screen
+
+workspace $ws1 output $hdmiScreen $laptopScreen
+workspace $ws2 output $hdmiScreen $laptopScreen
+workspace $ws3 output $hdmiScreen $laptopScreen
+workspace $ws4 output $hdmiScreen $laptopScreen
+workspace $ws5 output $hdmiScreen $laptopScreen
+workspace $ws6 output $hdmiScreen $laptopScreen
+workspace $ws7 output $hdmiScreen $laptopScreen
+workspace $ws8 output $hdmiScreen $laptopScreen
+workspace $ws9 output $laptopScreen $hdmiScreen
+workspace $ws10 output $hdmiScreen $laptopScreen
 
 # kill focused window
 bindsym $mod+Shift+period kill
@@ -174,6 +192,8 @@ bindsym $mod+Ctrl+v move scratchpad
 # If there are multiple scratchpad windows, this command cycles through them.
 bindsym $mod+v scratchpad show
 
+bindsym $mod+comma exec --no-startup-id wmfocus
+
 # exit i3 (logs you out of your X session)
 #bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
 
@@ -189,12 +209,67 @@ mode "resize" {
         bindsym j resize grow height 10 px or 10 ppt
         bindsym k resize shrink height 10 px or 10 ppt
         bindsym l resize grow width 10 px or 10 ppt
-
-        # same bindings, but for the arrow keys
         bindsym Left resize shrink width 10 px or 10 ppt
         bindsym Down resize grow height 10 px or 10 ppt
         bindsym Up resize shrink height 10 px or 10 ppt
         bindsym Right resize grow width 10 px or 10 ppt
+
+        bindsym Ctrl+h resize shrink width 2 px or 2 ppt
+        bindsym Ctrl+j resize grow height 2 px or 2 ppt
+        bindsym Ctrl+k resize shrink height 2 px or 2 ppt
+        bindsym Ctrl+l resize grow width 2 px or 2 ppt
+        bindsym Ctrl+Left resize shrink width 2 px or 2 ppt
+        bindsym Ctrl+Down resize grow height 2 px or 2 ppt
+        bindsym Ctrl+Up resize shrink height 2 px or 2 ppt
+        bindsym Ctrl+Right resize grow width 2 px or 2 ppt
+
+        bindsym Shift+h resize shrink width 30 px or 30 ppt
+        bindsym Shift+j resize grow height 30 px or 30 ppt
+        bindsym Shift+k resize shrink height 30 px or 30 ppt
+        bindsym Shift+l resize grow width 30 px or 30 ppt
+        bindsym Shift+Left resize shrink width 30 px or 30 ppt
+        bindsym Shift+Down resize grow height 30 px or 30 ppt
+        bindsym Shift+Up resize shrink height 30 px or 30 ppt
+        bindsym Shift+Right resize grow width 30 px or 30 ppt
+
+        # back to normal: Enter or Escape or $mod+r
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+        bindsym $mod+n mode "default"
+}
+
+bindsym $mod+n mode "resize"
+
+mode "move" {
+        # These bindings trigger as soon as you enter the move mode
+
+        bindsym h exec --no-startup-id move-window.sh -40 0
+        bindsym j exec --no-startup-id move-window.sh 0 40
+        bindsym k exec --no-startup-id move-window.sh 0 -40
+        bindsym l exec --no-startup-id move-window.sh 40 0
+        bindsym Left exec --no-startup-id move-window.sh -40 0
+        bindsym Down exec --no-startup-id move-window.sh 0 40
+        bindsym Up exec --no-startup-id move-window.sh 0 -40
+        bindsym Right exec --no-startup-id move-window.sh 40 0
+
+        # finer control
+        bindsym Ctrl+h exec --no-startup-id move-window.sh -2 0
+        bindsym Ctrl+j exec --no-startup-id move-window.sh 0 2
+        bindsym Ctrl+k exec --no-startup-id move-window.sh 0 -2
+        bindsym Ctrl+l exec --no-startup-id move-window.sh 2 0
+        bindsym Ctrl+Left exec --no-startup-id move-window.sh -2 0
+        bindsym Ctrl+Down exec --no-startup-id move-window.sh 0 2
+        bindsym Ctrl+Up exec --no-startup-id move-window.sh 0 -2
+        bindsym Ctrl+Right exec --no-startup-id move-window.sh 2 0
+
+        bindsym Shift+h exec --no-startup-id move-window.sh -10 0
+        bindsym Shift+j exec --no-startup-id move-window.sh 0 10
+        bindsym Shift+k exec --no-startup-id move-window.sh 0 -10
+        bindsym Shift+l exec --no-startup-id move-window.sh 10 0
+        bindsym Shift+Left exec --no-startup-id move-window.sh -10 0
+        bindsym Shift+Down exec --no-startup-id move-window.sh 0 10
+        bindsym Shift+Up exec --no-startup-id move-window.sh 0 -10
+        bindsym Shift+Right exec --no-startup-id move-window.sh 10 0
 
         # back to normal: Enter or Escape or $mod+r
         bindsym Return mode "default"
@@ -202,7 +277,7 @@ mode "resize" {
         bindsym $mod+m mode "default"
 }
 
-bindsym $mod+m mode "resize"
+bindsym $mod+m mode "move"
 
 # Set shut down, restart and locking features
 bindsym $mod+BackSpace mode "$mode_system"
@@ -238,20 +313,13 @@ mode "$mode_window_actions" {
 # Print screen shortcuts
 bindsym Print exec --no-startup-id flameshot gui -p ~/Pictures/Screenshots
 # 3 sec delay
-bindsym Ctrl+Print --release exec --no-startup-id flameshot gui -d 3000 -p ~/Pictures/Screenshots
+# bindsym Ctrl+Print --release exec --no-startup-id flameshot gui -d 3000 -p ~/Pictures/Screenshots
 # immediately, copy to clipboard
 # copying to clipboard doesn't seem to work though?
 bindsym Shift+Print --release exec --no-startup-id flameshot full -c -p ~/Pictures/Screenshots
 
 # application shortcuts
 bindsym $mod+Ctrl+m exec pavucontrol # sound settings
-
-# i3-grid
-# https://github.com/justahuman1/i3-grid
-# This is the default shortcut, but feel free to change to a more preferable key.
-# bindsym $mod+o ~/.config/i3grid/manager.sh
-# Dedicated shortcuts for frequently used commands (less keystrokes)
-bindsym $mod+b exec --no-startup-id ~/.config/i3grid/manager.sh
 
 # Open specific applications in floating mode
 for_window [window_role="pop-up"] floating enable
@@ -265,13 +333,18 @@ for_window [class="Blueman-manager"] floating enable
 for_window [class="Thunar"] floating enable;
 for_window [class="Nitrogen"] floating enable;
 for_window [class="Engrampa"] floating enable; # unarchiver
-for_window [title="^htop$"] floating enable;
 # for_window [role="^floating$"] floating enable;
 
+# cs2103
+for_window [title="^Duke$"] floating enable;
+
 # Open applications on specific workspaces
+assign [class="jetbrains-idea"] $ws6
 for_window [class="Spotify"] move to workspace $ws8
 assign [class="zoom"] $ws9
 assign [class="TelegramDesktop"] $ws10
+# not working
+# assign [class="emacs"] $ws2
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
@@ -280,7 +353,7 @@ bar {
         tray_output primary
         status_command i3status
         position top
-        separator_symbol " | "
+        separator_symbol " / "
         # workspace_min_width 25
 }
 
@@ -298,7 +371,7 @@ exec --no-startup-id nm-applet # networks
 exec --no-startup-id pamac-tray # software updates
 exec --no-startup-id xfce4-clipman # clipboard
 exec --no-startup-id blueman-applet # bluetooth
-exec --no-startup-id pa-applet # volume icon
+# exec --no-startup-id pa-applet # volume icon
 exec --no-startup-id fcitx
 exec --no-startup-id autokey-gtk
 

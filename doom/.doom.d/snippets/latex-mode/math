@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: math
+# key: math
+# uuid: math
+# --
+
+\usepackage[fleqn]{amsmath} \usepackage{amssymb} \usepackage{amsthm}
+% add spacing around for all sign
+\let\origforall\forall
+\renewcommand{\forall}{\, \origforall \,}

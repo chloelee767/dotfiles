@@ -8,7 +8,6 @@
 
 (package! org-ref)
 (package! org-gcal)
-(package! org-fancy-priorities :disable t) ;; present for org +pretty
-;; (package! org-variable-pitch
-;;   :recipe (:local-repo doom-private-dir
-;;            :files ("org-variable-pitch.el")))
+;; (package! org-fancy-priorities :disable t) ;; present for org +pretty
+
+(package! lsp-pyright)

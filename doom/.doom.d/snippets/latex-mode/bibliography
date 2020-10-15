@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: bibliography
+# uuid: bibliography
+# key: biblio
+# --
+\usepackage[style=ieee$1]{biblatex}
+\addbibresource{/home/chloe/Dropbox/Org/notes/zotero_references.bib$2}
+\usepackage{hyperref}

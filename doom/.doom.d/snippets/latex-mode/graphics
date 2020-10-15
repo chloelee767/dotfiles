@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: graphics
+# key: graphics
+# uuid: graphics
+# --
+
+\usepackage{graphicx} \graphicspath{{${1:.}}}

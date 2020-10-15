@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: paper
+# key: paper
+# uuid: paper
+# --
+
+\documentclass[a4paper,12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[small]{titlesec}
+\usepackage{parskip}
+\usepackage{float}
+
+\author{${1:Chloe Lee Ke Er (A0189606R)}}
+\title{$2}

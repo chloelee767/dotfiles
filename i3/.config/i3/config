@@ -68,7 +68,6 @@ bindsym $mod+Shift+space exec rofi -modi "drun#run#window" -show window
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
 # thunar (file manager)
-bindsym $mod+grave exec thunar
 bindsym $mod+backslash exec thunar
 
 # change focus
@@ -95,7 +94,7 @@ bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
 
-bindsym $mod+Tab workspace back_and_forth
+bindsym $mod+grave workspace back_and_forth
 # bindsym $mod+comma [urgent=latest] focus
 
 # switch to workspace
@@ -192,7 +191,8 @@ bindsym $mod+Ctrl+v move scratchpad
 # If there are multiple scratchpad windows, this command cycles through them.
 bindsym $mod+v scratchpad show
 
-bindsym $mod+comma exec --no-startup-id wmfocus
+# select window using wmfocus
+bindsym $mod+Tab exec --no-startup-id wmfocus
 
 # exit i3 (logs you out of your X session)
 #bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
@@ -334,9 +334,6 @@ for_window [class="Thunar"] floating enable;
 for_window [class="Nitrogen"] floating enable;
 for_window [class="Engrampa"] floating enable; # unarchiver
 # for_window [role="^floating$"] floating enable;
-
-# cs2103
-for_window [title="^Duke$"] floating enable;
 
 # Open applications on specific workspaces
 assign [class="jetbrains-idea"] $ws6

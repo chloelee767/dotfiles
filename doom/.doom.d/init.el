@@ -84,13 +84,16 @@
 
        :checkers
        syntax              ; tasing you for every semicolon you forget
-       spell             ; tasing you for misspelling mispelling
+       (spell             ; tasing you for misspelling mispelling
+        +hunspell
+        +flyspell
+        )
        ;;grammar           ; tasing grammar mistake every you make
 
        :tools
        ;;ansible
-       biblio
-       debugger          ; FIXME stepping through code, to help you add bugs
+       ;; biblio
+       ;; debugger          ; FIXME stepping through code, to help you add bugs
        ;;direnv
        ;;docker
        ;;editorconfig      ; let someone else argue about tabs vs spaces
@@ -133,9 +136,9 @@
        )
        ;;faust             ; dsp, but you get to keep your soul
        ;;fsharp           ; ML stands for Microsoft's Language
-       (go                ; the hipster dialect
-        +lsp
-       )
+       ;; (go                ; the hipster dialect
+        ;; +lsp
+       ;; )
        ;; (haskell +intero) ; a language that's lazier than I am
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ;
@@ -143,9 +146,9 @@
         +lsp
         ;; +meghanada
        ) ; the poster child for carpal tunnel syndrome
-       (javascript        ; all(hope(abandon(ye(who(enter(here))))))
-        +lsp
-       )
+       ;; (javascript        ; all(hope(abandon(ye(who(enter(here))))))
+        ;; +lsp
+       ;; )
        ;; julia             ; a better, faster MATLAB
        ;;kotlin            ; a better, slicker Java(Script)
        (latex             ; writing papers in Emacs has never been so fun
@@ -161,30 +164,32 @@
        ;;nix               ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
        (org              ; organize your plain life in plain text
-        +dragndrop       ; drag & drop files/images into org buffers
+        ;; +dragndrop       ; drag & drop files/images into org buffers
         ;;-pretty          ; enables org-superstar and org-fancy-priorities
         ;;+hugo            ; use Emacs for hugo blogging
-        +ipython         ; ipython/jupyter support for babel
+        ;; +ipython         ; ipython/jupyter support for babel
         +pandoc          ; export-with-pandoc support
         ;; +noter
         ;;+pomodoro        ; be fruitful with the tomato technique
         +present         ; using org-mode for presentations
+        +journal
         +roam)
        ;;perl              ; write code no one else can comprehend
        ;;php               ; perl's insecure younger brother
-       plantuml          ; diagrams for confusing people more
+       ;; plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
        (python            ; beautiful is better than ugly
         +lsp
+        +pyright
        )
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
        ;;rest              ; Emacs as a REST client
        ;;rst               ; ReST in peace
        ;;ruby              ; 1.step {|i| p "Ruby is #{i.even? ? 'love' : 'life'}"}
-       (rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
-        +lsp
-       )
+       ;; (rust              ; Fe2O3.unwrap().unwrap().unwrap().unwrap()
+        ;; +lsp
+       ;; )
        ;;scala             ; java, but good
        ;;scheme            ; a fully conniving family of lisps
        (sh                ; she sells {ba,z,fi}sh shells on the C xor
@@ -193,9 +198,9 @@
        ;;solidity          ; do you need a blockchain? No.
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
-       (web               ; the tubes
-        +lsp
-       )
+       ;; (web               ; the tubes
+        ;; +lsp
+       ;; )
 
        :email
        ;;(mu4e +gmail)

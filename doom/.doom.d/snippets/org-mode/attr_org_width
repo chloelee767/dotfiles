@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: attr_org_width
+# key: <i
+# condition: t
+# --
+
+#+ATTR_ORG: :width 600$1px

@@ -1,6 +1,0 @@
-# -*- mode: snippet -*-
-# name: options
-# key: <o
-# condition: t
-# --
-#+options: $1

@@ -9,3 +9,5 @@ private.el
 custom.el
 
 org-roam.db
+
+scripts/gcal-to-org-urls.sh

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# required by gcal-to-org.sh
+
+declare -A calendars
+calendars[calendar_name]="url/to/ics/file/file.ics"

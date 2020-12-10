@@ -11,9 +11,6 @@ export PATH=$PATH:$HOME/dotfiles/scripts
 # Rust
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# LSM3241 bcftools
-# export BCFTOOLS_PLUGINS=$HOME/Documents/Code/bcftools/plugins
-
 # emacs
 export PATH=$PATH:$HOME/.emacs.d/bin
 
@@ -33,10 +30,11 @@ export GO111MODULE=auto
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
-##### Other shortcuts #####
-# Laundro RPis
-export PI_L9="pi@10.130.0.126"
-export PI_L17="pi@10.130.0.84"
+##### Projects #####
 
-# cinnabot server
-export cinnabot="root@188.166.247.136"
+[[ -f ~/.private_profile ]] && ~/.private_profile
+
+# LSM3241 bcftools
+# export BCFTOOLS_PLUGINS=$HOME/Documents/Code/bcftools/plugins
+
+# export PATH=$PATH:$HOME/Code/monocle-scripts/exec/

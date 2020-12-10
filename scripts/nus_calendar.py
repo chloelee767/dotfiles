@@ -32,10 +32,10 @@ def make_week_names():
         names.append(f'Exam Week {i}')
     return names
 
-def make_ics_for_sem(first_day_of_sem):
+def make_ics_for_sem(week1_monday):
     """This is the main function which generates the contents of the ics file."""
 
-    current = first_day_of_sem
+    current = week1_monday
     num_weeks = 13 + 1 + 2 # 13 weeks + recess week + exam
 
     string = 'BEGIN:VCALENDAR\n'
@@ -47,8 +47,8 @@ def make_ics_for_sem(first_day_of_sem):
 
     return string
 
-s = make_ics_for_sem(dt.datetime(2020,8,10))
-open('ay2021sem1_weeks.ics','w').write(s)
+s = make_ics_for_sem(dt.datetime(2021,1,11))
+open('ay2021sem2_weeks.ics','w').write(s)
 
 # import sys
 # if len(sys.argv) < 2:

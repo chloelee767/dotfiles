@@ -8,6 +8,6 @@ neovim/.config/nvim/plugged
 private.el
 custom.el
 
-org-roam.db
+doom/.doom.d/local/
 
 scripts/gcal-to-org-urls.sh

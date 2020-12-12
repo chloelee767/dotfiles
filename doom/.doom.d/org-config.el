@@ -34,63 +34,6 @@
 (use-package! org-superstar
   :hook (org-mode . org-superstar-mode))
 
-;;;;; Org Roam ;;;;;
-(use-package! org-roam
-  :config
-  (map! :map org-mode-map
-        :i "C-c i" #'org-roam-insert
-        :i "C-c I" #'org-roam-insert-immediate
-
-        :localleader (:prefix "m"
-                      "t" #'chloe/toggle-org-roam-buffer-position
-                      "e" #'org-roam-jump-to-index
-                      "m" #'org-mark-ring-goto))
-  (map!
-   :leader (:prefix "n" (:prefix "r"
-                         :desc "Toggle buffer position" "t" #'chloe/toggle-org-roam-buffer-position
-                         :desc "Open index file" "e" #'org-roam-jump-to-index
-                         :desc "org-mark-ring-goto" "m" #'org-mark-ring-goto)))
-  (setq! org-roam-db-location (concat doom-private-dir "org-roam.db") ;; avoid syncing org-roam.db file to dropbox
-         +org-roam-open-buffer-on-find-file nil
-         org-roam-tag-sources '(prop all-directories))
-  (add-to-list 'org-roam-capture-templates '("z" "ref/tool/zb" plain #'org-roam-capture--get-point
-                                             "%?"
-                                             :file-name "ref/tool/zb/${slug}"
-                                             :head "#+title: ${title}\n"
-                                             :unnarrowed t))
-  (add-to-list 'org-roam-capture-templates '("t" "ref/tool" plain #'org-roam-capture--get-point
-                                             "%?"
-                                             :file-name "ref/tool/${slug}"
-                                             :head "#+title: ${title}\n"
-                                             :unnarrowed t))
-  (add-to-list 'org-roam-capture-templates '("c" "concept" plain #'org-roam-capture--get-point
-                                             "%?"
-                                             :file-name "concept/%<%Y%m%d%H%M%S>-${slug}"
-                                             :head "#+title: ${title}\n"
-                                             :unnarrowed t))
-  )
-
-;; improve appearance of org roam modeline
-(defadvice! doom-modeline--reformat-roam (orig-fun)
-  :around #'doom-modeline-buffer-file-name
-  (message "Reformat?")
-  (message (buffer-file-name))
-  (if (s-contains-p org-roam-directory (or buffer-file-name ""))
-      (replace-regexp-in-string
-       "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
-       "🢔 (\\1-\\2-\\3) "
-       (funcall orig-fun))
-    (funcall orig-fun)))
-
-;(after! deft
-  ;deft-directory org-roam-directory
-  ;deft-recursive t)
-
-;;;;; Org Journal ;;;;;
-;; (after! org-journal
-;;   (setq org-journal-file-type 'monthly
-;;         org-journal-find-file #'find-file)) ; don't split window when opening journal
-
 ;; FIXME this causes org-latex-preview to give an "invalid face" error when trying to generate previews for an entire section
 ;; ensure latex preview colour matches foreground and background
 ;; (setq org-format-latex-options
@@ -121,7 +64,8 @@
           org-download-image-dir "./images"
           org-download-timestamp "%Y%m%d_%H%M%S"
           org-download-screenshot-method "flameshot gui --raw > %s")
+    ;; TODO how to override "SPC m P" and other existing keybindings? setting it to nil doesn't work:
+    ;; nested keybindings eg. "SPC m P a" seem to get bound afterwards
     (map! :map 'org-mode-map
-          :leader (:prefix "n"
-                   "p" #'org-download-clipboard
-                   "P" #'org-download-yank))))
+          :localleader
+          "C" #'org-download-clipboard)))

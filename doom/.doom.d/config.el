@@ -2,12 +2,11 @@
 
 ;;;;; Defaults ;;;;;
 
-(setq! delete-by-moving-to-trash t
-       ;; don't save to x clipboard manager on quit since it takes a long time
-       x-select-enable-clipboard-manager nil
-       enable-dir-local-variables t
-       evil-want-fine-undo t
-       uniquify-buffer-name-style 'forward)
+(setq delete-by-moving-to-trash t
+      ;; don't save to x clipboard manager on quit since it takes a long time
+      x-select-enable-clipboard-manager nil
+      enable-dir-local-variables t
+      evil-want-fine-undo t)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)
@@ -35,7 +34,6 @@
  :i "C-c c" #'doom/leader)
 
 ;;;;; Visuals ;;;;;
-
 (setq! doom-font (font-spec :family "Iosevka Nerd Font" :size 12.0)
        doom-variable-pitch-font (font-spec :family "Roboto" :size 12.0))
 
@@ -55,16 +53,13 @@
 ;; set theme based on time
 (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 17))
     (progn
-      (setq! doom-theme 'doom-opera-light)
+      (setq doom-theme 'doom-opera-light)
       (chloe/set-org-latex-fragment-colour "Black"))
   (progn
-    (setq! doom-theme 'doom-gruvbox)
+    (setq doom-theme 'doom-gruvbox)
     (chloe/set-org-latex-fragment-colour "White")))
 
 ;; modeline appearance
-(custom-set-faces!
-  '(doom-modeline-buffer-file :weight normal)
-  '(doom-modeline-buffer-path :weight normal))
 (setq! doom-modeline-buffer-modification-icon nil
        doom-modeline-buffer-state-icon nil
        doom-modeline-modal-icon nil)
@@ -78,8 +73,8 @@
 
 ;; popups
 ;; don't close help and info until I really want to
-(set-popup-rule! "^\\*info.*" :size 80 :side 'right :ttl nil :select nil :quit 'current)
-(set-popup-rule! "^\\*[Hh]elp.*" :size 80 :side 'right :ttl nil :select nil :quit 'current)
+;; (set-popup-rule! "^\\*info.*" :size 80 :side 'right :ttl nil :select nil :quit 'current)
+;; (set-popup-rule! "^\\*[Hh]elp.*" :size 80 :side 'right :ttl nil :select nil :quit 'current)
 
 ;;;;; Important files/folders ;;;;;
 (setq! org-files-directory "~/Dropbox/Org/"
@@ -89,7 +84,7 @@
        chloe/nus-directory (concat chloe/documents-directory "NUS/")
        chloe/nus-current-sem-directory (concat chloe/nus-directory "Y3S1/")
        chloe/default-bibliography-file (concat org-roam-directory "zotero_references.bib")
-       org-journal-dir (concat org-files-directory "journal/"))
+       +org-roam-bibtex-files (list chloe/default-bibliography-file))
 
 ;;;;; Everything else ;;;;;
 
@@ -98,5 +93,3 @@
 (load! "utils.el")
 (load! "org-config.el")
 (load! "agenda-config.el")
-(load! "biblio-config.el")
-(load! "private.el")

@@ -20,7 +20,7 @@
 ;;      directory (for easy access to its source code).
 
 (doom! :input
-       chinese
+       ;;chinese
        ;;japanese
 
        :completion
@@ -30,7 +30,7 @@
        ivy               ; a search engine for love and life
 
        :ui
-       deft              ; notational velocity for Emacs
+       ;deft              ; notational velocity for Emacs
        doom              ; what makes DOOM look the way it does
        doom-dashboard    ; a nifty splash screen for Emacs
        doom-quit         ; DOOM quit-message prompts when you quit Emacs
@@ -91,6 +91,9 @@
        ;;grammar           ; tasing grammar mistake every you make
 
        :tools
+       ;;;;;; Personal ;;;;;;
+       org-roam
+
        ;;ansible
        ;; biblio
        ;; debugger          ; FIXME stepping through code, to help you add bugs
@@ -98,7 +101,8 @@
        ;;docker
        ;;editorconfig      ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
-       (eval +overlay)     ; run code, run (also, repls)
+       eval                ; run code, run (also, repls)
+       ;;(eval +overlay)     ; run code, run (also, repls)
        ;;gist              ; interacting with github gists
        (lookup           ; helps you navigate your code and documentation
         +docsets)        ; ...or in Dash docsets locally
@@ -142,10 +146,8 @@
        ;; (haskell +intero) ; a language that's lazier than I am
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ;
-       (java
-        +lsp
-        ;; +meghanada
-       ) ; the poster child for carpal tunnel syndrome
+       ;(java
+        ;+lsp) 
        ;; (javascript        ; all(hope(abandon(ye(who(enter(here))))))
         ;; +lsp
        ;; )
@@ -171,9 +173,10 @@
         +pandoc          ; export-with-pandoc support
         ;; +noter
         ;;+pomodoro        ; be fruitful with the tomato technique
-        +present         ; using org-mode for presentations
-        +journal
-        +roam)
+        ;+present         ; using org-mode for presentations
+        ;; +journal
+        ;; +roam
+        )
        ;;perl              ; write code no one else can comprehend
        ;;php               ; perl's insecure younger brother
        ;; plantuml          ; diagrams for confusing people more

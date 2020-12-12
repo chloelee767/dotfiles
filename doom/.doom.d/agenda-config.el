@@ -39,7 +39,7 @@
                   ((org-agenda-span 1)
                    (org-deadline-warning-days 365)))
 
-          (tags "CATEGORY=\"inbox\""
+          (tags-todo "CATEGORY=\"inbox\"|+inbox"
                 ((org-agenda-overriding-header "Inbox")))
 
           (tags-todo

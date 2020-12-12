@@ -1,4 +1,4 @@
-;;; ../dotfiles/doom/.doom.d/agenda-config-v2.el -*- lexical-binding: t; -*-
+;;; ../dotfiles/doom/.doom.d/agenda-config.el -*- lexical-binding: t; -*-
 
 (add-to-list 'org-modules 'org-checklist)
 (add-to-list 'org-modules 'org-habit)

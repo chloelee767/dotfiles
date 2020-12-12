@@ -13,8 +13,7 @@
   (setq org-latex-listings 'minted)
   (add-to-list 'org-latex-packages-alist '("newfloat" "minted"))
 
-  (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f"))
-  )
+  (setq org-latex-pdf-process (list "latexmk -shell-escape -bibtex -f -pdf %f")))
 
 ;;;;; Visuals ;;;;;
 (after! org
@@ -36,10 +35,6 @@
   :hook (org-mode . org-superstar-mode))
 
 ;;;;; Org Roam ;;;;;
-(defun chloe/toggle-org-roam-buffer-position ()
-  (interactive)
-  (setq org-roam-buffer-position (if (equal org-roam-buffer-position 'right) 'bottom 'right)))
-
 (use-package! org-roam
   :config
   (map! :map org-mode-map
@@ -68,6 +63,11 @@
                                              :file-name "ref/tool/${slug}"
                                              :head "#+title: ${title}\n"
                                              :unnarrowed t))
+  (add-to-list 'org-roam-capture-templates '("c" "concept" plain #'org-roam-capture--get-point
+                                             "%?"
+                                             :file-name "concept/%<%Y%m%d%H%M%S>-${slug}"
+                                             :head "#+title: ${title}\n"
+                                             :unnarrowed t))
   )
 
 ;; improve appearance of org roam modeline
@@ -82,14 +82,14 @@
        (funcall orig-fun))
     (funcall orig-fun)))
 
-(after! deft
-  deft-directory org-roam-directory
-  deft-recursive t)
+;(after! deft
+  ;deft-directory org-roam-directory
+  ;deft-recursive t)
 
 ;;;;; Org Journal ;;;;;
-(after! org-journal
-  (setq org-journal-file-type 'monthly
-        org-journal-find-file #'find-file)) ; don't split window when opening journal
+;; (after! org-journal
+;;   (setq org-journal-file-type 'monthly
+;;         org-journal-find-file #'find-file)) ; don't split window when opening journal
 
 ;; FIXME this causes org-latex-preview to give an "invalid face" error when trying to generate previews for an entire section
 ;; ensure latex preview colour matches foreground and background

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: emit
+# key: em
+# condition: t
+# --
+emit:
+    $0

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: triple-single-quotes
+# key: ''
+# --
+'''
+$0
+'''

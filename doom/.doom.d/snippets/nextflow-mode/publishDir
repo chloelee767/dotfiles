@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: publishDir
+# key: pub
+# condition: t
+# --
+publishDir '$0'

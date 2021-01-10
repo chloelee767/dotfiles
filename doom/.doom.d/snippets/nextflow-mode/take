@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: take
+# key: ta
+# condition: t
+# --
+take:
+    $0

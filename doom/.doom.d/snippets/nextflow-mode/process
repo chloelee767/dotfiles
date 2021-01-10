@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: process 
+# key: pr
+# --
+process $1 {
+    $0
+}

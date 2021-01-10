@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: enable-dsl2
+# key: dsl2
+# --
+
+nextflow.enable.dsl=2

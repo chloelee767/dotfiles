@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: main
+# key: ma
+# condition: t
+# --
+main:
+    $0

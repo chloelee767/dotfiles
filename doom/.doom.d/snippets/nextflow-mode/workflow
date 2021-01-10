@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: workflow
+# key: wo
+# condition: t
+# --
+workflow $1{
+    $0
+}

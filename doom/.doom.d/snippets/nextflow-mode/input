@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: input
+# key: in
+# condition: t
+# --
+input:
+    $0

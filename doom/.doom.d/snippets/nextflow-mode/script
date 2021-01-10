@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: script
+# key: scr
+# condition: t
+# --
+script:
+    """
+    $0
+    """

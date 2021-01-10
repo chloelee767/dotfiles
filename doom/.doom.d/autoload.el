@@ -1,0 +1,28 @@
+;;; ../dotfiles/doom/.doom.d/autoload.el -*- lexical-binding: t; -*-
+
+;;;###autoload
+(defun chloe/toggle-org-roam-buffer-position ()
+  (interactive)
+  (progn
+  (setq org-roam-buffer-position (if (equal org-roam-buffer-position 'right) 'bottom 'right))
+    (when (eq (org-roam-buffer--visibility) 'visible)
+      (progn
+        (org-roam-buffer-toggle-display)
+        (org-roam-buffer-toggle-display)
+        ))))
+
+;;;###autoload
+(defun chloe/set-file-local-org-download-dir ()
+  (interactive)
+  (add-file-local-variable
+   'org-download-image-dir
+   (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name)))
+           "_images")))
+
+;;;###autoload
+(defun chloe/yank-buffer-filename-only ()
+  "Copy the current buffer's filename, exlucluding directories, to the kill ring."
+  (interactive)
+  (if-let (filename (or buffer-file-name (bound-and-true-p list-buffers-directory)))
+      (message (kill-new (file-name-nondirectory filename)))
+    (error "Couldn't find filename in current buffer")))

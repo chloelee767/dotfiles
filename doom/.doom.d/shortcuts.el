@@ -7,17 +7,19 @@
                             :desc "Home" "h" (lambda () (interactive)(doom-project-browse "~/"))
                             :desc "Documents" "d" (lambda () (interactive)(doom-project-browse chloe/documents-directory))
                             :desc "Code" "c" (lambda () (interactive)(doom-project-browse "~/Code/"))
-                            :desc "Dotfiles" "D" (lambda () (interactive)(doom-project-find-file "~/dotfiles/"))
+                            :desc "Dotfiles" "t" (lambda () (interactive)(doom-project-browse "~/dotfiles/"))
+                            :desc "Dotfiles (find in project)" "T" (lambda () (interactive)(doom-project-find-file "~/dotfiles/"))
                             :desc "Agenda folder" "a" (lambda () (interactive)(doom-project-browse chloe/org-agenda-directory))
-                            :desc "Org folder" "o" (lambda () (interactive)(doom-project-browse org-files-directory))
+                            :desc "Org folder" "o" (lambda () (interactive)(doom-project-browse org-directory))
 
                             :desc "NUS" "n" (lambda () (interactive)(doom-project-browse chloe/nus-directory))
                             :desc "Current semester" "s" (lambda () (interactive)(doom-project-browse chloe/nus-current-sem-directory))
-                            :desc "CS1010S Teaching" "t" (lambda () (interactive)(doom-project-browse (concat chloe/nus-directory "CS1010S-Teaching/")))
-                            :desc "cs1010sx" "x" (lambda () (interactive)(doom-project-browse (concat chloe/nus-directory "CS1010S-Teaching/cs1010sx/"))))))
+                            :desc "UROPS" "u" (lambda () (interactive)(doom-project-browse chloe/urops-directory))
+                            :desc "NSCC server" "e" (lambda () (interactive)(doom-project-browse "/ssh:e0325190@nus.nscc.sg:/home/users/nus/e0325190/"))
+                            )))
 
-(map! "<f2>" #'org-agenda
-      "<f1>" #'org-roam-jump-to-index
+(map! "<f1>" #'org-roam-jump-to-index
+      "<f2>" #'org-agenda
       "<f3>" #'(lambda () (interactive)(doom-project-browse chloe/org-agenda-directory)))
 
 (map! :leader (:prefix "o"

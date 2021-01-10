@@ -6,7 +6,9 @@
       ;; don't save to x clipboard manager on quit since it takes a long time
       x-select-enable-clipboard-manager nil
       enable-dir-local-variables t
-      evil-want-fine-undo t)
+      evil-want-fine-undo t
+      evil-ex-substitute-global t
+      uniquify-buffer-name-style 'forward)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)
@@ -33,9 +35,37 @@
  :nvm "C-w" #'ace-window
  :i "C-c c" #'doom/leader)
 
+;; additional evil text objectts
+;; https://stackoverflow.com/questions/18102004/emacs-evil-mode-how-to-create-a-new-text-object-to-select-words-with-any-non-sp
+(defmacro define-and-bind-quoted-text-object (name key start-regex end-regex)
+  (let ((inner-name (make-symbol (concat "evil-inner-" name)))
+        (outer-name (make-symbol (concat "evil-a-" name))))
+    `(progn
+       (evil-define-text-object ,inner-name (count &optional beg end type)
+         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+       (evil-define-text-object ,outer-name (count &optional beg end type)
+         (evil-select-paren ,start-regex ,end-regex beg end type count t))
+       (define-key evil-inner-text-objects-map ,key #',inner-name)
+       (define-key evil-outer-text-objects-map ,key #',outer-name))))
+
+(after! evil
+  (define-and-bind-quoted-text-object "slash" "/" "/" "/")
+  (define-and-bind-quoted-text-object "asterisk" "*" "*" "*")
+  (define-and-bind-quoted-text-object "underscore" "l" "_" "_") ;; underLine ;; _ is already taken by _{ }
+
+  (define-and-bind-quoted-text-object "tidle" "~" "~" "~")
+  (define-and-bind-quoted-text-object "equals" "=" "=" "=")
+  (define-and-bind-quoted-text-object "plus" "+" "+" "+"))
+;; FIXME not sure why it isn't working
+(after! evil-surround (push '(?l . ("_" . "_")) evil-surround-pairs-alist))
+
+(map! :leader :prefix "f"
+      :desc "Yank filename (no directories)" "Y" #'chloe/yank-buffer-filename-only)
+
 ;;;;; Visuals ;;;;;
-(setq! doom-font (font-spec :family "Iosevka Nerd Font" :size 12.0)
-       doom-variable-pitch-font (font-spec :family "Roboto" :size 12.0))
+(setq! doom-font (font-spec :family "Iosevka" :size 12.0)
+       doom-variable-pitch-font (font-spec :family "Roboto")
+       doom-serif-font (font-spec :family "Noto Serif"))
 
 (global-prettify-symbols-mode 1)
 
@@ -56,12 +86,12 @@
       (setq doom-theme 'doom-opera-light)
       (chloe/set-org-latex-fragment-colour "Black"))
   (progn
-    (setq doom-theme 'doom-gruvbox)
+    (setq doom-theme 'doom-tomorrow-night)
     (chloe/set-org-latex-fragment-colour "White")))
 
 ;; modeline appearance
-(setq! doom-modeline-buffer-modification-icon nil
-       doom-modeline-buffer-state-icon nil
+(setq! doom-modeline-buffer-modification-icon t
+       doom-modeline-buffer-state-icon t
        doom-modeline-modal-icon nil)
 ;; https://tecosaur.github.io/emacs-config/config.html#window-title
 (defun doom-modeline-conditional-buffer-encoding ()
@@ -77,19 +107,31 @@
 ;; (set-popup-rule! "^\\*[Hh]elp.*" :size 80 :side 'right :ttl nil :select nil :quit 'current)
 
 ;;;;; Important files/folders ;;;;;
-(setq! org-files-directory "~/Dropbox/Org/"
-       org-roam-directory (concat org-files-directory "notes/")
-       chloe/org-agenda-directory (concat org-files-directory "agenda/")
+(setq! org-directory "~/Dropbox/Org/"
+       org-roam-directory (concat org-directory "notes/")
+       chloe/org-agenda-directory (concat org-directory "agenda/")
        chloe/documents-directory "~/Documents/"
        chloe/nus-directory (concat chloe/documents-directory "NUS/")
        chloe/nus-current-sem-directory (concat chloe/nus-directory "Y3S1/")
-       chloe/default-bibliography-file (concat org-roam-directory "zotero_references.bib")
-       +org-roam-bibtex-files (list chloe/default-bibliography-file))
+       chloe/urops-directory (concat chloe/nus-directory "UROPS/")
+       chloe/default-bibliography-file (concat org-roam-directory "zotero_references.bib"))
+
+;; (setq tramp-default-method "ssh")
 
 ;;;;; Everything else ;;;;;
 
 (setq! +latex-viewers '(pdf-tools okular))
-
-(load! "utils.el")
 (load! "org-config.el")
 (load! "agenda-config.el")
+
+(load! "shortcuts.el")
+
+(load! "nextflow-mode.el")
+
+;;
+;;; Markdown
+
+;; similar to org
+(map! :map 'markdown-mode-map
+      "C-RET" #'markdown-insert-list-item
+      "<C-return>" #'markdown-insert-list-item)

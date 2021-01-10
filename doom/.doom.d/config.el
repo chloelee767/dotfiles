@@ -63,6 +63,7 @@
       :desc "Yank filename (no directories)" "Y" #'chloe/yank-buffer-filename-only)
 
 ;;;;; Visuals ;;;;;
+
 (setq! doom-font (font-spec :family "Iosevka" :size 12.0)
        doom-variable-pitch-font (font-spec :family "Roboto")
        doom-serif-font (font-spec :family "Noto Serif"))
@@ -107,16 +108,15 @@
 ;; (set-popup-rule! "^\\*[Hh]elp.*" :size 80 :side 'right :ttl nil :select nil :quit 'current)
 
 ;;;;; Important files/folders ;;;;;
+
 (setq! org-directory "~/Dropbox/Org/"
        org-roam-directory (concat org-directory "notes/")
        chloe/org-agenda-directory (concat org-directory "agenda/")
        chloe/documents-directory "~/Documents/"
        chloe/nus-directory (concat chloe/documents-directory "NUS/")
-       chloe/nus-current-sem-directory (concat chloe/nus-directory "Y3S1/")
+       chloe/nus-current-sem-directory (concat chloe/nus-directory "Y3S2/")
        chloe/urops-directory (concat chloe/nus-directory "UROPS/")
        chloe/default-bibliography-file (concat org-roam-directory "zotero_references.bib"))
-
-;; (setq tramp-default-method "ssh")
 
 ;;;;; Everything else ;;;;;
 

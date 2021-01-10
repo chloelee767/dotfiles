@@ -18,9 +18,8 @@
                             :desc "NSCC server" "e" (lambda () (interactive)(doom-project-browse "/ssh:e0325190@nus.nscc.sg:/home/users/nus/e0325190/"))
                             )))
 
-(map! "<f1>" #'org-roam-jump-to-index
-      "<f2>" #'org-agenda
-      "<f3>" #'(lambda () (interactive)(doom-project-browse chloe/org-agenda-directory)))
+(map! "<f1>" #'org-agenda
+      "<f2>" #'(lambda () (interactive)(doom-project-browse chloe/org-agenda-directory)))
 
 (map! :leader (:prefix "o"
                :desc "Google calendar" "c" #'(lambda () (interactive)(browse-url "https://calendar.google.com"))))

@@ -1,17 +1,10 @@
 ;;; ../dotfiles/doom/.doom.d/org-config.el -*- lexical-binding: t; -*-
+;;
+;;; Visuals
 (after! org
-  ;; hooks
-  (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
-  (add-hook 'org-mode-hook 'evil-tex-mode)
-
-  ;; keybinds
-  (map! :map org-mode-map :localleader (:prefix "s" "y" #'org-copy-subtree))
-
   (setq org-list-allow-alphabetical t
         org-ellipsis " ▾"
-        org-id-link-to-org-use-id  'create-if-interactive-and-no-custom-id
-        ;; org-hide-emphasis-markers t
-        )
+        org-id-link-to-org-use-id  'create-if-interactive-and-no-custom-id)
   (custom-set-faces! '(org-document-title :height 1.5)))
 
 ;; FIXME this causes org-latex-preview to give an "invalid face" error when trying to generate previews for an entire section
@@ -52,6 +45,12 @@
 
 ;;
 ;;; Utils
+
+(after! org
+  (add-hook 'org-mode-hook 'turn-on-org-cdlatex)
+  (add-hook 'org-mode-hook 'evil-tex-mode)
+  (map! :map org-mode-map :localleader (:prefix "s" "y" #'org-copy-subtree)))
+
 (use-package! org-download
   :commands
   org-download-dnd
@@ -60,11 +59,12 @@
   org-download-clipboard
   org-download-dnd-base64
   :init
-  ;; HACK We add these manually so that org-download is truly lazy-loaded
+  ;; HACK From doom's org +drag-and-drop module
   (pushnew! dnd-protocol-alist
             '("^\\(?:https?\\|ftp\\|file\\|nfs\\):" . org-download-dnd)
             '("^data:" . org-download-dnd-base64))
   (advice-add #'org-download-enable :override #'ignore)
+
   (setq org-download-method 'directory
         org-download-image-dir "./images"
         org-download-timestamp "%Y%m%d_%H%M%S"
@@ -80,14 +80,6 @@
 ;;
 ;;; Note taking
 
-(defvar +notes-bibtex-files (list chloe/default-bibliography-file)
-  "A list of the default bibtex files, which is needed by org-ref, reftex and bibtex-completion.")
-
-(defvar +notes-ref-files-directory "~/Documents/References/"
-  "Path to the directory containing reference files, used for the custom ref: link type. Must end with a slash.")
-
-(setq +notes--biblio-directory "ref/")
-
 (use-package! org-roam
   :hook (org-load . org-roam-mode)
   :hook (org-roam-backlinks-mode . turn-on-visual-line-mode)
@@ -98,6 +90,8 @@
   org-roam-switch-to-buffer
   org-roam-jump-to-index
   :config
+
+  ;; keybindings
   (map! :map org-mode-map
         :i "C-c i" #'org-roam-insert
         :i "C-c I" #'org-roam-insert-immediate)
@@ -133,141 +127,48 @@
          :desc "open tomorrow" "r" #'org-roam-dailies-find-tomorrow
          :desc "open previous" "j" #'org-roam-dailies-find-previous-note
          :desc "open next" "k" #'org-roam-dailies-find-next-note))
-  (setq org-roam-db-location (concat doom-private-dir "local/org-roam.db")
-        org-roam-tag-sources '(prop all-directories)
-        org-roam-verbose nil
-        ;; Make org-roam buffer sticky; i.e. don't replace it when opening a
-        ;; file with an *-other-window command.
-        org-roam-buffer-window-parameters '((no-delete-other-windows . t))
-        ;; org-roam-completion-everywhere t
-        org-roam-completion-system 'ivy)
+
+  ;; templates
   (setq org-roam-capture-templates
         `(("d" "default" plain #'org-roam-capture--get-point
            "%?"
-           :file-name "%<%Y%m%d%H%M%S>-${slug}"
+           :file-name "${slug}"
            :head "#+title: ${title}\n"
            :unnarrowed t)
-          ("m" "temp" plain #'org-roam-capture--get-point
+          ("t" "temp" plain #'org-roam-capture--get-point
            "%?"
-           :file-name "temp/%<%Y%m%d%H%M%S>-${slug}"
+           :file-name "temp/${slug}"
            :head "#+title: ${title}\n"
            :unnarrowed t)
           ("p" "project" plain #'org-roam-capture--get-point
            "%?"
-           :file-name "project/%<%Y%m%d%H%M%S>-${slug}"
+           :file-name "project/${slug}"
            :head "#+title: ${title}\n"
-           :unnarrowed t)
-          ("t" "tool" plain #'org-roam-capture--get-point
-           "%?"
-           :file-name "ref/tool/${slug}"
-           :head "#+title: ${title}\n- documentation :: "
            :unnarrowed t)
           ("r" "ref" plain #'org-roam-capture--get-point
            "%?"
-           :file-name ,(concat +notes--biblio-directory "%<%Y%m%d%H%M%S>-${slug}")
-           :head "#+title: ${title}
-- year ::
-- authors ::
-- doi ::
-- url ::
-- file ::
-- tags ::
-* Notes\n"
-           :unnarrowed t)))
-  (setq org-roam-capture-ref-templates
-        '(("r" "ref" plain #'org-roam-capture--get-point
-           "%?"
-           :file-name ,(concat +notes--biblio-directory "%<%Y%m%d%H%M%S>-${slug}")
-           :head "#+title: ${title}
-- year ::
-- authors ::
-- doi ::
-- url ::
-- file ::
-- tags ::
-* Notes\n"
+           :file-name "ref/${slug}"
+           :head "#+title: ${title}"
            :unnarrowed t)))
 
-  ;; improve appearance of org roam modeline
-  (defadvice! doom-modeline--reformat-roam (orig-fun)
-    :around #'doom-modeline-buffer-file-name
-    (if (s-contains-p org-roam-directory (or buffer-file-name ""))
-        (replace-regexp-in-string
-         "\\(?:^\\|.*/\\)\\([0-9]\\{4\\}\\)\\([0-9]\\{2\\}\\)\\([0-9]\\{2\\}\\)[0-9]*-"
-         "🢔 (\\1-\\2-\\3) "
-         (funcall orig-fun))
-      (funcall orig-fun))))
-
-(setq reftex-default-bibliography +notes-bibtex-files)
-
-(after! org
-  (+org-define-basic-link "rf" '+notes-ref-files-directory))
-
-(use-package! org-ref
-  :after org
-  :preface
-  ;; This need to be set before the package is loaded, because org-ref will
-  ;; automatically `require' an associated package during its loading.
-  (setq org-ref-completion-library #'org-ref-helm-bibtex)
-  :config
-  (setq org-ref-notes-directory (concat org-roam-directory +notes--biblio-directory)
-        org-ref-default-bibliography +notes-bibtex-files)
-  ;; Although the name is helm-bibtex, it is actually a bibtex-completion function
-  ;; it is the legacy naming of the project helm-bibtex that causes confusion.
-  ;; (setq org-ref-open-pdf-function 'org-ref-get-pdf-filename-helm-bibtex)
-  ;; orb will define handlers for note taking so not needed to use the
-  ;; ones set for bibtex-completion
-  (setq org-ref-notes-function #'org-ref-notes-function-many-files
-        org-ref-notes-directory (concat org-roam-directory +notes--biblio-directory)))
-
-(use-package! bibtex-completion
-  :defer t
-  :config
-  (map! :after org
-        :leader
-        :prefix ("n" . "notes")
-        :desc "Bibliographic entries" "b" #'ivy-bibtex)
-  (add-to-list 'ivy-re-builders-alist '(ivy-bibtex . ivy--regex-plus))
-  (setq bibtex-completion-additional-search-fields '(keywords)
-        ;; This tell bibtex-completion to look at the File field of the bibtex
-        ;; to figure out which pdf to open
-        bibtex-completion-pdf-field "file"
-        bibtex-completion-bibliography +notes-bibtex-files
-        bibtex-completion-pdf-open-function (lambda (fpath) (call-process "okular" nil 0 nil fpath))
-        bibtex-completion-display-formats
-        '((t . "${author:30} ${title:*} ${year:4} ${=has-pdf=:1}${=has-note=:1} ${=type=:7} ${keywords:10}"))
-        bibtex-completion-notes-path (concat org-roam-directory +notes--biblio-directory)
-        bibtex-completion-notes-template-multiple-files "${=key=}: ${title}
-#+ROAM_KEY: cite:${=key=}
-- year :: ${year}
-- authors :: ${author}
-- doi :: ${doi}
-- url :: ${url}
-- file ::
-- tags ::
-* Notes\n"))
-
-;; only use ORB for orb-note-actions and orb-insert-non-ref
-;; edit notes doesn't work consistently
-(use-package! org-roam-bibtex
-  :after org-roam
-  ;; :hook (org-roam-mode . org-roam-bibtex-mode)
-  :config
-  (map! :leader
-        :prefix "n"
-        :desc "Find roam file (non-ref)" "n" #'orb-find-non-ref-file)
-  (map! :map org-mode-map
-        :i "C-c n" #'orb-insert-non-ref)
-  (map! :map 'org-mode-map
-        :localleader
-        "k" #'orb-note-actions))
+  ;; other configs
+  (setq org-roam-db-location (concat doom-private-dir "local/org-roam.db")
+        org-roam-tag-sources '(prop all-directories)
+        org-roam-verbose nil
+        org-roam-db-update-method 'immediate
+        ;; Make org-roam buffer sticky; i.e. don't replace it when opening a
+        ;; file with an *-other-window command.
+        org-roam-buffer-window-parameters '((no-delete-other-windows . t))
+        ;; org-roam-completion-everywhere t
+        org-roam-completion-system 'ivy
+        org-roam-link-title-format "§%s"))
 
 ;; Since the org module lazy loads org-protocol (waits until an org URL is
 ;; detected), we can safely chain `org-roam-protocol' to it.
 (use-package! org-roam-protocol
   :after org-protocol)
 
-(setq org-journal-dir (concat org-directory "journal/"))
 (after! org-journal
+  (setq org-journal-dir (concat org-directory "journal/"))
   (setq org-journal-file-type 'daily
         org-journal-find-file #'find-file)) ; don't split window when opening journal

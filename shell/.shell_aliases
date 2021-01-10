@@ -1,3 +1,5 @@
+#!/bin/env sh
+
 ##### Aliases #####
 
 alias rm="rm -I" # only prompt once for multiple/recursive deletes
@@ -20,3 +22,5 @@ alias gd="git diff"
 alias gb="git branch"
 
 alias ra="ranger"
+
+alias ssh="TERM=vt100 ssh"

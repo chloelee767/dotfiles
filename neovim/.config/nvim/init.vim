@@ -5,8 +5,11 @@ set softtabstop=4
 set shiftwidth=4
 set smarttab
 
-"remap escape to jk
+"remap jk to escape
 inoremap jk <Esc> 
+
+"use + register for clipboard
+set clipboard+=unnamedplus
 
 "use visual lines for navigation by default
 nnoremap j gj

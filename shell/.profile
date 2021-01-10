@@ -32,6 +32,9 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 
 ##### Projects #####
 
+export NSCC=e0325190@nus.nscc.sg
+export NSCC_DIR=e0325190@nus.nscc.sg:/home/users/nus/e0325190
+
 [[ -f ~/.private_profile ]] && ~/.private_profile
 
 # LSM3241 bcftools

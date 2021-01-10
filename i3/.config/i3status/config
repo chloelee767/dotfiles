@@ -47,12 +47,12 @@ cpu_temperature 0 {
 
 battery all {
     format = "%status %percentage"
-    format_down = "No battery"
+    format_down = "No bat"
     status_chr = ""
     status_bat = ""
-    status_unk = " ?"
+    status_unk = ""
     status_full = "FULL"
-    low_threshold = 25
+    low_threshold = 30
     integer_battery_capacity = true
     # path = "/sys/class/power_supply/BAT0/uevent"
 }
@@ -82,5 +82,5 @@ cpu_temperature 1 {
 }
 
 time {
-    format = "%a %d %b, %H:%M:%S"
+    format = "  %H:%M:%S (%a %d)"
 }

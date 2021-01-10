@@ -7,3 +7,8 @@
 
 (add-to-list 'auto-mode-alist '("\\.nf\\'" . nextflow-mode))
 (add-to-list 'auto-mode-alist '("nextflow\\.config\\'" . nextflow-mode))
+
+;; insert nextflow.enable.dsl = 2 into new .nf files
+(set-file-template! "\\.nf\\'"
+  :trigger "dsl2"
+  :mode 'nextflow-mode)

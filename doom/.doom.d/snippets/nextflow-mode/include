@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: include
+# key: inc
+# condition: t
+# --
+include { $1 } from '$2'
+$0

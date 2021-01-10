@@ -17,6 +17,10 @@
   (add-to-list 'org-modules 'org-checklist)
   (add-to-list 'org-modules 'org-habit)
 
+  ;; logging
+  (setq org-log-done-with-time t
+        org-log-reschedule 'time)
+
   ;; using two %(...)'s only shows the first one, for some reason
   (let ((prefix " %(concat (chloe/org-agenda-effort-string) (chloe/org-agenda-intensity-string)) "))
     (setq org-agenda-prefix-format `((agenda . ,(concat " %i %-12:c%?-12t% s" prefix))

@@ -4,6 +4,7 @@
 (after! org
   (setq org-list-allow-alphabetical t
         org-ellipsis " ▾"
+        org-hide-emphasis-markers t
         org-id-link-to-org-use-id  'create-if-interactive-and-no-custom-id)
   (custom-set-faces! '(org-document-title :height 1.5)))
 

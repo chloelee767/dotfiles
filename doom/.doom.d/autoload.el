@@ -26,3 +26,13 @@
   (if-let (filename (or buffer-file-name (bound-and-true-p list-buffers-directory)))
       (message (kill-new (file-name-nondirectory filename)))
     (error "Couldn't find filename in current buffer")))
+
+;;;###autoload
+(defun chloe/chmod-current-file (new-file-modes)
+  (interactive "sFile modes (octal or symbolic): ")
+  (shell-command (concat "chmod " new-file-modes " " (buffer-file-name))))
+
+;;;###autoload
+(defun chloe/make-current-file-executable ()
+  (interactive)
+  (chloe/chmod-current-file "+x"))

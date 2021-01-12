@@ -59,9 +59,6 @@
 ;; FIXME not sure why it isn't working
 (after! evil-surround (push '(?l . ("_" . "_")) evil-surround-pairs-alist))
 
-(map! :leader :prefix "f"
-      :desc "Yank filename (no directories)" "Y" #'chloe/yank-buffer-filename-only)
-
 ;;;;; Visuals ;;;;;
 
 (setq! doom-font (font-spec :family "Iosevka" :size 12.0)
@@ -123,7 +120,6 @@
 (setq! +latex-viewers '(pdf-tools okular))
 (load! "org-config.el")
 (load! "agenda-config.el")
-
 (load! "shortcuts.el")
 
 (load! "nextflow-mode.el")

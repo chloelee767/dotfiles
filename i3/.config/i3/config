@@ -67,8 +67,8 @@ bindsym $mod+Shift+space exec rofi -modi "drun#run#window" -show window
 # installed.
 # bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
 
-# thunar (file manager)
-bindsym $mod+backslash exec thunar
+# pcmanfm (file manager)
+bindsym $mod+backslash exec pcmanfm
 
 # change focus
 bindsym $mod+h focus left
@@ -330,7 +330,7 @@ for_window [window_type="dialog"] floating enable
 for_window [window_type="menu"] floating enable
 for_window [class="Pavucontrol"] floating enable
 for_window [class="Blueman-manager"] floating enable
-for_window [class="Thunar"] floating enable;
+for_window [class="Pcmanfm"] floating enable;
 for_window [class="Nitrogen"] floating enable;
 for_window [class="Engrampa"] floating enable; # unarchiver
 # for_window [role="^floating$"] floating enable;

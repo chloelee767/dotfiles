@@ -12,6 +12,12 @@
         (concat "[" effort "]")
       "")))
 
+(defun chloe/is-not-agenda-calendar-file ()
+  "Returns true if this file is not in the directory agenda/calendar."
+  (if (string-match-p "agenda/calendar/" (buffer-file-name))
+      nil
+    t))
+
 (after! org
 
   (add-to-list 'org-modules 'org-checklist)
@@ -19,7 +25,14 @@
 
   ;; logging
   (setq org-log-done-with-time t
-        org-log-reschedule 'time)
+        org-log-reschedule 'time
+        org-log-into-drawer t)
+
+  ;; archive into date tree
+  (setq org-archive-location "%s_archive::datetree/")
+
+  ;; don't clutter refile targets with gcal calendar events
+  (setq org-refile-target-verify-function #'chloe/is-not-agenda-calendar-file)
 
   ;; using two %(...)'s only shows the first one, for some reason
   (let ((prefix " %(concat (chloe/org-agenda-effort-string) (chloe/org-agenda-intensity-string)) "))
@@ -28,16 +41,17 @@
                                      (tags . ,(concat "%i %-12:c" prefix))
                                      (search . ,(concat "%i %-12:c" prefix)))))
 
-  (setq org-agenda-files (list chloe/org-agenda-directory)
+  (setq org-agenda-files (list chloe/org-agenda-directory (concat chloe/org-agenda-directory "calendar"))
         org-todo-keywords '((sequence "TODO(t)" "INPROG(i)" "PROJ(p)" "|" "DONE(d!)")
                             (sequence "WAIT(w)" "|" "KILL(k)"))
+        org-lowest-priority ?D
 
         ;; start today
         org-agenda-start-on-weekday nil
         org-agenda-start-day "0d"
 
         org-deadline-warning-days 0
-        org-agenda-span 14)
+        org-agenda-span 7)
 
   (setq org-agenda-custom-commands
         `((" " "Overview"

@@ -17,6 +17,6 @@ for cal_name in "${!calendars[@]}"; do
     url=${calendars[$cal_name]}
     icsfile="$cal_name.ics"
     curl "$url" -o "$icsfile"
-    ical2orgpy "$icsfile" ~/Dropbox/Org/agenda/"$cal_name.org"
+    ical2orgpy "$icsfile" ~/Dropbox/Org/agenda/calendar/"$cal_name.org"
     rm "$icsfile"
 done

@@ -4,4 +4,3 @@
 # condition: t
 # --
 include { $1 } from '$2'
-$0

@@ -337,8 +337,8 @@ for_window [class="Engrampa"] floating enable; # unarchiver
 
 # Open applications on specific workspaces
 assign [class="jetbrains-idea"] $ws3
-for_window [class="Spotify"] move to workspace $ws5
-assign [class="zoom"] $ws4
+for_window [class="Spotify"] move to workspace $ws6
+assign [class="zoom"] $ws6
 assign [class="TelegramDesktop"] $ws5
 # not working
 # assign [class="emacs"] $ws2
@@ -393,7 +393,7 @@ exec --no-startup-id nitrogen --restore; sleep 1; picom -b; autorandr -c
 exec --no-startup-id xfce4-power-manager # handles brightness (no system tray icon)
 exec --no-startup-id nm-applet # networks
 exec --no-startup-id pamac-tray # software updates
-exec --no-startup-id xfce4-clipman # clipboard
+# exec --no-startup-id xfce4-clipman # clipboard
 exec --no-startup-id blueman-applet # bluetooth
 # exec --no-startup-id pa-applet # volume icon
 exec --no-startup-id fcitx
@@ -401,3 +401,5 @@ exec --no-startup-id fcitx
 
 exec --no-startup-id dropbox
 exec --no-startup-id telegram-desktop
+for_window [title="WhatsApp - Chromium"] move to workspace $ws5
+exec --no-startup-id chromium https://web.whatsapp.com

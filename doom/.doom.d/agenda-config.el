@@ -50,7 +50,9 @@
         org-agenda-start-on-weekday nil
         org-agenda-start-day "0d"
 
-        org-deadline-warning-days 0
+        org-agenda-skip-deadline-prewarning-if-scheduled t
+
+        org-deadline-warning-days 14
         org-agenda-span 7)
 
   (setq org-agenda-custom-commands
@@ -58,9 +60,6 @@
            ((agenda ""
                     ((org-agenda-span 1)
                      (org-deadline-warning-days 365)))
-
-            (tags-todo "CATEGORY=\"inbox\"|+inbox"
-                       ((org-agenda-overriding-header "Inbox")))
 
             (tags-todo
              (concat
@@ -70,7 +69,12 @@
               "SCHEDULED=\"\"&PRIORITY=\"B\""
               "CATEGORY<>\"inbox\"-inbox"
               "/!")
-             ((org-agenda-overriding-header "Next actions")))
+             ((org-agenda-overriding-header "Next actions (no deadline, unscheduled)")
+              (org-agenda-skip-function #'(org-agenda-skip-entry-if 'deadline))
+              ))
+
+            (tags-todo "CATEGORY=\"inbox\"|+inbox"
+                       ((org-agenda-overriding-header "Inbox")))
 
             (tags-todo
              "PRIORITY<>\"A\"PRIORITY<>\"B\"SCHEDULED=\"\"CATEGORY<>\"inbox\"-inbox/!-PROJ"

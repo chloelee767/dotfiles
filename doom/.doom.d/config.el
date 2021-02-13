@@ -131,3 +131,22 @@
 (map! :map 'markdown-mode-map
       "C-RET" #'markdown-insert-list-item
       "<C-return>" #'markdown-insert-list-item)
+
+;;
+;;; Prolog
+
+;; associate .pl files as prolog files instead of perl
+(add-to-list 'auto-mode-alist '("\\.pl\\'" . prolog-mode))
+
+;;
+;;; Coq
+
+(map! :after coq-mode
+      :map coq-mode-map
+      :localleader
+      "j"  #'proof-assert-next-command-interactive
+      "k"  #'proof-undo-last-successful-command)
+(map! :after coq-mode
+      :map coq-mode-map
+      "C-c j"  #'proof-assert-next-command-interactive
+      "C-c k"  #'proof-undo-last-successful-command)

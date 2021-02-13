@@ -5,6 +5,8 @@ setxkbmap -option "ctrl:swapcaps_hyper,altwin:swap_lalt_lwin"
 
 ##### Paths #####
 
+export PATH=$PATH:$HOME/bin
+
 # scripts
 export PATH=$PATH:$HOME/dotfiles/scripts
 
@@ -32,8 +34,12 @@ export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || pr
 
 ##### Projects #####
 
+export SUNFIRE=e0325190@sunfire.comp.nus.edu.sg
+
 export NSCC=e0325190@nus.nscc.sg
 export NSCC_DIR=e0325190@nus.nscc.sg:/home/users/nus/e0325190
+# gurobi license file
+export GRB_LICENSE_FILE=/home/chloe/programs/gurobi811/my_license/gurobi.lic
 
 [[ -f ~/.private_profile ]] && ~/.private_profile
 

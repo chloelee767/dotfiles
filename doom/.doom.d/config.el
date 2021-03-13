@@ -81,7 +81,7 @@
 ;; set theme based on time
 (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 17))
     (progn
-      (setq doom-theme 'doom-opera-light)
+      (setq doom-theme 'doom-tomorrow-day)
       (chloe/set-org-latex-fragment-colour "Black"))
   (progn
     (setq doom-theme 'doom-tomorrow-night)

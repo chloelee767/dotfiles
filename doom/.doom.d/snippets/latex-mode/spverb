@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: spverb
+# key: sv
+# --
+\spverb|$1|$0

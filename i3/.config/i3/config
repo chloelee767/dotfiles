@@ -396,7 +396,7 @@ exec --no-startup-id pamac-tray # software updates
 # exec --no-startup-id xfce4-clipman # clipboard
 exec --no-startup-id blueman-applet # bluetooth
 # exec --no-startup-id pa-applet # volume icon
-exec --no-startup-id fcitx
+# exec --no-startup-id fcitx
 # exec --no-startup-id autokey-gtk
 
 exec --no-startup-id dropbox

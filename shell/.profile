@@ -42,13 +42,6 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/programs/gurobi811/linux64/lib
 # comets
 export COMETS_HOME=$HOME/programs/comets/
 
-##### Projects #####
-
-export SUNFIRE=e0325190@sunfire.comp.nus.edu.sg
-
-export NSCC=e0325190@nus.nscc.sg
-export NSCC_DIR=e0325190@nus.nscc.sg:/home/users/nus/e0325190
-
 [[ -f ~/.private_profile ]] && ~/.private_profile
 
 # LSM3241 bcftools

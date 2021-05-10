@@ -27,10 +27,8 @@
         writeroom-width 120
         writeroom-mode-line t))
 
-;; (use-package! org-superstar
-;;   :hook (org-mode . org-superstar-mode)
-;;   :config
-;;   (setq org-superstar-prettify-item-bullets nil))
+(use-package! org-superstar
+  :hook (writeroom-mode . org-superstar-mode))
 
 ;;
 ;;; Exporting
@@ -150,6 +148,11 @@
            "%?"
            :file-name "ref/${slug}"
            :head "#+title: ${title}"
+           :unnarrowed t)
+          ("e" "personal" plain #'org-roam-capture--get-point
+           "%?"
+           :file-name "personal/${slug}"
+           :head "#+title: ${title}"
            :unnarrowed t)))
 
   ;; other configs
@@ -168,8 +171,3 @@
 ;; detected), we can safely chain `org-roam-protocol' to it.
 (use-package! org-roam-protocol
   :after org-protocol)
-
-(after! org-journal
-  (setq org-journal-dir (concat org-directory "journal/"))
-  (setq org-journal-file-type 'daily
-        org-journal-find-file #'find-file)) ; don't split window when opening journal

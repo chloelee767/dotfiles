@@ -6,6 +6,7 @@
       ;; don't save to x clipboard manager on quit since it takes a long time
       x-select-enable-clipboard-manager nil
       enable-dir-local-variables t
+      enable-local-variables t
       evil-want-fine-undo t
       evil-ex-substitute-global t
       uniquify-buffer-name-style 'forward)
@@ -62,7 +63,7 @@
 ;;;;; Visuals ;;;;;
 
 (setq! doom-font (font-spec :family "Iosevka" :size 12.0)
-       doom-variable-pitch-font (font-spec :family "Roboto")
+       doom-variable-pitch-font (font-spec :family "Noto Sans Display")
        doom-serif-font (font-spec :family "Noto Serif"))
 
 (global-prettify-symbols-mode 1)
@@ -78,14 +79,8 @@
           :html-scale 1.0
           :matchers ("begin" "$1" "$" "$$" "\\(" "\\["))))
 
-;; set theme based on time
-(if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 17))
-    (progn
-      (setq doom-theme 'doom-tomorrow-day)
-      (chloe/set-org-latex-fragment-colour "Black"))
-  (progn
-    (setq doom-theme 'doom-tomorrow-night)
-    (chloe/set-org-latex-fragment-colour "White")))
+(setq doom-theme 'doom-oceanic-next)
+(chloe/set-org-latex-fragment-colour "White")
 
 ;; modeline appearance
 (setq! doom-modeline-buffer-modification-icon t
@@ -150,3 +145,8 @@
       :map coq-mode-map
       "C-c j"  #'proof-assert-next-command-interactive
       "C-c k"  #'proof-undo-last-successful-command)
+
+;;
+;;; R
+
+(setq-hook! 'R-mode-hook +format-with :none)

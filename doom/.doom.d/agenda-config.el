@@ -1,11 +1,5 @@
 ;;; ../dotfiles/doom/.doom.d/agenda-config.el -*- lexical-binding: t; -*-
 
-(defun chloe/org-agenda-intensity-string ()
-  (let ((intensity (org-entry-get (point) "Intensity")))
-    (if (> (length intensity) 0)
-        (concat "[" intensity "]")
-      "")))
-
 (defun chloe/org-agenda-effort-string ()
   (let ((effort (org-entry-get (point) "Effort")))
     (if (> (length effort) 0)
@@ -35,14 +29,14 @@
   (setq org-refile-target-verify-function #'chloe/is-not-agenda-calendar-file)
 
   ;; using two %(...)'s only shows the first one, for some reason
-  (let ((prefix " %(concat (chloe/org-agenda-effort-string) (chloe/org-agenda-intensity-string)) "))
+  (let ((prefix " %(chloe/org-agenda-effort-string)  "))
     (setq org-agenda-prefix-format `((agenda . ,(concat " %i %-12:c%?-12t% s" prefix))
                                      (todo . ,(concat "%i %-12:c" prefix))
                                      (tags . ,(concat "%i %-12:c" prefix))
                                      (search . ,(concat "%i %-12:c" prefix)))))
 
   (setq org-agenda-files (list chloe/org-agenda-directory (concat chloe/org-agenda-directory "calendar"))
-        org-todo-keywords '((sequence "TODO(t)" "INPROG(i)" "PROJ(p)" "|" "DONE(d!)")
+        org-todo-keywords '((sequence "TODO(t)" "INPROG(i)" "|" "DONE(d!)")
                             (sequence "WAIT(w)" "|" "KILL(k)"))
         org-lowest-priority ?D
 
@@ -62,24 +56,17 @@
                      (org-deadline-warning-days 365)))
 
             (tags-todo
-             (concat
-              "SCHEDULED=\"\"&PRIORITY=\"A\""
-              "CATEGORY<>\"inbox\"-inbox"
-              "|"
-              "SCHEDULED=\"\"&PRIORITY=\"B\""
-              "CATEGORY<>\"inbox\"-inbox"
-              "/!")
+             (concat "SCHEDULED=\"\"" "CATEGORY<>\"someday\"" "CATEGORY<>\"inbox\"" "/!")
              ((org-agenda-overriding-header "Next actions (no deadline, unscheduled)")
-              (org-agenda-skip-function #'(org-agenda-skip-entry-if 'deadline))
-              ))
+              (org-agenda-skip-function #'(org-agenda-skip-entry-if 'deadline))))
 
             (tags-todo "CATEGORY=\"inbox\"|+inbox"
                        ((org-agenda-overriding-header "Inbox")))
 
-            (tags-todo
-             "PRIORITY<>\"A\"PRIORITY<>\"B\"SCHEDULED=\"\"CATEGORY<>\"inbox\"-inbox/!-PROJ"
-             ((org-agenda-overriding-header "Someday")))
-            ))))
+            ))
+          ("d" "Someday"
+           ((tags-todo "CATEGORY=\"someday\"")))
+          ))
 
   (let ((created-property-string ":Created: %U\n"))
     (setq org-capture-templates

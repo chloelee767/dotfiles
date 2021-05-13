@@ -62,7 +62,7 @@
 
 ;;;;; Visuals ;;;;;
 
-(setq! doom-font (font-spec :family "Iosevka" :size 12.0)
+(setq! doom-font (font-spec :family "Iosevka" :size 14)
        doom-variable-pitch-font (font-spec :family "Noto Sans Display")
        doom-serif-font (font-spec :family "Noto Serif"))
 

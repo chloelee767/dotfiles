@@ -75,6 +75,8 @@
         :prefix ("D" . "org-download")
         (:desc "paste from clipboard" "p" #'org-download-clipboard
          :desc "set file local download dir" "f" #'chloe/set-file-local-org-download-dir)))
+;; org-download-image-dir is safe as long as it is a string
+(put 'org-download-image-dir 'safe-local-variable #'stringp)
 
 ;;
 ;;; Note taking

@@ -72,3 +72,10 @@
     (setq org-capture-templates
           `(("t" "todo" entry (file ,(concat chloe/org-agenda-directory "inbox.org"))
              ,(concat "* TODO %?\n:PROPERTIES:\n" created-property-string ":END:"))))))
+
+;; HACK Fix "Capture template ‘t’: Error in a Doom startup hook: doom-switch-buffer-hook, +org--restart-mode-h,"
+(when (eq system-type 'darwin)
+  (advice-add #'org-capture :around
+              (lambda (fun &rest args)
+                (letf! ((#'+org--restart-mode-h #'ignore))
+                  (apply fun args)))))

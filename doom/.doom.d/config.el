@@ -150,3 +150,8 @@
 ;;; R
 
 (setq-hook! 'R-mode-hook +format-with :none)
+
+;;
+;;; Protobuf mode
+(use-package! protobuf-mode
+  :mode ("\\.proto\\'" . protobuf-mode))

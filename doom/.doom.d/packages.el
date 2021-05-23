@@ -14,3 +14,6 @@
 (package! ox-gfm)
 
 (package! groovy-mode)
+
+(package! protobuf-mode
+  :recipe (:local-repo "packages"))

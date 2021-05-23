@@ -117,8 +117,6 @@
 (load! "agenda-config.el")
 (load! "shortcuts.el")
 
-(load! "nextflow-mode.el")
-
 ;;
 ;;; Markdown
 
@@ -155,3 +153,9 @@
 ;;; Protobuf mode
 (use-package! protobuf-mode
   :mode ("\\.proto\\'" . protobuf-mode))
+
+;;
+;;; Nextflow mode
+(use-package! nextflow-mode
+  :mode ("\\.nf\\'" . nextflow-mode)
+  :mode ("nextflow\\.config\\'" . nextflow-mode))

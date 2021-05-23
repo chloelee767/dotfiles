@@ -9,7 +9,8 @@
       enable-local-variables t
       evil-want-fine-undo t
       evil-ex-substitute-global t
-      uniquify-buffer-name-style 'forward)
+      uniquify-buffer-name-style 'forward
+      lsp-ui-doc-use-childframe nil)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)
@@ -62,7 +63,7 @@
 
 ;;;;; Visuals ;;;;;
 
-(setq! doom-font (font-spec :family "Iosevka" :size 14)
+(setq! doom-font (font-spec :family "Iosevka" :size 12.0)
        doom-variable-pitch-font (font-spec :family "Noto Sans Display")
        doom-serif-font (font-spec :family "Noto Serif"))
 
@@ -117,8 +118,6 @@
 (load! "agenda-config.el")
 (load! "shortcuts.el")
 
-(load! "nextflow-mode.el")
-
 ;;
 ;;; Markdown
 
@@ -150,3 +149,14 @@
 ;;; R
 
 (setq-hook! 'R-mode-hook +format-with :none)
+
+;;
+;;; Protobuf mode
+(use-package! protobuf-mode
+  :mode ("\\.proto\\'" . protobuf-mode))
+
+;;
+;;; Nextflow mode
+(use-package! nextflow-mode
+  :mode ("\\.nf\\'" . nextflow-mode)
+  :mode ("nextflow\\.config\\'" . nextflow-mode))

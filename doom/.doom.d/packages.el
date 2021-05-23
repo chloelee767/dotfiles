@@ -14,3 +14,9 @@
 (package! ox-gfm)
 
 (package! groovy-mode)
+
+(package! protobuf-mode
+  :recipe (:local-repo "packages/protobuf"))
+
+(package! nextflow-mode
+  :recipe (:local-repo "packages/nextflow"))

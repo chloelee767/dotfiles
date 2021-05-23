@@ -1,4 +1,4 @@
-;;; ../dotfiles/doom/.doom.d/nextflow-mode.el -*- lexical-binding: t; -*-
+;;; ../dotfiles/doom/.doom.d/packages/nextflow-mode.el -*- lexical-binding: t; -*-
 
 (define-derived-mode nextflow-mode
   groovy-mode "Nextflow"

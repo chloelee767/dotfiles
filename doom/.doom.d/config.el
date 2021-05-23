@@ -9,7 +9,8 @@
       enable-local-variables t
       evil-want-fine-undo t
       evil-ex-substitute-global t
-      uniquify-buffer-name-style 'forward)
+      uniquify-buffer-name-style 'forward
+      lsp-ui-doc-use-childframe nil)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)

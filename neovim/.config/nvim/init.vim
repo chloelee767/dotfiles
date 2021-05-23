@@ -53,6 +53,7 @@ call plug#end()
 nmap <Leader>, :Buffers<CR>
 nmap <Leader>' :Files<CR>
 nmap <Leader>. :edit 
+nmap <Leader>p :NERDTree<CR>
 "nnoremap <C-;> <Leader>c<Space>
 
 "let g:airline_theme='angr'

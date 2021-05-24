@@ -10,7 +10,8 @@
       evil-want-fine-undo t
       evil-ex-substitute-global t
       uniquify-buffer-name-style 'forward
-      lsp-ui-doc-use-childframe nil)
+      lsp-ui-doc-use-childframe nil
+      lsp-ui-doc-delay nil)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)
@@ -117,6 +118,13 @@
 (load! "org-config.el")
 (load! "agenda-config.el")
 (load! "shortcuts.el")
+
+;;
+;;; LSP
+(map! :map 'lsp-mode-map
+      :leader
+      (:prefix "c"
+       :desc "Definition popup" "p" #'lsp-ui-doc-show))
 
 ;;
 ;;; Markdown

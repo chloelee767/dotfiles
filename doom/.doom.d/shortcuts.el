@@ -17,6 +17,7 @@
 (map! :leader (:prefix "f" (:prefix ("f" . "favourites")
                             :desc "Home" "h" (lambda () (interactive)(doom-project-browse "~/"))
                             :desc "Documents" "d" (lambda () (interactive)(doom-project-browse chloe/documents-directory))
+                            :desc "Dropbox" "r" (lambda () (interactive (doom-project-browse "~/Dropbox/")))
                             :desc "Code" "c" (lambda () (interactive)(doom-project-browse "~/Code/"))
                             :desc "Dotfiles" "t" (lambda () (interactive)(doom-project-browse "~/dotfiles/"))
                             :desc "Dotfiles (find in project)" "T" (lambda () (interactive)(doom-project-find-file "~/dotfiles/"))
@@ -26,4 +27,5 @@
                             :desc "Current semester" "s" (lambda () (interactive)(doom-project-browse chloe/nus-current-sem-directory))
                             :desc "UROPS" "u" (lambda () (interactive)(doom-project-browse chloe/urops-directory))
                             :desc "NSCC server" "e" (lambda () (interactive)(doom-project-browse "/ssh:e0325190@nus.nscc.sg:/home/users/nus/e0325190/"))
+                            :desc "Work" "w" (lambda () (interactive)(doom-project-browse "~/Dropbox/Work/"))
                             )))

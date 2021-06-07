@@ -30,3 +30,17 @@ Show only open applications in Dock:
 ```sh
 defaults write com.apple.dock static-only -bool TRUE; killall Dock
 ```
+
+Use GNU coreutils:
+
+``` sh
+brew install coreutils ed findutils gawk gnu-sed gnu-tar grep make
+```
+
+Add to .zprofile:
+``` sh
+export GNUBINS="$(find /usr/local/opt -type d -follow -name gnubin -print)";
+for bindir in ${GNUBINS[@]}; do
+    export PATH=$bindir:$PATH;
+done;
+```

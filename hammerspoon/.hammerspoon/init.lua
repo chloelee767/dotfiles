@@ -11,7 +11,7 @@ spoon.MiroWindowsManager:bindHotkeys({
     fullscreen = {hyper, "f"}
 })
 
--- current space, includes minimized and hidden windows
-switcher_space = hs.window.switcher.new(hs.window.filter.new():setCurrentSpace(true):setDefaultFilter{})
+-- current space, excluding minimized windows
+switcher_space = hs.window.switcher.new(hs.window.filter.new():setCurrentSpace(true))
 hs.hotkey.bind('alt', 'tab', 'Next window', function()switcher_space:next()end)
 hs.hotkey.bind('alt-shift', 'tab', 'Prev window', function()switcher_space:previous()end)

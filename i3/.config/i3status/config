@@ -9,6 +9,7 @@ order += "disk /"
 order += "cpu_temperature 1" # hard drive temp
 
 order += "wireless wlp4s0"
+order += "path_exists vpn" # whether vpn is running/paused
 order += "ethernet enp2s0"
 
 order += "memory"
@@ -23,13 +24,19 @@ order += "volume master"
 order += "time"
 
 wireless wlp4s0 {
-    format_up = "直  %essid /%quality"
+    format_up = "直 %quality"
     format_down = "直 "
+}
+
+path_exists vpn {
+    path = "/proc/sys/net/ipv4/conf/tun0"
+    format = "VPN"
+    format_down = ""
 }
 
 ethernet enp2s0 {
     format_up = "  %speed"
-    format_down = " "
+    format_down = ""
 }
 
 cpu_usage {
@@ -82,5 +89,5 @@ cpu_temperature 1 {
 }
 
 time {
-    format = "  %H:%M:%S (%a %d)"
+    format = "  %H:%M (%a %d)"
 }

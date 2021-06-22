@@ -81,93 +81,116 @@
 ;;
 ;;; Note taking
 
-(use-package! org-roam
-  :hook (org-load . org-roam-mode)
-  :hook (org-roam-backlinks-mode . turn-on-visual-line-mode)
-  :hook (org-roam-buffer-prepare-hook . hide-mode-line-mode)
-  :commands
-  org-roam-find-file-function
-  org-roam-buffer-toggle-display
-  org-roam-switch-to-buffer
-  org-roam-jump-to-index
-  :config
 
-  ;; keybindings
-  (map! :map org-mode-map
-        :i "C-c i" #'org-roam-insert
-        :i "C-c I" #'org-roam-insert-immediate)
-  (map! :after org ;; ensure default keybinds get overwritten
+(use-package! org-roam
+  :after org
+  :commands
+  (org-roam-buffer
+   org-roam-setup
+   org-roam-capture
+   org-roam-node-find)
+  :config
+  (map! :after org
         :leader
         :prefix ("n" . "notes")
+        :desc "Org roam buffer" "r" #'org-roam-buffer-toggle)
+  ;;(setq org-roam-mode-sections
+  ;;      (list #'org-roam-backlinks-insert-section
+  ;;            #'org-roam-reflinks-insert-section
+  ;;            #'org-roam-unlinked-references-insert-section))
+  ;; (setq org-roam-db-location (concat doom-private-dir "local/org-roam.db"))
+        (setq org-roam-db-location "~/org-roam.db")
+  (org-roam-setup))
 
-        "f" nil
-        "r" nil
-        "t" nil
-        "m" nil
-        "d" nil
-        "n" nil
-        "I" nil
 
-        "*" nil
-        "a" nil
-        "F" nil
-        "s" nil
-        "S" nil
-        "v" nil
 
-        :desc "Find roam file" "f" #'org-roam-find-file
-        :desc "Switch to roam buffer" "," #'org-roam-switch-to-buffer
-        :desc "Org roam buffer" "r" #'org-roam-buffer-toggle-display
-        :desc "Toggle roam buffer position" "t" #'chloe/toggle-org-roam-buffer-position
-        :desc "Index file" "I" #'org-roam-jump-to-index
-        :desc "org-mark-ring-goto" "m" #'org-mark-ring-goto
-        (:prefix ("d" . "daily notes")
-         :desc "open date" "d" #'org-roam-dailies-find-date
-         :desc "open today" "t" #'org-roam-dailies-find-today
-         :desc "open yesterday" "m" #'org-roam-dailies-find-yesterday
-         :desc "open tomorrow" "r" #'org-roam-dailies-find-tomorrow
-         :desc "open previous" "j" #'org-roam-dailies-find-previous-note
-         :desc "open next" "k" #'org-roam-dailies-find-next-note))
+;; (use-package! org-roam
+;;   :hook (org-load . org-roam-mode)
+;;   :hook (org-roam-backlinks-mode . turn-on-visual-line-mode)
+;;   :hook (org-roam-buffer-prepare-hook . hide-mode-line-mode)
+;;   :commands
+;;   org-roam-find-file-function
+;;   org-roam-buffer-toggle-display
+;;   org-roam-switch-to-buffer
+;;   org-roam-jump-to-index
+;;   :config
 
-  ;; templates
-  (setq org-roam-capture-templates
-        `(("d" "default" plain #'org-roam-capture--get-point
-           "%?"
-           :file-name "${slug}"
-           :head "#+title: ${title}\n"
-           :unnarrowed t)
-          ("t" "temp" plain #'org-roam-capture--get-point
-           "%?"
-           :file-name "temp/${slug}"
-           :head "#+title: ${title}\n"
-           :unnarrowed t)
-          ("p" "project" plain #'org-roam-capture--get-point
-           "%?"
-           :file-name "project/${slug}"
-           :head "#+title: ${title}\n"
-           :unnarrowed t)
-          ("r" "ref" plain #'org-roam-capture--get-point
-           "%?"
-           :file-name "ref/${slug}"
-           :head "#+title: ${title}"
-           :unnarrowed t)
-          ("e" "personal" plain #'org-roam-capture--get-point
-           "%?"
-           :file-name "personal/${slug}"
-           :head "#+title: ${title}"
-           :unnarrowed t)))
+;;   ;; keybindings
+;;   (map! :map org-mode-map
+;;         :i "C-c i" #'org-roam-insert
+;;         :i "C-c I" #'org-roam-insert-immediate)
+;;   (map! :after org ;; ensure default keybinds get overwritten
+;;         :leader
+;;         :prefix ("n" . "notes")
 
-  ;; other configs
-  (setq org-roam-db-location (concat doom-private-dir "local/org-roam.db")
-        org-roam-tag-sources '(prop all-directories)
-        org-roam-verbose nil
-        org-roam-db-update-method 'immediate
-        ;; Make org-roam buffer sticky; i.e. don't replace it when opening a
-        ;; file with an *-other-window command.
-        org-roam-buffer-window-parameters '((no-delete-other-windows . t))
-        ;; org-roam-completion-everywhere t
-        org-roam-completion-system 'ivy
-        org-roam-link-title-format "§%s"))
+;;         "f" nil
+;;         "r" nil
+;;         "t" nil
+;;         "m" nil
+;;         "d" nil
+;;         "n" nil
+;;         "I" nil
+
+;;         "*" nil
+;;         "a" nil
+;;         "F" nil
+;;         "s" nil
+;;         "S" nil
+;;         "v" nil
+
+;;         :desc "Find roam file" "f" #'org-roam-find-file
+;;         :desc "Switch to roam buffer" "," #'org-roam-switch-to-buffer
+;;         :desc "Org roam buffer" "r" #'org-roam-buffer-toggle-display
+;;         :desc "Toggle roam buffer position" "t" #'chloe/toggle-org-roam-buffer-position
+;;         :desc "Index file" "I" #'org-roam-jump-to-index
+;;         :desc "org-mark-ring-goto" "m" #'org-mark-ring-goto
+;;         (:prefix ("d" . "daily notes")
+;;          :desc "open date" "d" #'org-roam-dailies-find-date
+;;          :desc "open today" "t" #'org-roam-dailies-find-today
+;;          :desc "open yesterday" "m" #'org-roam-dailies-find-yesterday
+;;          :desc "open tomorrow" "r" #'org-roam-dailies-find-tomorrow
+;;          :desc "open previous" "j" #'org-roam-dailies-find-previous-note
+;;          :desc "open next" "k" #'org-roam-dailies-find-next-note))
+
+;;   ;; templates
+;;   (setq org-roam-capture-templates
+;;         `(("d" "default" plain #'org-roam-capture--get-point
+;;            "%?"
+;;            :file-name "${slug}"
+;;            :head "#+title: ${title}\n"
+;;            :unnarrowed t)
+;;           ("r" "ref" plain #'org-roam-capture--get-point
+;;            "%?"
+;;            :file-name "ref/${slug}"
+;;            :head "#+title: ${title}"
+;;            :unnarrowed t)
+;;           ("t" "temp" plain #'org-roam-capture--get-point
+;;            "%?"
+;;            :file-name "temp/${slug}"
+;;            :head "#+title: ${title}\n"
+;;            :unnarrowed t)
+;;           ("p" "project" plain #'org-roam-capture--get-point
+;;            "%?"
+;;            :file-name "project/${slug}"
+;;            :head "#+title: ${title}\n"
+;;            :unnarrowed t)
+;;           ("e" "personal" plain #'org-roam-capture--get-point
+;;            "%?"
+;;            :file-name "personal/${slug}"
+;;            :head "#+title: ${title}"
+;;            :unnarrowed t)))
+
+;;   ;; other configs
+;;   (setq org-roam-db-location (concat doom-private-dir "local/org-roam.db")
+;;         org-roam-tag-sources '(prop all-directories)
+;;         org-roam-verbose nil
+;;         org-roam-db-update-method 'immediate
+;;         ;; Make org-roam buffer sticky; i.e. don't replace it when opening a
+;;         ;; file with an *-other-window command.
+;;         org-roam-buffer-window-parameters '((no-delete-other-windows . t))
+;;         ;; org-roam-completion-everywhere t
+;;         org-roam-completion-system 'ivy
+;;         org-roam-link-title-format "§%s"))
 
 ;; Since the org module lazy loads org-protocol (waits until an org URL is
 ;; detected), we can safely chain `org-roam-protocol' to it.

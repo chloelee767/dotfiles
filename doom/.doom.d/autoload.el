@@ -1,15 +1,32 @@
 ;;; ../dotfiles/doom/.doom.d/autoload.el -*- lexical-binding: t; -*-
 
 ;;;###autoload
-(defun chloe/toggle-org-roam-buffer-position ()
+(defun chloe/dotroam-file-find ()
   (interactive)
-  (progn
-  (setq org-roam-buffer-position (if (equal org-roam-buffer-position 'right) 'bottom 'right))
-    (when (eq (org-roam-buffer--visibility) 'visible)
-      (progn
-        (org-roam-buffer-toggle-display)
-        (org-roam-buffer-toggle-display)
-        ))))
+  (counsel-find-file "" org-roam-directory))
+
+;;;###autoload
+(defun chloe/dotroam-find-siblings ()
+  (interactive)
+  (if-let (filename (or buffer-file-name (bound-and-true-p list-buffers-directory)))
+      (let ((initial-string
+             (if (string-equal (file-name-sans-extension (file-name-sans-extension filename)) (file-name-sans-extension filename)) ;; file is toplevel
+                 ""
+               (concat (file-name-sans-extension (file-name-sans-extension filename)) "\\."))))
+        (counsel-find-file initial-string org-roam-directory))
+    (error "Couldn't find filename in current buffer")))
+
+
+;; ;;;###autoload
+;; (defun chloe/toggle-org-roam-buffer-position ()
+;;   (interactive)
+;;   (progn
+;;   (setq org-roam-buffer-position (if (equal org-roam-buffer-position 'right) 'bottom 'right))
+;;     (when (eq (org-roam-buffer--visibility) 'visible)
+;;       (progn
+;;         (org-roam-buffer-toggle-display)
+;;         (org-roam-buffer-toggle-display)
+;;         ))))
 
 ;;;###autoload
 (defun chloe/set-file-local-org-download-dir ()

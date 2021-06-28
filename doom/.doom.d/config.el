@@ -9,9 +9,10 @@
       enable-local-variables t
       evil-want-fine-undo t
       evil-ex-substitute-global t
-      uniquify-buffer-name-style 'forward
+      uniquify-buffer-name-style nil
       lsp-ui-doc-use-childframe nil
-      lsp-ui-doc-delay nil)
+      lsp-ui-doc-delay nil
+      company-idle-delay 3.0)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)
@@ -168,3 +169,9 @@
 (use-package! nextflow-mode
   :mode ("\\.nf\\'" . nextflow-mode)
   :mode ("nextflow\\.config\\'" . nextflow-mode))
+;;
+;;; Go
+
+(after! go-mode
+  (setq gofmt-command "goimports")
+  (add-hook 'before-save-hook 'gofmt-before-save))

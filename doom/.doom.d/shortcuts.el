@@ -1,7 +1,7 @@
 ;;; ../dotfiles/doom/.doom.d/shortcuts.el -*- lexical-binding: t; -*-
 
 (map! :leader :prefix "f"
-      :desc "Yank filename (no directories)" "Y" #'chloe/yank-buffer-filename-only
+      :desc "Yank filename only" "C-y" #'chloe/yank-buffer-filename-only
       :desc "chmod" "x" #'chloe/chmod-current-file
       :desc "make executable" "X" #'chloe/make-current-file-executable)
 

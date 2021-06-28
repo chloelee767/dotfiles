@@ -140,7 +140,6 @@
   ;;      (list #'org-roam-backlinks-insert-section
   ;;            #'org-roam-reflinks-insert-section
   ;;            #'org-roam-unlinked-references-insert-section))
-  (org-roam-setup)
   (map! :map org-mode-map
         :i "C-c i" #'org-roam-node-insert)
   (setq org-roam-db-location "~/org-roam.db"
@@ -150,7 +149,8 @@
            :if-new (file+head "%(chloe/org-roam-file-slug \"${title}\").org"
                               "#+title: %(chloe/org-roam-title (chloe/org-roam-file-slug \"${title}\"))")
            :immediate-finish t
-           :unnarrowed t))))
+           :unnarrowed t)))
+  (org-roam-setup))
 
 ;; (use-package! org-roam
 ;;   :hook (org-load . org-roam-mode)

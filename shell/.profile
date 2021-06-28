@@ -1,7 +1,5 @@
 export EDITOR=/usr/bin/nvim
 export TERMINAL=/usr/bin/kitty # doesn't work?
-# location of setxkbmap layouts, options, etc.: /usr/share/X11/xkb/rules/base.lst
-setxkbmap -option "ctrl:swapcaps_hyper"
 
 ##### Paths #####
 
@@ -41,6 +39,9 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/programs/gurobi811/linux64/lib
 
 # comets
 export COMETS_HOME=$HOME/programs/comets/
+
+
+swap-win-alt.sh
 
 [[ -f ~/.private_profile ]] && ~/.private_profile
 

@@ -6,7 +6,7 @@ general {
 }
 
 order += "disk /"
-order += "cpu_temperature 1" # hard drive temp
+# order += "cpu_temperature 1" # hard drive temp
 
 order += "wireless wlp4s0"
 order += "path_exists vpn" # whether vpn is running/paused
@@ -77,9 +77,9 @@ volume master {
 }
 
 disk "/" {
-    format = "  %free"
-    separator = false
-    separator_block_width = 10
+    format = "  %free free"
+    # separator = false
+    # separator_block_width = 10
 }
 
 cpu_temperature 1 {

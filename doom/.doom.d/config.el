@@ -175,3 +175,18 @@
 (after! go-mode
   (setq gofmt-command "goimports")
   (add-hook 'before-save-hook 'gofmt-before-save))
+
+;;
+;;; Workspaces
+
+(map! :leader :desc "New workspace named" "TAB N" #'chloe/new-workspace-named)
+
+(after! persp-mode
+
+  ;; always show workspaces in modeline when it isn't being used
+  (+workspace/display)
+  (defun update-tab-line ()
+    (with-current-buffer " *Minibuf-0*"
+      (erase-buffer)
+      (insert (+workspace--tabline))))
+  (run-with-idle-timer 1 t #'update-tab-line))

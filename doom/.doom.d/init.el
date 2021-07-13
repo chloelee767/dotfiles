@@ -109,7 +109,6 @@
         +docsets)        ; ...or in Dash docsets locally
        (lsp
         +peek)
-       ;;macos             ; MacOS-specific commands
        magit             ; a git porcelain for Emacs
        make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
@@ -119,6 +118,9 @@
        ;;terraform         ; infrastructure as code
        ;;tmux              ; an API for interacting with tmux
        upload            ; map local to remote projects via ssh/ftp
+
+       :os
+       (:if IS-MAC macos)  ; improve compatibility with macOS
 
        :lang
        ;;agda              ; types of types of types of types...
@@ -148,9 +150,10 @@
        ;; (haskell +intero) ; a language that's lazier than I am
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ;
+       json              ; At least it ain't XML
        ;(java
         ;+lsp) 
-       ;; (jDoavascript        ; all(hope(abandon(ye(who(enter(here))))))
+       ;; (javascript        ; all(hope(abandon(ye(who(enter(here))))))
         ;; +lsp
        ;; )
        ;; julia             ; a better, faster MATLAB

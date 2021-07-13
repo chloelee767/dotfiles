@@ -36,9 +36,3 @@
 (defun chloe/make-current-file-executable ()
   (interactive)
   (chloe/chmod-current-file "+x"))
-
-;;;###autoload
-(defun chloe/new-workspace-named (name)
-  "Create a new workspace with the given NAME."
-  (interactive "sWorkspace Name: ")
-  (+workspace/new name))

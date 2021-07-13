@@ -7,7 +7,7 @@
       select-enable-clipboard nil ;; don't clutter OS clipboard with evil delete etc. Use + register for OS clipboard.
       enable-dir-local-variables t
       enable-local-variables t
-      evil-want-fine-undo t
+      ;; evil-want-fine-undo t
       evil-ex-substitute-global t
       company-idle-delay 3.0
       +latex-viewers '(pdf-tools okular))
@@ -22,7 +22,12 @@
 (remove-hook 'text-mode-hook #'auto-fill-mode)
 
 (map! :nvm "C-w" #'ace-window
-      :i "C-c c" #'doom/leader)
+      :g "C-c c" #'doom/leader
+      :g "C-S-c" #'clipboard-kill-ring-save
+      :g "C-S-v" #'clipboard-yank)
+(when IS-MAC
+  (map! :g "s-v" #'clipboard-yank
+        :g "s-c" #'clipboard-kill-ring-save))
 
 ;; be similar to org
 (map! :map 'markdown-mode-map
@@ -56,13 +61,13 @@
 ;;
 ;;; Visuals
 
-(setq! doom-font (font-spec :family "Iosevka SS14" :size 12.0)
+(setq! doom-font (font-spec :family "Iosevka SS14" :size 13.0)
        doom-variable-pitch-font (font-spec :family "Noto Sans Display")
        doom-serif-font (font-spec :family "Noto Serif"))
 
 (global-prettify-symbols-mode 1)
 
-(setq doom-theme 'doom-oceanic-next)
+(setq doom-theme 'tsdh-light)
 
 ;; modeline appearance
 (setq! doom-modeline-buffer-modification-icon t
@@ -296,8 +301,8 @@
 (use-package! org-transclusion
   :after org
   :init
-  (map! :desc "toggle org transclusion" "<f1>" #'org-transclusion-mode
-        :desc "org transclusion make from link" "<f2>" #'org-transclusion-make-from-link)
+  (map! :g "<f1>" #'org-transclusion-mode
+        :g "<f2>" #'org-transclusion-make-from-link)
   (map! :map org-mode-map
         :localleader
         (:prefix ("k" . "Org Transclusion")
@@ -377,7 +382,7 @@
              ,(concat "* TODO %?\n:PROPERTIES:\n" created-property-string ":END:"))))))
 
 ;; HACK Fix "Capture template ‘t’: Error in a Doom startup hook: doom-switch-buffer-hook, +org--restart-mode-h,"
-(when (eq system-type 'darwin)
+(when IS-MAC
   (advice-add #'org-capture :around
               (lambda (fun &rest args)
                 (letf! ((#'+org--restart-mode-h #'ignore))

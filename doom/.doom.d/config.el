@@ -22,7 +22,7 @@
 (remove-hook 'text-mode-hook #'auto-fill-mode)
 
 (map! :nvm "C-w" #'ace-window
-      :g "C-c c" #'doom/leader
+      :g "C-c SPC" #'doom/leader
       :g "C-S-c" #'clipboard-kill-ring-save
       :g "C-S-v" #'clipboard-yank)
 (when IS-MAC
@@ -61,18 +61,26 @@
 ;;
 ;;; Visuals
 
-(setq! doom-font (font-spec :family "Iosevka SS14" :size 13.0)
-       doom-variable-pitch-font (font-spec :family "Noto Sans Display")
-       doom-serif-font (font-spec :family "Noto Serif"))
+(setq doom-theme (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 18)) 'tsdh-light 'doom-oceanic-next) ;; set theme based on time
+      doom-font (font-spec :family "Iosevka SS14" :size (if IS-MAC 13.0 11.0))
+      doom-variable-pitch-font (font-spec :family "Noto Sans Display")
+      doom-serif-font (font-spec :family "Noto Serif"))
 
 (global-prettify-symbols-mode 1)
 
-(setq doom-theme 'tsdh-light)
+(defun chloe/fix-theme ()
+  "Theme specific fixes."
+  (interactive)
+  (cond ((eq doom-theme 'tsdh-light)
+         (custom-set-faces!
+           '(company-tooltip-selection :background "LightSteelBlue1")
+           '(org-block :background "#fafcdf")))))
+(chloe/fix-theme)
 
 ;; modeline appearance
-(setq! doom-modeline-buffer-modification-icon t
-       doom-modeline-buffer-state-icon t
-       doom-modeline-modal-icon nil)
+(setq doom-modeline-buffer-modification-icon t
+      doom-modeline-buffer-state-icon t
+      doom-modeline-modal-icon nil)
 
 ;; popups
 ;; don't close help and info until I really want to
@@ -82,15 +90,15 @@
 ;;
 ;;; Useful files and directories
 
-(setq! org-directory "~/Dropbox/Org/"
-       org-roam-directory (concat org-directory "notes/")
-       chloe/org-agenda-directory (concat org-directory "agenda/")
-       chloe/documents-directory "~/Documents/"
-       chloe/nus-directory (concat chloe/documents-directory "NUS/")
-       chloe/nus-current-sem-directory (concat chloe/nus-directory "Y3S2/")
-       chloe/urops-directory (concat chloe/nus-directory "UROPS/")
-       ;; chloe/default-bibliography-file (concat org-roam-directory "zotero_references.bib")
-       )
+(setq org-directory "~/Dropbox/Org/"
+      org-roam-directory (concat org-directory "notes/")
+      chloe/org-agenda-directory (concat org-directory "agenda/")
+      chloe/documents-directory "~/Documents/"
+      chloe/nus-directory (concat chloe/documents-directory "NUS/")
+      chloe/nus-current-sem-directory (concat chloe/nus-directory "Y3S2/")
+      chloe/urops-directory (concat chloe/nus-directory "UROPS/")
+      ;; chloe/default-bibliography-file (concat org-roam-directory "zotero_references.bib")
+      )
 
 ;;
 ;;; Shortcuts and utils
@@ -314,7 +322,9 @@
          :desc "remove" "r" #'org-transclusion-remove
          :desc "remove all" "r" #'org-transclusion-remove-all))
   :config
-  (setq org-transclusion-include-first-section t))
+  (setq org-transclusion-include-first-section t
+        org-transclusion-exclude-elements (list 'property-drawer 'keyword))
+  )
 
 ;; (custom-set-faces! '(org-transclusion :background "#b9c9b9")
 ;;                 '(org-transclusion-source :background "#ebf6fa"))
@@ -329,7 +339,7 @@
       "")))
 
 (defun chloe/is-not-agenda-calendar-file ()
-  "Returns true if this file is not in the directory agenda/calendar."
+  "Returns true if this file is NOT in the directory `agenda/calendar'."
   (if (string-match-p "agenda/calendar/" (buffer-file-name))
       nil
     t))

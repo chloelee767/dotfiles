@@ -2,6 +2,7 @@
 
 configuration {
  show-icons: true;
+ window-command: "move-window-to-current-workspace.sh {window}";
 }
 
 /* global settings and color variables */
@@ -18,7 +19,7 @@ configuration {
    /*blackselect:      #303030;*/
    darkgray:         #848484;
    scrollbarcolor:   #505050;
-   font: "Iosevka SemiBold 12";
+   font: "Iosevka SS14 12";
    background-color: @blackdarkest;
 }
 

@@ -170,6 +170,7 @@
   (setq org-list-allow-alphabetical t
         org-ellipsis " ▾"
         org-hide-emphasis-markers t
+        org-startup-folded 'showall ;; respect heading specific visibility
         ;; FIXME this causes org-latex-preview to give an "invalid face" error when trying to generate previews for an entire section
         ;; org-format-latex-options '(:foreground auto
         ;;                            :background auto

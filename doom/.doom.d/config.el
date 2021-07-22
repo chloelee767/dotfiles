@@ -24,10 +24,13 @@
 (map! :nvm "C-w" #'ace-window
       :g "C-c SPC" #'doom/leader
       :g "C-S-c" #'clipboard-kill-ring-save
-      :g "C-S-v" #'clipboard-yank)
-(when IS-MAC
-  (map! :g "s-v" #'clipboard-yank
-        :g "s-c" #'clipboard-kill-ring-save))
+      :g "C-S-v" #'clipboard-yank
+      (:when IS-MAC
+       :g "s-c" #'clipboard-kill-ring-save
+       :g "s-v" #'clipboard-yank))
+(map! :leader
+      :prefix ("y" . "yank")
+      :desc "Copy last kill to clipboard" "c" #'chloe/copy-last-kill-to-clipboard)
 
 ;; be similar to org
 (map! :map 'markdown-mode-map
@@ -226,7 +229,8 @@
   (setq org-download-method 'directory
         org-download-image-dir "./images"
         org-download-timestamp "%Y%m%d_%H%M%S"
-        org-download-screenshot-method "flameshot gui --raw > %s")
+        org-download-screenshot-method (cond (IS-MAC "screencapture -i %s")
+                                             (IS-LINUX "flameshot gui --raw > %s")))
   (map! :map 'org-mode-map
         :localleader
         :prefix ("D" . "org-download")

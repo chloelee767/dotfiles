@@ -13,11 +13,14 @@
 
 ;;;###autoload
 (defun chloe/set-file-local-org-download-dir ()
+  "Still need to manually refresh the file local variables afterwards."
   (interactive)
-  (add-file-local-variable
-   'org-download-image-dir
-   (concat (file-name-sans-extension (file-name-nondirectory (buffer-file-name)))
-           "_images")))
+  (if-let (filename (buffer-file-name))
+      (progn
+        (add-file-local-variable 'org-download-image-dir
+                                 (concat (file-name-sans-extension (file-name-nondirectory filename)) "_images"))
+        (message "Refresh file local variables now."))
+    (error "Couldn't get filename of current buffer")))
 
 ;;;###autoload
 (defun chloe/yank-buffer-filename-only ()
@@ -25,14 +28,23 @@
   (interactive)
   (if-let (filename (or buffer-file-name (bound-and-true-p list-buffers-directory)))
       (message (kill-new (file-name-nondirectory filename)))
-    (error "Couldn't find filename in current buffer")))
+    (error "Couldn't get filename of current buffer")))
 
 ;;;###autoload
-(defun chloe/chmod-current-file (new-file-modes)
-  (interactive "sFile modes (octal or symbolic): ")
-  (shell-command (concat "chmod " new-file-modes " " (buffer-file-name))))
+(defun chloe/chmod-current-file ()
+  "Change the file mode bits of the current file, similar to chmod. Interactively prompts for the file modes (eg. \"+x\")."
+  (interactive)
+  (chmod (buffer-file-name) (read-file-modes nil (buffer-file-name))))
 
 ;;;###autoload
 (defun chloe/make-current-file-executable ()
   (interactive)
-  (chloe/chmod-current-file "+x"))
+  (chmod (buffer-file-name) (file-modes-symbolic-to-number "+x" (file-modes (buffer-file-name)))))
+
+;;;###autoload
+(defun chloe/copy-last-kill-to-clipboard ()
+  "Copy the last killed text to the system clipboard."
+  (interactive)
+  (with-temp-buffer
+    (yank)
+    (clipboard-kill-region (point-min) (point-max))))

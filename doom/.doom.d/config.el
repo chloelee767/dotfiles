@@ -64,7 +64,7 @@
 ;;
 ;;; Visuals
 
-(setq doom-theme (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 18)) 'tsdh-light 'doom-oceanic-next) ;; set theme based on time
+(setq doom-theme (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 17)) 'tsdh-light 'doom-oceanic-next) ;; set theme based on time
       doom-font (font-spec :family "Iosevka SS14" :size (if IS-MAC 13.0 11.0))
       doom-variable-pitch-font (font-spec :family "Noto Sans Display")
       doom-serif-font (font-spec :family "Noto Serif"))

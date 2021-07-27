@@ -7,7 +7,6 @@
       select-enable-clipboard nil ;; don't clutter OS clipboard with evil delete etc. Use + register for OS clipboard.
       enable-dir-local-variables t
       enable-local-variables t
-      ;; evil-want-fine-undo t
       evil-ex-substitute-global t
       company-idle-delay 3.0
       +latex-viewers '(pdf-tools okular))
@@ -66,19 +65,20 @@
 
 (setq doom-theme (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 17)) 'tsdh-light 'doom-oceanic-next) ;; set theme based on time
       doom-font (font-spec :family "Iosevka SS14" :size (if IS-MAC 13.0 11.0))
-      doom-variable-pitch-font (font-spec :family "Noto Sans Display")
+      doom-variable-pitch-font (font-spec :family "Iosevka Aile")
       doom-serif-font (font-spec :family "Noto Serif"))
 
 (global-prettify-symbols-mode 1)
 
-(defun chloe/fix-theme ()
-  "Theme specific fixes."
-  (interactive)
-  (cond ((eq doom-theme 'tsdh-light)
-         (custom-set-faces!
-           '(company-tooltip-selection :background "LightSteelBlue1")
-           '(org-block :background "#fafcdf")))))
-(chloe/fix-theme)
+(custom-theme-set-faces! 'tsdh-light
+  ;; '(hl-line :background nil) ;; sometimes breaks dired
+  '(company-tooltip-search-selection :background "LightSteelBlue")
+  '(org-block :background "#f0f0f1")
+  '(org-code :background "#f0f0f1" :foreground nil)
+  '(org-verbatim :background "#f0f0f1" :foreground "#50a14f")
+  '(org-quote :inherit org-block :weight bold :slant italic)
+  '(org-verse :inherit org-block :slant italic)
+  '(org-table :foreground nil))
 
 ;; modeline appearance
 (setq doom-modeline-buffer-modification-icon t
@@ -188,8 +188,7 @@
 
 (use-package! writeroom-mode
   :init
-  (setq +zen-text-scale 0
-        +zen-mixed-pitch-modes nil)
+  (setq +zen-text-scale 0)
   :config
   (setq writeroom-extra-line-spacing 0.2
         writeroom-width 120
@@ -293,12 +292,10 @@
         :leader
         :prefix ("n" . "notes")
         :desc "Org roam find" "f" #'org-roam-node-find
-        :desc "Org roam buffer" "r" #'org-roam-buffer-toggle)
+        :desc "Org roam buffer" "r" #'org-roam-buffer-toggle
+        :desc "Org roam buffer" "R" #'org-roam-buffer-display-dedicated)
+  (setq org-roam-v2-ack t)
   :config
-  ;;(setq org-roam-mode-sections
-  ;;      (list #'org-roam-backlinks-insert-section
-  ;;            #'org-roam-reflinks-insert-section
-  ;;            #'org-roam-unlinked-references-insert-section))
   (map! :map org-mode-map
         :i "C-c i" #'org-roam-node-insert)
   (setq org-roam-db-location "~/org-roam.db"
@@ -308,8 +305,17 @@
            :if-new (file+head "%(chloe/org-roam-file-slug \"${title}\").org"
                               "#+title: %(chloe/org-roam-title (chloe/org-roam-file-slug \"${title}\"))")
            :immediate-finish t
-           :unnarrowed t)))
-  (org-roam-setup))
+           :unnarrowed t))
+        org-roam-mode-sections (list #'org-roam-backlinks-insert-section
+                                     #'org-roam-reflinks-insert-section
+                                     ;; #'org-roam-unlinked-references-insert-section
+                                     ))
+  (org-roam-setup)
+  (set-popup-rules!
+    `((,(regexp-quote org-roam-buffer) ; persistent org-roam buffer
+       :side right :width .3 :height .5 :ttl nil :modeline nil :quit nil :slot 1)
+      ("^\\*org-roam: " ; node dedicated org-roam buffer
+       :side right :width .3 :height .5 :ttl nil :modeline nil :quit nil :slot 2))))
 
 (use-package! org-transclusion
   :after org

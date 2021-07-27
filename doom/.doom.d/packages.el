@@ -7,8 +7,7 @@
 ;; (package! builtin-package :disable t)
 
 (package! org-roam
-  :recipe (:host github :repo "org-roam/org-roam" :branch "v2")
-  :pin "0547dc723ddca5265d0e746c51cf2e682ab05866")
+  :pin "de47f0a28d0e346c88c632ea1bb078b69d1e4b52")
 ;; (package! org-roam :pin "78a371cdc4facf58fb20b513eaf60b24f3aaa7f7")
 (package! org-fragtog :pin "92119e3ae7c9a0ae2b5c9d9e4801b5fdc4804ad7")
 (package! org-superstar :pin "94f35c20f8b84a63defa145e3e6ae735fa33dd5d")

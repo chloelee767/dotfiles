@@ -113,19 +113,19 @@
 
        ;; shortcuts to useful folders
        (:prefix ("f" . "favourites")
-        :desc "Home" "h" (lambda () (interactive)(doom-project-browse "~/"))
-        :desc "Documents" "d" (lambda () (interactive)(doom-project-browse chloe/documents-directory))
-        :desc "Dropbox" "r" (lambda () (interactive (doom-project-browse "~/Dropbox/")))
-        :desc "Code" "c" (lambda () (interactive)(doom-project-browse "~/Code/"))
-        :desc "Dotfiles" "t" (lambda () (interactive)(doom-project-browse "~/dotfiles/"))
-        :desc "Dotfiles (find in project)" "T" (lambda () (interactive)(doom-project-find-file "~/dotfiles/"))
-        :desc "Agenda folder" "a" (lambda () (interactive)(doom-project-browse chloe/org-agenda-directory))
-        :desc "Org folder" "o" (lambda () (interactive)(doom-project-browse org-directory))
-        :desc "NUS" "n" (lambda () (interactive)(doom-project-browse chloe/nus-directory))
-        :desc "Current semester" "s" (lambda () (interactive)(doom-project-browse chloe/nus-current-sem-directory))
-        :desc "UROPS" "u" (lambda () (interactive)(doom-project-browse chloe/urops-directory))
-        :desc "NSCC server" "e" (lambda () (interactive)(doom-project-browse "/ssh:e0325190@nus.nscc.sg:/home/users/nus/e0325190/"))
-        :desc "Work" "w" (lambda () (interactive)(doom-project-browse "~/Dropbox/Work/")))
+        :desc "Home" "h" (cmd! (doom-project-browse "~/"))
+        :desc "Documents" "d" (cmd! (doom-project-browse chloe/documents-directory))
+        :desc "Dropbox" "r" (cmd! (doom-project-browse "~/Dropbox/"))
+        :desc "Code" "c" (cmd! (doom-project-browse "~/Code/"))
+        :desc "Dotfiles" "t" (cmd! (doom-project-browse "~/dotfiles/"))
+        :desc "Dotfiles (find in project)" "T" (cmd! (doom-project-find-file "~/dotfiles/"))
+        :desc "Agenda folder" "a" (cmd! (doom-project-browse chloe/org-agenda-directory))
+        :desc "Org folder" "o" (cmd! (doom-project-browse org-directory))
+        :desc "NUS" "n" (cmd! (doom-project-browse chloe/nus-directory))
+        :desc "Current semester" "s" (cmd! (doom-project-browse chloe/nus-current-sem-directory))
+        :desc "UROPS" "u" (cmd! (doom-project-browse chloe/urops-directory))
+        :desc "NSCC server" "e" (cmd! (doom-project-browse "/ssh:e0325190@nus.nscc.sg:/home/users/nus/e0325190/"))
+        :desc "Work" "w" (cmd! (doom-project-browse "~/Dropbox/Work/")))
 
        ;; file utils
        :desc "Yank filename only" "C-y" #'chloe/yank-buffer-filename-only
@@ -133,7 +133,7 @@
        :desc "make executable" "X" #'chloe/make-current-file-executable)
 
       ;; more utils
-      (:prefix "o" :desc "Google calendar" "c" #'(lambda () (interactive)(browse-url "https://calendar.google.com"))))
+      (:prefix "o" :desc "Google calendar" "c" #'(cmd! (browse-url "https://calendar.google.com"))))
 
 ;;
 ;;; Programming languages

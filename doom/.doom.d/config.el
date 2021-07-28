@@ -72,7 +72,7 @@
 
 (custom-theme-set-faces! 'tsdh-light
   ;; '(hl-line :background nil) ;; sometimes breaks dired
-  '(company-tooltip-search-selection :background "LightSteelBlue")
+  '(company-tooltip-selection :background "LightSteelBlue")
   '(org-block :background "#f0f0f1")
   '(org-code :background "#f0f0f1" :foreground nil)
   '(org-verbatim :background "#f0f0f1" :foreground "#50a14f")

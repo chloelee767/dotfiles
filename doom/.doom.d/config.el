@@ -98,8 +98,9 @@
       chloe/org-agenda-directory (concat org-directory "agenda/")
       chloe/documents-directory "~/Documents/"
       chloe/nus-directory (concat chloe/documents-directory "NUS/")
-      chloe/nus-current-sem-directory (concat chloe/nus-directory "Y3S2/")
+      chloe/nus-current-sem-directory (concat chloe/nus-directory "Y4S1/")
       chloe/urops-directory (concat chloe/nus-directory "UROPS/")
+      chloe/fyp-directory (concat chloe/nus-directory "FYP/")
       ;; chloe/default-bibliography-file (concat org-roam-directory "zotero_references.bib")
       )
 
@@ -124,6 +125,7 @@
         :desc "NUS" "n" (cmd! (doom-project-browse chloe/nus-directory))
         :desc "Current semester" "s" (cmd! (doom-project-browse chloe/nus-current-sem-directory))
         :desc "UROPS" "u" (cmd! (doom-project-browse chloe/urops-directory))
+        :desc "FYP" "y" (cmd! (doom-project-browse chloe/fyp-directory))
         :desc "NSCC server" "e" (cmd! (doom-project-browse "/ssh:e0325190@nus.nscc.sg:/home/users/nus/e0325190/"))
         :desc "Work" "w" (cmd! (doom-project-browse "~/Dropbox/Work/")))
 

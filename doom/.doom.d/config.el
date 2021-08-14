@@ -383,14 +383,11 @@
         org-agenda-custom-commands `((" " "Overview"
                                       ((agenda "" ((org-agenda-span 1)
                                                    (org-deadline-warning-days 365)))
-                                       (tags-todo (concat "SCHEDULED=\"\"" "CATEGORY<>\"someday\"" "CATEGORY<>\"inbox\"" "/!")
+                                       (tags-todo (concat "SCHEDULED=\"\"" "CATEGORY<>\"inbox\"" "/!")
                                                   ((org-agenda-overriding-header "Next actions (no deadline, unscheduled)")
                                                    (org-agenda-skip-function #'(org-agenda-skip-entry-if 'deadline))))
-                                       (tags-todo "CATEGORY=\"inbox\"|+inbox"
-                                                  ((org-agenda-overriding-header "Inbox")))))
-
-                                     ("d" "Someday"
-                                      ((tags-todo "CATEGORY=\"someday\"")))))
+                                       (tags "CATEGORY=\"inbox\"|+inbox"
+                                             ((org-agenda-overriding-header "Inbox")))))))
 
   ;; note: using two %(...)'s only shows the first one, for some reason
   (let ((prefix " %(chloe/org-agenda-effort-string)  "))
@@ -399,10 +396,15 @@
                                      (tags . ,(concat "%i %-12:c" prefix))
                                      (search . ,(concat "%i %-12:c" prefix)))))
 
-  (let ((created-property-string ":Created: %U\n"))
+  (let* ((created-string ":Created: %U\n")
+         (property-string (concat ":PROPERTIES:\n" created-string ":END:")))
     (setq org-capture-templates
           `(("t" "todo" entry (file ,(concat chloe/org-agenda-directory "inbox.org"))
-             ,(concat "* TODO %?\n:PROPERTIES:\n" created-property-string ":END:"))))))
+             ,(concat "* TODO %?\n" property-string))
+            ("i" "idea" entry (file ,(concat chloe/org-agenda-directory "inbox.org"))
+             ,(concat "* TODO [#C] Idea: %?\n" property-string))
+            ("n" "note" entry (file ,(concat chloe/org-agenda-directory "inbox.org"))
+             ,(concat "* NOTE %?\n" property-string))))))
 
 ;; HACK Fix "Capture template ‘t’: Error in a Doom startup hook: doom-switch-buffer-hook, +org--restart-mode-h,"
 (when IS-MAC

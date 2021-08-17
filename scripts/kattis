@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cppbuild() {
+    g++ -g -O2 -std=gnu++17 -static solution.cpp
+}
+
+cpprun() {
+    psrun "./a.out"
+}
+
+cpp() {
+    cppbuild && cpprun
+}
+
+eval $1

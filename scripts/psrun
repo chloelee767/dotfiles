@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RUN_CMD=$1
+
+for infile in in*.txt; do
+    echo -n $infile ": "
+    i=$(grep -o "[0-9]*" <<< $infile)
+    outfile=out${i}.txt
+    ansfile=ans${i}.txt
+    eval \\time -f "%E" $RUN_CMD < $infile > $outfile && diff $outfile $ansfile && echo "passed"
+done

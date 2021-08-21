@@ -387,7 +387,11 @@
                                                   ((org-agenda-overriding-header "Next actions (no deadline, unscheduled)")
                                                    (org-agenda-skip-function #'(org-agenda-skip-entry-if 'deadline))))
                                        (tags "CATEGORY=\"inbox\"|+inbox"
-                                             ((org-agenda-overriding-header "Inbox")))))))
+                                             ((org-agenda-overriding-header "Inbox"))))))
+        org-agenda-sorting-strategy '((agenda habit-down deadline-up time-up category-keep priority-down)
+                                      (todo category-keep priority-down)
+                                      (tags category-keep priority-down)
+                                      (search category-keep priority-down)))
 
   ;; note: using two %(...)'s only shows the first one, for some reason
   (let ((prefix " %(chloe/org-agenda-effort-string)  "))

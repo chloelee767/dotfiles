@@ -19,7 +19,7 @@ configuration {
    /*blackselect:      #303030;*/
    darkgray:         #848484;
    scrollbarcolor:   #505050;
-   font: "Iosevka SS14 12";
+   font: "Iosevka Aile 11";
    background-color: @blackdarkest;
 }
 

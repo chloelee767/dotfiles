@@ -34,7 +34,9 @@ set $ws10 "10"
 # This font is widely installed, provides lots of unicode glyphs, right-to-left
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
 # font pango:DejaVu Sans Mono 11
-font pango:Iosevka SS14 12
+font pango:Iosevka Aile 11
+# font pango:Iosevka SS14 12
+# font pango:Ubuntu 12
 
 smart_borders on
 default_border pixel
@@ -408,4 +410,3 @@ exec --no-startup-id blueman-applet # bluetooth
 
 exec --no-startup-id dropbox
 exec --no-startup-id telegram-desktop
-exec --no-startup-id whatsapp-for-linux

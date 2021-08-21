@@ -24,3 +24,10 @@ export GO111MODULE=auto
 
 [ -f "$HOME/.profile.system" ] && . "$HOME/.profile.system"
 [ -f "$HOME/.profile.local" ] && . "$HOME/.profile.local"
+
+eval `ssh-agent`
+[ -f ~/.ssh/id_ed25519 ] && ssh-add ~/.ssh/id_ed25519
+[ -f ~/.ssh/id_rsa ] && ssh-add ~/.ssh/id_rsa
+
+# for qt5ct, so that okular icons work
+export QT_QPA_PLATFORMTHEME=qt5ct

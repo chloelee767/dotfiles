@@ -167,6 +167,38 @@
   (setq gofmt-command "goimports")
   (add-hook 'before-save-hook 'gofmt-before-save))
 
+
+(setq lsp-clients-clangd-args '("-j=3"
+                                "--background-index"
+                                "--clang-tidy"
+                                "--completion-style=detailed"
+                                "--header-insertion=never"
+                                "--header-insertion-decorators=0"))
+(after! lsp-clangd (set-lsp-priority! 'clangd 2))
+
+(add-hook 'c++-mode #'format-all-mode)
+(use-package! clang-format
+  :after cc-mode
+  :init
+  (setq-hook! 'c++-mode-hook +format-with-lsp nil)
+  :config
+  (set-formatter! 'clang-format #'clang-format-buffer :modes '(c++-mode))
+  (map! ; :mode c++-mode-map
+        :g "<f10>" #'lsp-clangd-find-other-file)
+  ;; does nothing if .clang-format is absent or clang format fallback not set
+  ;; (defun clang-format-before-save ()
+  ;;   (interactive)
+  ;;   (when (eq major-mode 'c++-mode)
+  ;;     (clang-format-buffer)))
+  ;; (add-hook 'before-save-hook 'clang-format-before-save)
+
+  ;; (map! :map c++-mode-map
+  ;;       :localleader
+  ;;       :prefix ("F" . "clang-format")
+  ;;       :desc "format region" "r" #'clang-format-region
+  ;;       :desc "format buffer" "f" #'clang-format-buffer)
+  )
+
 ;;
 ;;; Org mode
 

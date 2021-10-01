@@ -148,16 +148,19 @@ bindsym $mod+F2 move workspace to $hdmiScreen
 bindsym $mod+F3 move workspace to $dp0Screen
 bindsym $mod+F4 move workspace to $dp1Screen
 
-workspace $ws1 output $hdmiScreen $laptopScreen
-workspace $ws2 output $hdmiScreen $laptopScreen
-workspace $ws3 output $hdmiScreen $laptopScreen
-workspace $ws4 output $hdmiScreen $laptopScreen
-workspace $ws5 output $hdmiScreen $laptopScreen
-workspace $ws6 output $laptopScreen $hdmiScreen
-workspace $ws7 output $laptopScreen $hdmiScreen
-workspace $ws8 output $laptopScreen $hdmiScreen
-workspace $ws9 output $laptopScreen $hdmiScreen
-workspace $ws10 output $laptopScreen $hdmiScreen
+set $primaryScreen eDP
+set $secondaryScreen HDMI-A-0
+
+workspace $ws1 output $primaryScreen $secondaryScreen
+workspace $ws2 output $primaryScreen $secondaryScreen
+workspace $ws3 output $primaryScreen $secondaryScreen
+workspace $ws4 output $primaryScreen $secondaryScreen
+workspace $ws5 output $primaryScreen $secondaryScreen
+workspace $ws6 output $secondaryScreen $primaryScreen
+workspace $ws7 output $secondaryScreen $primaryScreen
+workspace $ws8 output $secondaryScreen $primaryScreen
+workspace $ws9 output $secondaryScreen $primaryScreen
+workspace $ws10 output $secondaryScreen $primaryScreen
 
 # kill focused window
 bindsym $mod+Shift+period kill
@@ -343,7 +346,9 @@ for_window [class="Engrampa"] floating enable; # unarchiver
 # for_window [role="^floating$"] floating enable;
 
 # Open applications on specific workspaces
-assign [class="jetbrains-idea"] $ws3
+assign [class="jetbrains-idea"] $ws2
+assign [class="jetbrains-clion"] $ws2
+assign [class="jetbrains-goland"] $ws2
 for_window [class="Spotify"] move to workspace $ws6
 assign [class="zoom"] $ws6
 assign [class="TelegramDesktop"] $ws5

@@ -69,6 +69,13 @@ ranger() {
 [ -f "$HOME/.zshrc.system" ] && source "$HOME/.zshrc.system"
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
 
+function set_win_title(){
+    echo -ne "\033]0; $PWD \007"
+}
+precmd_functions+=(set_win_title)
+
 eval "$(starship init zsh)"
+
+eval "$(direnv hook zsh)"
 
 autoload -U compinit && compinit # load completions

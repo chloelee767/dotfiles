@@ -1,5 +1,25 @@
-# [java]
-# symbol = "Java "
+add_newline = false
+format = "$all$time$line_break$character"
 
-# [python]
-# symbol = "  "
+[character]
+success_symbol = "[\\$](green)"
+error_symbol = "[\\$](red)"
+
+[line_break]
+disabled = false
+
+[time]
+disabled = false
+style = "bold dimmed"
+
+[gcloud]
+disabled = true
+
+[aws]
+disabled = true
+
+[cmake]
+disabled = true
+
+[golang]
+disabled = true

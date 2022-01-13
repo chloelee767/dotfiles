@@ -1,3 +1,20 @@
+"Vim plug plugins: run :PlugInstall to install plugins
+call plug#begin()
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-surround'
+Plug 'justinmk/vim-sneak'
+"Plug 'easymotion/vim-easymotion'
+
+Plug 'scrooloose/nerdcommenter'
+
+Plug 'vim-airline/vim-airline'
+"Plug 'vim-airline/vim-airline-themes'
+Plug 'sheerun/vim-polyglot'
+Plug 'scrooloose/nerdtree'
+Plug '~/Downloads/fzf'
+Plug 'junegunn/fzf.vim'
+call plug#end()
+
 set number
 set expandtab
 set tabstop=4
@@ -5,56 +22,30 @@ set softtabstop=4
 set shiftwidth=4
 set smarttab
 
-"remap jk to escape
-inoremap jk <Esc> 
-
 "use + register for clipboard
 set clipboard+=unnamedplus
 
-"use visual lines for navigation by default
-nnoremap j gj
-nnoremap k gk
-nnoremap 0 g0
-nnoremap $ g$
+"remap jk to escape
+inoremap jk <Esc> 
 
-nnoremap gj j
-nnoremap gk k
-nnoremap g0 0
-nnoremap g$ $
-
-vnoremap j gj
-vnoremap k gk
-vnoremap 0 g0
-vnoremap $ g$
-
-vnoremap gj j
-vnoremap gk k
-vnoremap g0 0
-
-vnoremap g$ $
+" emacs keybinds in insert mode
+inoremap <C-b> <Left>
+inoremap <C-f> <Right>
+inoremap <C-E> <End>
+inoremap <C-A> <Home>
+inoremap <M-f> <Esc>wa
+inoremap <M-b> <Esc>ba
 
 let mapleader = " "
 
-"Vim plug plugins: run :PlugInstall to install plugins
-call plug#begin()
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-" Plug 'szymonmaszke/vimpyter'
-Plug 'Konfekt/FastFold'
-Plug 'sheerun/vim-polyglot'
-Plug 'scrooloose/nerdtree'
-"Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'tpope/vim-surround'
-Plug '~/Downloads/fzf'
-Plug 'junegunn/fzf.vim'
-Plug 'scrooloose/nerdcommenter'
-call plug#end()
+nnoremap <Leader>. :edit 
+nnoremap <Leader>, :Buffers<CR>
+nnoremap <Leader>' :Files<CR>
+nnoremap <Leader>p :NERDTree<CR>
 
-nmap <Leader>, :Buffers<CR>
-nmap <Leader>' :Files<CR>
-nmap <Leader>. :edit 
-nmap <Leader>p :NERDTree<CR>
-"nnoremap <C-;> <Leader>c<Space>
+"map gs <Plug>(easymotion-prefix)
+"nmap s <Plug>(easymotion-sn)
+"xmap s <Plug>(easymotion-sn)
+"omap z <Plug>(easymotion-sn)
 
-"let g:airline_theme='angr'
-let g:airline_powerline_fonts=1
+let g:airline#extensions#tabline#enabled = 1

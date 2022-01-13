@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Run a problem set against some test files.
+# inputs = in1,txt, in2.txt ... answers = ans1.txt, ans2.txt ...
+# answers produced are stored in out1.txt, out2.txt, ...
+
 RUN_CMD=$1
 
 for infile in in*.txt; do

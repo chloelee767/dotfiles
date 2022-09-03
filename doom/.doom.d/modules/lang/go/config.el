@@ -32,7 +32,6 @@
         "i" #'go-goto-imports      ; Go to imports
         (:prefix ("h" . "help")
          "." #'godoc-at-point ; Lookup in godoc
-         (:unless (featurep! +lsp)
           "d" #'go-guru-describe   ; Describe this
           "v" #'go-guru-freevars   ; List free variables
           "i" #'go-guru-implements ; Implements relations for package types
@@ -43,7 +42,7 @@
           "w" #'go-guru-what       ; What query
           "c" #'go-guru-callers    ; Show callers of this function
           "C" #'go-guru-callees   ; Show callees of this function
-          ))
+          )
         (:prefix ("ri" . "imports")
          "a" #'go-import-add
          "r" #'go-remove-unused-imports)

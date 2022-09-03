@@ -11,6 +11,7 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
+# Only supported by GNU implementation, not BSD implementation (mac)
 alias rm="rm -I" # only prompt once for multiple/recursive deletes
 alias cp="cp -i"
 alias mv="mv -i"

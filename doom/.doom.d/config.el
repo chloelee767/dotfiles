@@ -101,10 +101,11 @@
       chloe/org-agenda-directory (concat org-directory "agenda/")
       chloe/documents-directory "~/Documents/"
       chloe/nus-directory (concat chloe/documents-directory "NUS/")
-      chloe/nus-current-sem-directory (concat chloe/nus-directory "Y4S2/")
-      chloe/urops-directory (concat chloe/nus-directory "UROPS/")
-      chloe/fyp-directory (concat chloe/nus-directory "FYP/")
-      ;; chloe/default-bibliography-file (concat org-roam-directory "zotero_references.bib")
+      chloe/gosrc-directory "~/go/src/"
+      chloe/carousell-gocode-directory (concat chloe/gosrc-directory "github.com/carousell/")
+      chloe/dropbox-directory "~/Dropbox/"
+      chloe/work-dropbox (concat chloe/dropbox-directory "Work/")
+      chloe/current-tickets-dropbox (concat chloe/work-dropbox "tickets/current/")
       )
 
 ;;
@@ -119,18 +120,17 @@
        (:prefix ("f" . "favourites")
         :desc "Home" "h" (cmd! (doom-project-browse "~/"))
         :desc "Documents" "d" (cmd! (doom-project-browse chloe/documents-directory))
-        :desc "Dropbox" "r" (cmd! (doom-project-browse "~/Dropbox/"))
+        :desc "Dropbox" "r" (cmd! (doom-project-browse chloe/dropbox-directory))
         :desc "Code" "c" (cmd! (doom-project-browse "~/Code/"))
+        :desc "Go (Carousell)" "g" (cmd! (doom-project-browse chloe/carousell-gocode-directory))
+        :desc "Go src" "G" (cmd! (doom-project-browse chloe/gosrc-directory))
         :desc "Dotfiles" "t" (cmd! (doom-project-browse "~/dotfiles/"))
         :desc "Dotfiles (find in project)" "T" (cmd! (doom-project-find-file "~/dotfiles/"))
         :desc "Agenda folder" "a" (cmd! (doom-project-browse chloe/org-agenda-directory))
         :desc "Org folder" "o" (cmd! (doom-project-browse org-directory))
         :desc "NUS" "n" (cmd! (doom-project-browse chloe/nus-directory))
-        :desc "Current semester" "s" (cmd! (doom-project-browse chloe/nus-current-sem-directory))
-        :desc "UROPS" "u" (cmd! (doom-project-browse chloe/urops-directory))
-        :desc "FYP" "y" (cmd! (doom-project-browse chloe/fyp-directory))
-        :desc "NSCC server" "e" (cmd! (doom-project-browse "/ssh:e0325190@nus.nscc.sg:/home/users/nus/e0325190/"))
-        :desc "Work" "w" (cmd! (doom-project-browse "~/Dropbox/Work/")))
+        :desc "Work" "w" (cmd! (doom-project-browse chloe/work-dropbox))
+        :desc "Current tickets" "i" (cmd! (doom-project-browse chloe/current-tickets-dropbox)))
 
        ;; file utils
        :desc "Yank filename only" "C-y" #'chloe/yank-buffer-filename-only

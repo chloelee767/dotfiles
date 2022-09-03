@@ -9,7 +9,9 @@
       enable-local-variables t
       evil-ex-substitute-global t
       company-idle-delay 3.0
-      +latex-viewers '(pdf-tools okular))
+      +latex-viewers '(pdf-tools okular)
+      display-line-numbers-type 'relative
+      )
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)

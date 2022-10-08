@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -eou pipefail
+
+POD="$(kubectl get pods | tail -n +2 | fzf -1 --prompt 'pod>' | awk '{print $1}')"
+
+set -x # print commands executed
+kubectl port-forward "$POD" grpc
+
+# TODO: options for selecting ports

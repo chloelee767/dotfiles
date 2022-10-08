@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eou pipefail
+
+CMD="$1"
+
+echo "COMMAND:" "$CMD"
+
+PODS="$(kubectl get pods | tail -n +2 | awk '{print $1}' | grep --invert-match -E "datareplicator" | sort)"
+for P in $PODS; do
+    CONTAINER=$(kubectl get pod $P -o jsonpath="{.spec.containers[*].name}" | tr -s '[[:space:]]' '\n' | grep --invert-match -E "log-svc-agent|istio-proxy")
+    NUM_C=$(echo $CONTAINER | wc -l)
+    echo "pod:" "$P" "container:" "$CONTAINER"
+    if [[ $NUM_C -eq 1 ]]; then
+        kubectl exec "$P" --container "$CONTAINER" -- /bin/bash -c "$CMD"
+    else
+        echo "FAILED: >1 container"
+    fi
+    # sleep 2
+done
+
+# TODO:
+# - filter out non-running pods
+# - filtering out certain pods / containers (eg. workers)
+# - make this work kexecall 'kill -1 $(supervisorctl status svc | awk '{ print $4 }' | sed 's/,//')'

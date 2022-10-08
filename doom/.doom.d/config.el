@@ -11,6 +11,9 @@
       company-idle-delay 3.0
       +latex-viewers '(pdf-tools okular)
       display-line-numbers-type 'relative
+      ;; TODO renenable when compatible with workspaces module
+      ;; uniquify-buffer-name-style 'forward
+      ;; uniquify-after-kill-buffer-p t
       )
 
 (global-visual-line-mode 1)
@@ -32,6 +35,9 @@
 (map! :leader
       :prefix ("y" . "yank")
       :desc "Copy last kill to clipboard" "c" #'chloe/copy-last-kill-to-clipboard)
+;; disable tmm=menubar
+ (map! :g "`" nil
+      :g "M-`" nil)
 
 ;; be similar to org
 (map! :map 'markdown-mode-map

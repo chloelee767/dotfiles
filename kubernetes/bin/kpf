@@ -1,9 +1,33 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
+PORT="grpc"
+SELECT_PORT=false
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    case $key in
+        -p|--port)
+            PORT="$2"
+            shift
+            shift
+            ;;
+        -ip|--interactive-port)
+            SELECT_PORT=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+
 POD="$(kubectl get pods | tail -n +2 | fzf -1 --prompt 'pod>' | awk '{print $1}')"
 
-set -x # print commands executed
-kubectl port-forward "$POD" grpc
+if $SELECT_PORT; then
+    PORT=$(kubectl get pod ${POD} -o go-template='{{range.spec.containers}}{{range.ports}}{{.name}}{{" "}}{{.containerPort}}{{"\n"}}{{end}}{{end}}' | fzf -1 --prompt 'port>' | awk '{ print $1 }')
+fi
 
-# TODO: options for selecting ports
+set -x # print commands executed
+kubectl port-forward "$POD" "$PORT"

@@ -34,3 +34,7 @@ alias gb="git branch"
 alias ra="ranger"
 
 alias ssh="TERM=vt100 ssh"
+
+alias k="kubectl"
+alias kc="kubectx"
+alias kn="kubens"

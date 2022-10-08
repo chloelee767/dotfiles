@@ -354,26 +354,6 @@
       ("^\\*org-roam: " ; node dedicated org-roam buffer
        :side right :width .3 :height .5 :ttl nil :modeline nil :quit nil :slot 2))))
 
-(use-package! org-transclusion
-  :after org
-  :init
-  (map! :g "<f1>" #'org-transclusion-mode
-        :g "<f2>" #'org-transclusion-make-from-link)
-  (map! :map org-mode-map
-        :localleader
-        (:prefix ("k" . "Org Transclusion")
-         :desc "mode" "m" #'org-transclusion-mode
-         :desc "make from link" "l" #'org-transclusion-make-from-link
-         ;; rarely used
-         :desc "add" "a" #'org-transclusion-add
-         :desc "add all" "A" #'org-transclusion-add-all
-         :desc "remove" "r" #'org-transclusion-remove
-         :desc "remove all" "r" #'org-transclusion-remove-all))
-  :config
-  (setq org-transclusion-include-first-section t
-        org-transclusion-exclude-elements (list 'property-drawer 'keyword))
-  )
-
 ;; (custom-set-faces! '(org-transclusion :background "#b9c9b9")
 ;;                 '(org-transclusion-source :background "#ebf6fa"))
 

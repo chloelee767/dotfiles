@@ -13,11 +13,6 @@
 (package! org-fragtog :pin "92119e3ae7c9a0ae2b5c9d9e4801b5fdc4804ad7")
 (package! org-superstar :pin "94f35c20f8b84a63defa145e3e6ae735fa33dd5d")
 (package! org-download :pin "42ac361ef5502017e6fc1bceb00333eba90402f4")
-(package! org-transclusion
-  :recipe (:host github
-           :repo "nobiot/org-transclusion"
-           :branch "main"
-           :files ("*.el")))
 
 (package! ox-gfm)
 

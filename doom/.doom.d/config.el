@@ -337,12 +337,15 @@
         :desc "Org roam find" "f" #'org-roam-node-find
         :desc "Org roam buffer" "r" #'org-roam-buffer-toggle
         :desc "Org roam buffer" "R" #'org-roam-buffer-display-dedicated)
-  (setq org-roam-v2-ack t)
   :config
+  (org-roam-db-autosync-mode)
   (map! :map org-mode-map
         :i "C-c i" #'org-roam-node-insert)
+
+  (cl-defmethod org-roam-node-my-title ((node org-roam-node))
+    (file-name-sans-extension (file-relative-name (org-roam-node-file node) org-roam-directory)))
+  (setq org-roam-node-display-template "${my-title:*}${olp:*}")
   (setq org-roam-db-location "~/org-roam.db"
-        org-roam-node-display-template "${file:*}${olp:*}"
         org-roam-capture-templates
         '(("d" "default" plain "%?"
            :if-new (file+head "%(chloe/org-roam-file-slug \"${title}\").org"
@@ -353,7 +356,6 @@
                                      #'org-roam-reflinks-insert-section
                                      ;; #'org-roam-unlinked-references-insert-section
                                      ))
-  (org-roam-setup)
   (set-popup-rules!
     `((,(regexp-quote org-roam-buffer) ; persistent org-roam buffer
        :side right :width .3 :height .5 :ttl nil :modeline nil :quit nil :slot 1)

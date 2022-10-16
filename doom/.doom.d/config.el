@@ -346,9 +346,9 @@
   (if (and (chloe/org-roam-note-exists-p oldname) (chloe/org-roam-note-exists-p newname))
       (error (s-format "Both $0 and $1 exist, please manually combine files & delete one first"
                        'elt (vector oldname newname)))
-    (let* ((get-notename (lambda (abspath) (file-name-sans-extension (file-name-nondirectory abspath))))
-           (oldname-children (mapcar #'get-notename (chloe/org-roam-note-children oldname)))
-           (newname-children (mapcar #'get-notename (chloe/org-roam-note-children newname)))
+
+    (let* ((oldname-children (mapcar (lambda (p) (file-name-sans-extension (file-name-nondirectory p))) (chloe/org-roam-note-children oldname)))
+           (newname-children (mapcar (lambda (p) (file-name-sans-extension (file-name-nondirectory p))) (chloe/org-roam-note-children newname)))
            (colliding-notename (chloe/org-roam-rename-note--children-collisions-first oldname newname oldname-children newname-children)))
       (if colliding-notename
           (error (s-format "Cannot rename $0 to $1, $2 will cause collision"
@@ -360,7 +360,7 @@
               (chloe/org-roam-rename-note--do-rename oldname newname))
 
           ;; rename children
-          (mapc (lambda (notename) (chloe/org-roam-rename--do-rename notename (chloe/org-roam-rename-note--rename oldname newname notename)))
+          (mapc (lambda (notename) (chloe/org-roam-rename-note--do-rename notename (chloe/org-roam-rename-note--rename oldname newname notename)))
                 oldname-children))))))
 
 (use-package! org-roam

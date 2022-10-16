@@ -65,3 +65,10 @@
 ;;;###autoload (autoload 'org-roam-node-my-title "autoload" nil t)
 (cl-defmethod org-roam-node-my-title ((node org-roam-node))
   (file-name-sans-extension (file-relative-name (org-roam-node-file node) org-roam-directory)))
+
+;;;###autoload
+(defun chloe/org-roam-node-find-children (&optional other-window)
+  ;; org-roam-node-find with intial input set so that only children of the current file are listed
+  (interactive current-prefix-arg)
+  (let ((note-name (file-name-sans-extension (file-name-nondirectory buffer-file-name))))
+        (org-roam-node-find other-window (concat "^" note-name "\."))))

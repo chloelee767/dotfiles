@@ -30,13 +30,13 @@
       :g "C-S-c" #'clipboard-kill-ring-save
       :g "C-S-v" #'clipboard-yank
       (:when IS-MAC
-       :g "s-c" #'clipboard-kill-ring-save
-       :g "s-v" #'clipboard-yank))
+        :g "s-c" #'clipboard-kill-ring-save
+        :g "s-v" #'clipboard-yank))
 (map! :leader
       :prefix ("y" . "yank")
       :desc "Copy last kill to clipboard" "c" #'chloe/copy-last-kill-to-clipboard)
 ;; disable tmm=menubar
- (map! :g "`" nil
+(map! :g "`" nil
       :g "M-`" nil)
 
 ;; be similar to org
@@ -122,26 +122,26 @@
 (map! :leader
       (:prefix "f"
 
-       ;; shortcuts to useful folders
-       (:prefix ("f" . "favourites")
-        :desc "Home" "h" (cmd! (doom-project-browse "~/"))
-        :desc "Documents" "d" (cmd! (doom-project-browse chloe/documents-directory))
-        :desc "Dropbox" "r" (cmd! (doom-project-browse chloe/dropbox-directory))
-        :desc "Code" "c" (cmd! (doom-project-browse "~/Code/"))
-        :desc "Go (Carousell)" "g" (cmd! (doom-project-browse chloe/carousell-gocode-directory))
-        :desc "Go src" "G" (cmd! (doom-project-browse chloe/gosrc-directory))
-        :desc "Dotfiles" "t" (cmd! (doom-project-browse "~/dotfiles/"))
-        :desc "Dotfiles (find in project)" "T" (cmd! (doom-project-find-file "~/dotfiles/"))
-        :desc "Agenda folder" "a" (cmd! (doom-project-browse chloe/org-agenda-directory))
-        :desc "Org folder" "o" (cmd! (doom-project-browse org-directory))
-        :desc "NUS" "n" (cmd! (doom-project-browse chloe/nus-directory))
-        :desc "Work" "w" (cmd! (doom-project-browse chloe/work-dropbox))
-        :desc "Current tickets" "i" (cmd! (doom-project-browse chloe/current-tickets-dropbox)))
+               ;; shortcuts to useful folders
+               (:prefix ("f" . "favourites")
+                :desc "Home" "h" (cmd! (doom-project-browse "~/"))
+                :desc "Documents" "d" (cmd! (doom-project-browse chloe/documents-directory))
+                :desc "Dropbox" "r" (cmd! (doom-project-browse chloe/dropbox-directory))
+                :desc "Code" "c" (cmd! (doom-project-browse "~/Code/"))
+                :desc "Go (Carousell)" "g" (cmd! (doom-project-browse chloe/carousell-gocode-directory))
+                :desc "Go src" "G" (cmd! (doom-project-browse chloe/gosrc-directory))
+                :desc "Dotfiles" "t" (cmd! (doom-project-browse "~/dotfiles/"))
+                :desc "Dotfiles (find in project)" "T" (cmd! (doom-project-find-file "~/dotfiles/"))
+                :desc "Agenda folder" "a" (cmd! (doom-project-browse chloe/org-agenda-directory))
+                :desc "Org folder" "o" (cmd! (doom-project-browse org-directory))
+                :desc "NUS" "n" (cmd! (doom-project-browse chloe/nus-directory))
+                :desc "Work" "w" (cmd! (doom-project-browse chloe/work-dropbox))
+                :desc "Current tickets" "i" (cmd! (doom-project-browse chloe/current-tickets-dropbox)))
 
-       ;; file utils
-       :desc "Yank filename only" "C-y" #'chloe/yank-buffer-filename-only
-       :desc "chmod" "x" #'chloe/chmod-current-file
-       :desc "make executable" "X" #'chloe/make-current-file-executable)
+               ;; file utils
+               :desc "Yank filename only" "C-y" #'chloe/yank-buffer-filename-only
+               :desc "chmod" "x" #'chloe/chmod-current-file
+               :desc "make executable" "X" #'chloe/make-current-file-executable)
 
       ;; more utils
       (:prefix "o" :desc "Google calendar" "c" #'(cmd! (browse-url "https://calendar.google.com"))))

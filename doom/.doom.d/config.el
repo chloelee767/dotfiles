@@ -319,11 +319,10 @@
   (gethash value hashset nil))
 
 (defun chloe/org-roam-rename-note--children-collisions-first (oldname newname oldname-children newname-children)
-  (let*
-      ((newname-children-set (string-seq-to-hashset newname-children))
-       (first-collision-index (-find-index
-                               (lambda (notename) (hashset-contains-p (chloe/org-roam-rename-note--rename oldname newname notename) newname-children-set))
-                               oldname-children)))
+  (let* ((newname-children-set (string-seq-to-hashset newname-children))
+         (first-collision-index (-find-index
+                                 (lambda (notename) (hashset-contains-p (chloe/org-roam-rename-note--rename oldname newname notename) newname-children-set))
+                                 oldname-children)))
     (if first-collision-index (nth first-collision-index oldname-children) nil)))
 
 ;; (chloe/org-roam-rename-note--children-collisions-first
@@ -333,7 +332,8 @@
   ;; rename a single file
   (let ((new-fullpath (concat org-roam-directory new-notename ".org"))
         (old-fullpath (concat org-roam-directory old-notename ".org")))
-    (rename-file old-fullpath new-fullpath)))
+    (rename-file old-fullpath new-fullpath)
+    (doom-files--update-refs old-fullpath new-fullpath)))
 ;; (chloe/org-roam-rename-note--do-rename "test" "test2" "test.a.foo")
 
 ;; Rename file
@@ -345,37 +345,23 @@
   ;; make sure at most 1 of the files exist
   (if (and (chloe/org-roam-note-exists-p oldname) (chloe/org-roam-note-exists-p newname))
       (error (s-format "Both $0 and $1 exist, please manually combine files & delete one first"
-                       'elt
-                       (vector oldname newname)))
-    (let*
-        ((get-notename (lambda (abspath) (file-name-sans-extension (file-name-nondirectory abspath))))
-         (oldname-children (mapcar #'get-notename (chloe/org-roam-note-children oldname)))
-         (newname-children (mapcar #'get-notename (chloe/org-roam-note-children newname)))
-         (colliding-notename (chloe/org-roam-rename-note--children-collisions-first oldname newname oldname-children newname-children))
-         )
+                       'elt (vector oldname newname)))
+    (let* ((get-notename (lambda (abspath) (file-name-sans-extension (file-name-nondirectory abspath))))
+           (oldname-children (mapcar #'get-notename (chloe/org-roam-note-children oldname)))
+           (newname-children (mapcar #'get-notename (chloe/org-roam-note-children newname)))
+           (colliding-notename (chloe/org-roam-rename-note--children-collisions-first oldname newname oldname-children newname-children)))
       (if colliding-notename
           (error (s-format "Cannot rename $0 to $1, $2 will cause collision"
-                           'elt
-                           (vector oldname newname colliding-notename)))
+                           'elt (vector oldname newname colliding-notename)))
         ;; perform rename
         (progn
-          ;; rename children
-          (mapc (lambda (notename) (chloe/org-roam-rename--do-rename notename (chloe/org-roam-rename-note--rename oldname newname notename)))
-                oldname-children)
-
           ;; rename file itself
           (if (chloe/org-roam-note-exists-p oldname)
-              (chloe/org-roam-rename-note--do-rename oldname newname)
-            nil)
+              (chloe/org-roam-rename-note--do-rename oldname newname))
 
-          ;; TODO update doom refs
-
-          )
-
-        )
-      )
-    )
-  )
+          ;; rename children
+          (mapc (lambda (notename) (chloe/org-roam-rename--do-rename notename (chloe/org-roam-rename-note--rename oldname newname notename)))
+                oldname-children))))))
 
 (use-package! org-roam
   :after org

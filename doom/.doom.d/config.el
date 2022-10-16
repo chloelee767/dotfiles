@@ -283,6 +283,92 @@
   ;; org-download-image-dir is safe as long as it is a string
   (put 'org-download-image-dir 'safe-local-variable #'stringp))
 
+(defun string-remove-surrounding (toremove str)
+  (string-remove-suffix toremove (string-remove-prefix toremove str)))
+
+(defun chloe/org-roam-note-exists-p (notename)
+  ;; notename: filename sans extension
+  ;; returns true iff the note file itself exists
+  ;; will return false even if children exists but note file itself does not exist
+  (file-exists-p (concat org-roam-directory notename ".org")))
+
+(defun chloe/org-roam-note-children (notename)
+  ;; notename : filename sans extension
+  ;; returns absolute file paths
+  ;; Eg. ("/Users/chloelee/Dropbox/Org/notes/cs.databases.database-apps.org" "/Users/chloelee/Dropbox/Org/notes/cs.databases.mysql.org" "/Users/chloelee/Dropbox/Org/notes/cs.databases.postgres.org")
+  (let ((likequery (concat "\"" (expand-file-name org-roam-directory) notename "._%.org" "\"")))
+    (mapcar #'car
+            ;; db query returns list of lists
+            (org-roam-db-query [:select file :from files :where (like file $r1)] likequery))))
+
+
+(defun chloe/org-roam-rename-note--rename (oldname newname notename)
+  ;; Returns renamed note name
+  (if (string-prefix-p (concat oldname ".") notename)
+      (concat newname (string-remove-prefix oldname notename))
+    ;; should not happen
+    (error (concat "Notename does not have correct prefix. " "Notename:" notename " Prefix:" oldname ))))
+;; (chloe/org-roam-rename-note--rename "cs" "compsci" "cs.databases.mysql")
+
+(defun string-seq-to-hashset (seq)
+  (let ((hashset (make-hash-table :test 'equal :size (length seq))))
+    (progn
+      (mapc (lambda (x) (puthash x 't hashset)) seq)
+      hashset)))
+(defun hashset-contains-p (value hashset)
+  (gethash value hashset nil))
+
+(defun chloe/org-roam-rename-note--children-collisions-first (oldname newname oldname-children newname-children)
+  (let*
+      ((newname-children-set (string-seq-to-hashset newname-children))
+       (first-collision-index (-find-index
+                               (lambda (notename) (hashset-contains-p (chloe/org-roam-rename-note--rename oldname newname notename) newname-children-set))
+                               oldname-children)))
+    (if first-collision-index (nth first-collision-index oldname-children) nil)))
+
+;; (chloe/org-roam-rename-note--children-collisions-first
+;;  "cs" "compsci" '("cs.a" "cs.b") '("compsci.x" "compsci.y"))
+
+(defun chloe/org-roam-rename-note--do-rename (oldname newname notename)
+  ;; rename a single file
+  (let* ((new-notename (chloe/org-roam-rename-note--rename oldname newname notename))
+         (new-fullpath (concat org-roam-directory new-notename ".org"))
+         (old-fullpath (concat org-roam-directory notename ".org")))
+    (rename-file old-fullpath
+                 new-fullpath
+                 nil) ;; not ok if file already exists
+    ))
+
+;; Rename file
+;; renames all children
+;; If collision, error
+(defun chloe/org-roam-rename-note (oldname newname)
+  ;; oldname and newname should be notenames
+
+  ;; make sure at most 1 of the files exist
+  (if (and (chloe/org-roam-note-exists-p oldname) (chloe/org-roam-note-exists-p newname))
+      (error (s-format "Both $0 and $1 exist, please manually combine files & delete one first"
+                       'elt
+                       (vector oldname newname)))
+    (let*
+        ((get-notename (lambda (abspath) (file-name-sans-extension (file-name-nondirectory abspath))))
+         (oldname-children (mapcar #'get-notename (chloe/org-roam-note-children oldname)))
+         (newname-children (mapcar #'get-notename (chloe/org-roam-note-children newname)))
+         (colliding-notename (chloe/org-roam-rename-note--children-collisions-first oldname newname oldname-children newname-children))
+         )
+      (if colliding-notename
+          (error (s-format "Cannot rename $0 to $1, $2 will cause collision"
+                           'elt
+                           (vector oldname newname colliding-notename)))
+        ;; perform rename
+        (mapc
+         (lambda (notename) (chloe/org-roam-rename--do-rename oldname newname notename))
+         oldname-children)
+        )
+      )
+    )
+  )
+
 (use-package! org-roam
   :after org
   :init

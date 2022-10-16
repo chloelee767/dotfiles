@@ -101,6 +101,7 @@
 
 ;;
 ;;; Useful files and directories
+;;; note: a lot of custom functions work under the assumption that directory paths end with /
 
 (setq org-directory "~/Dropbox/Org/"
       org-roam-directory (concat org-directory "notes/")

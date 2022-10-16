@@ -70,5 +70,7 @@
 (defun chloe/org-roam-node-find-children (&optional other-window)
   ;; org-roam-node-find with intial input set so that only children of the current file are listed
   (interactive current-prefix-arg)
-  (let ((note-name (file-name-sans-extension (file-name-nondirectory buffer-file-name))))
-        (org-roam-node-find other-window (concat "^" note-name "\."))))
+  (if (org-roam-file-p buffer-file-name)
+      (let ((note-name (file-name-sans-extension (file-name-nondirectory buffer-file-name))))
+        (org-roam-node-find other-window (concat "^" note-name "\\.")))
+    (error "Not in an org roam file")))

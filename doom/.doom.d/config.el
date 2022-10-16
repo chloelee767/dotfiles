@@ -370,6 +370,7 @@
         :leader
         :prefix ("n" . "notes")
         :desc "Org roam find" "f" #'org-roam-node-find
+        :desc "Org roam find children" "c" #'chloe/org-roam-node-find-children
         :desc "Org roam buffer" "r" #'org-roam-buffer-toggle
         :desc "Org roam buffer" "R" #'org-roam-buffer-display-dedicated)
   :config

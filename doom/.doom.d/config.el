@@ -329,15 +329,12 @@
 ;; (chloe/org-roam-rename-note--children-collisions-first
 ;;  "cs" "compsci" '("cs.a" "cs.b") '("compsci.x" "compsci.y"))
 
-(defun chloe/org-roam-rename-note--do-rename (oldname newname notename)
+(defun chloe/org-roam-rename-note--do-rename (old-notename new-notename)
   ;; rename a single file
-  (let* ((new-notename (chloe/org-roam-rename-note--rename oldname newname notename))
-         (new-fullpath (concat org-roam-directory new-notename ".org"))
-         (old-fullpath (concat org-roam-directory notename ".org")))
-    (rename-file old-fullpath
-                 new-fullpath
-                 nil) ;; not ok if file already exists
-    ))
+  (let ((new-fullpath (concat org-roam-directory new-notename ".org"))
+        (old-fullpath (concat org-roam-directory old-notename ".org")))
+    (rename-file old-fullpath new-fullpath)))
+;; (chloe/org-roam-rename-note--do-rename "test" "test2" "test.a.foo")
 
 ;; Rename file
 ;; renames all children
@@ -361,9 +358,20 @@
                            'elt
                            (vector oldname newname colliding-notename)))
         ;; perform rename
-        (mapc
-         (lambda (notename) (chloe/org-roam-rename--do-rename oldname newname notename))
-         oldname-children)
+        (progn
+          ;; rename children
+          (mapc (lambda (notename) (chloe/org-roam-rename--do-rename notename (chloe/org-roam-rename-note--rename oldname newname notename)))
+                oldname-children)
+
+          ;; rename file itself
+          (if (chloe/org-roam-note-exists-p oldname)
+              (chloe/org-roam-rename-note--do-rename oldname newname)
+            nil)
+
+          ;; TODO update doom refs
+
+          )
+
         )
       )
     )
@@ -376,7 +384,6 @@
         :leader
         :prefix ("n" . "notes")
         :desc "Org roam find" "f" #'org-roam-node-find
-        :desc "Org roam find children" #'chloe/org-roam-node-find-children
         :desc "Org roam buffer" "r" #'org-roam-buffer-toggle
         :desc "Org roam buffer" "R" #'org-roam-buffer-display-dedicated)
   :config

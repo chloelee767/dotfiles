@@ -282,17 +282,6 @@
   ;; org-download-image-dir is safe as long as it is a string
   (put 'org-download-image-dir 'safe-local-variable #'stringp))
 
-(defun chloe/org-roam-input-title-to-file-name (input)
-  ;; ref.An Interesting Article => ref.an-interesting-article
-  (downcase (string-replace " " "-" input)))
-
-(defun chloe/org-roam-input-title-to-file-title (input)
-  ;; ref.An Interesting Article => An Interesting Article
-  ;; ref => ref
-  (if (string-match "\\." input)
-      (file-name-extension input)
-    input)) ;; case when top level
-
 (use-package! org-roam
   :after org
   :init
@@ -307,8 +296,6 @@
   (map! :map org-mode-map
         :i "C-c i" #'org-roam-node-insert)
 
-  (cl-defmethod org-roam-node-my-title ((node org-roam-node))
-    (file-name-sans-extension (file-relative-name (org-roam-node-file node) org-roam-directory)))
   (setq org-roam-db-location "~/org-roam.db"
         org-roam-node-display-template "${my-title:*}${olp:*}" ;; OLP = outline path
         org-roam-capture-templates

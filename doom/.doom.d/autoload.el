@@ -48,3 +48,20 @@
   (with-temp-buffer
     (yank)
     (clipboard-kill-region (point-min) (point-max))))
+
+;;;###autoload
+(defun chloe/org-roam-input-title-to-file-name (input)
+  ;; ref.An Interesting Article => ref.an-interesting-article
+  (downcase (string-replace " " "-" input)))
+
+;;;###autoload
+(defun chloe/org-roam-input-title-to-file-title (input)
+  ;; ref.An Interesting Article => An Interesting Article
+  ;; ref => ref
+  (if (string-match "\\." input)
+      (file-name-extension input)
+    input)) ;; case when top level
+
+;;;###autoload (autoload 'org-roam-node-my-title "autoload" nil t)
+(cl-defmethod org-roam-node-my-title ((node org-roam-node))
+  (file-name-sans-extension (file-relative-name (org-roam-node-file node) org-roam-directory)))

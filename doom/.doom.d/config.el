@@ -29,9 +29,11 @@
       :g "C-c SPC" #'doom/leader
       :g "C-S-c" #'clipboard-kill-ring-save
       :g "C-S-v" #'clipboard-yank
+      :g "C-S-n" #'restart-emacs-start-new-emacs ;; does not quit current emacs, just spawns new instance
       (:when IS-MAC
         :g "s-c" #'clipboard-kill-ring-save
-        :g "s-v" #'clipboard-yank))
+        :g "s-v" #'clipboard-yank
+        :g "s-n" #'restart-emacs-start-new-emacs))
 (map! :leader
       :prefix ("y" . "yank")
       :desc "Copy last kill to clipboard" "c" #'chloe/copy-last-kill-to-clipboard)

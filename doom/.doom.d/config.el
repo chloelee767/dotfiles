@@ -336,6 +336,13 @@
     (doom-files--update-refs old-fullpath new-fullpath)))
 ;; (chloe/org-roam-rename-note--do-rename "test" "test2" "test.a.foo")
 
+(defun chloe/org-roam-note-parent (notename)
+  ;; Returns name of parent note, or nil if this is a root-level note
+  (if (file-name-extension notename)
+      (file-name-sans-extension notename)
+    nil))
+;; (chloe/org-roam-note-parent "test")
+
 ;; Rename file
 ;; renames all children
 ;; If collision, error
@@ -370,9 +377,10 @@
         :leader
         :prefix ("n" . "notes")
         :desc "Org roam find" "f" #'org-roam-node-find
+        :desc "Org roam find parent" "p" #'chloe/org-roam-node-find-parent
         :desc "Org roam find children" "c" #'chloe/org-roam-node-find-children
-        :desc "Org roam buffer" "r" #'org-roam-buffer-toggle
-        :desc "Org roam buffer" "R" #'org-roam-buffer-display-dedicated)
+        :desc "Org roam buffer" "b" #'org-roam-buffer-toggle
+        :desc "Org roam buffer" "B" #'org-roam-buffer-display-dedicated)
   :config
   (org-roam-db-autosync-mode)
   (map! :map org-mode-map

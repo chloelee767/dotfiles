@@ -74,3 +74,17 @@
       (let ((note-name (file-name-sans-extension (file-name-nondirectory buffer-file-name))))
         (org-roam-node-find other-window (concat "^" note-name "\\.")))
     (error "Not in an org roam file")))
+
+;;;###autoload
+(defun chloe/org-roam-node-find-parent ()
+  (interactive)
+  (if (org-roam-file-p buffer-file-name)
+      (let* ((notename (file-name-sans-extension (file-name-nondirectory buffer-file-name)))
+             (parent-notename (chloe/org-roam-note-parent notename)))
+        (if parent-notename
+            (org-roam-node-find nil (concat "^" parent-notename "\\."))
+          (message "Root level note, no parent")))
+    (error "Not in an org roam file")))
+
+;; TODO replace all . with \\.
+;; TODO automatically visit if there is exactly 1 match in org-roam-node-find

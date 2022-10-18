@@ -52,7 +52,15 @@
 ;;;###autoload
 (defun chloe/org-roam-input-title-to-file-name (input)
   ;; ref.An Interesting Article => ref.an-interesting-article
-  (downcase (string-replace " " "-" input)))
+  (downcase (string-replace
+             "/" "-"
+             (string-replace
+              "^" ""
+              (string-replace
+               "\\." "."
+               (string-replace
+                " " "-"
+                input))))))
 
 ;;;###autoload
 (defun chloe/org-roam-input-title-to-file-title (input)
@@ -76,7 +84,7 @@
     (error "Not in an org roam file")))
 
 ;;;###autoload
-(defun chloe/org-roam-node-find-parent ()
+(defun chloe/org-roam-node-find-siblings ()
   (interactive)
   (if (org-roam-file-p buffer-file-name)
       (let* ((notename (file-name-sans-extension (file-name-nondirectory buffer-file-name)))
@@ -86,5 +94,17 @@
           (message "Root level note, no parent")))
     (error "Not in an org roam file")))
 
+;;;###autoload
+(defun chloe/org-roam-node-find-parent ()
+  (interactive)
+  (if (org-roam-file-p buffer-file-name)
+      (let* ((notename (file-name-sans-extension (file-name-nondirectory buffer-file-name)))
+             (parent-notename (chloe/org-roam-note-parent notename)))
+        (if parent-notename
+            (org-roam-node-find nil (concat "^" parent-notename))
+          (message "Root level note, no parent")))
+    (error "Not in an org roam file")))
+
 ;; TODO replace all . with \\.
 ;; TODO automatically visit if there is exactly 1 match in org-roam-node-find
+;; TODO more intelligent collision detection -- overwrite empty files

@@ -381,6 +381,7 @@
         :prefix ("n" . "notes")
         :desc "Org roam find" "f" #'org-roam-node-find
         :desc "Org roam find parent" "p" #'chloe/org-roam-node-find-parent
+        :desc "Org roam find siblings" "s" #'chloe/org-roam-node-find-siblings
         :desc "Org roam find children" "c" #'chloe/org-roam-node-find-children
         :desc "Org roam buffer" "b" #'org-roam-buffer-toggle
         :desc "Org roam buffer" "B" #'org-roam-buffer-display-dedicated)

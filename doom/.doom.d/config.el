@@ -321,16 +321,6 @@
 (defun hashset-contains-p (value hashset)
   (gethash value hashset nil))
 
-(defun chloe/org-roam-rename-note--children-collisions-first (oldname newname oldname-children newname-children)
-  (let* ((newname-children-set (string-seq-to-hashset newname-children))
-         (first-collision-index (-find-index
-                                 (lambda (notename) (hashset-contains-p (chloe/org-roam-rename-note--rename oldname newname notename) newname-children-set))
-                                 oldname-children)))
-    (if first-collision-index (nth first-collision-index oldname-children) nil)))
-
-;; (chloe/org-roam-rename-note--children-collisions-first
-;;  "cs" "compsci" '("cs.a" "cs.b") '("compsci.x" "compsci.y"))
-
 (defun chloe/org-roam-rename-note--do-rename (old-notename new-notename)
   ;; rename a single file
   (let ((new-fullpath (concat org-roam-directory new-notename ".org"))
@@ -346,6 +336,12 @@
     nil))
 ;; (chloe/org-roam-note-parent "test")
 
+(defun chloe/org-roam-rename-note--check-collisions (oldname newname oldname-children)
+  (cl-dolist (notename oldname-children)
+    (let ((new-notename (chloe/org-roam-rename-note--rename oldname newname notename)))
+      (when (chloe/org-roam-note-exists-p new-notename)
+        (cl-return notename)))))
+
 ;; Rename file
 ;; renames all children
 ;; If collision, error
@@ -358,11 +354,10 @@
                        'elt (vector oldname newname)))
 
     (let* ((oldname-children (mapcar (lambda (p) (file-name-sans-extension (file-name-nondirectory p))) (chloe/org-roam-note-children oldname)))
-           (newname-children (mapcar (lambda (p) (file-name-sans-extension (file-name-nondirectory p))) (chloe/org-roam-note-children newname)))
-           (colliding-notename (chloe/org-roam-rename-note--children-collisions-first oldname newname oldname-children newname-children)))
+           (colliding-notename (chloe/org-roam-rename-note--check-collisions oldname newname oldname-children)))
       (if colliding-notename
-          (error (s-format "Cannot rename $0 to $1, $2 will cause collision"
-                           'elt (vector oldname newname colliding-notename)))
+          (error (s-format "Cannot rename $0 , $1 already exists"
+                           'elt (vector colliding-notename (chloe/org-roam-rename-note--rename oldname newname colliding-notename))))
         ;; perform rename
         (progn
           ;; rename file itself

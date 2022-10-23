@@ -372,6 +372,46 @@
           (mapc (lambda (notename) (chloe/org-roam-rename-note--do-rename notename (chloe/org-roam-rename-note--rename oldname newname notename)))
                 oldname-children))))))
 
+(defun chloe/org-roam-concat-note-parts (parent nextpart)
+  (if (equal parent "") nextpart (concat parent "." nextpart)))
+
+;; (chloe/org-roam-concat-note-parts "" "abc.def") ;; => "abc.def"
+;; (chloe/org-roam-concat-note-parts "xyz" "abc.def") ;; => "xyz.abc.def"
+;; (apply #'chloe/org-roam-concat-note-parts (list "xyz" "abc.def"))
+
+(defun chloe/org-roam-child-hierarchies (notename &optional prepend-prefix)
+  (let* ((children-filepaths-list (if (equal notename "") (org-roam-list-files) (chloe/org-roam-note-children notename)))
+         (children-notenames (mapcar (lambda (x) (f-filename x)) children-filepaths-list)))
+    (chloe/org-roam-child-hierarchies--internal notename children-notenames prepend-prefix)))
+
+;; (chloe/org-roam-child-hierarchies "carousell")
+
+(defun chloe/org-roam-child-hierarchies--internal (notename children-notenames prepend-prefix)
+  (-uniq (mapcar
+          (lambda (x)
+            (let ((nextpart (chloe/org-roam-notename-nextpart x notename)))
+              (if (and prepend-prefix (not (equal notename "")))
+                  (concat notename "." nextpart)
+                nextpart)))
+          children-notenames)))
+
+;; (chloe/org-roam-child-hierarchies--internal "abc" '("abc.def.123" "abc.hij.123" "abc.def.456" "abc.def.123.456") nil) ;; => '("def" "hij")
+;; (chloe/org-roam-child-hierarchies--internal "abc" '("abc.def.123" "abc.hij.123" "abc.def.456" "abc.def.123.456") 't) ;; => '("abc.def" "abc.hij")
+;; (chloe/org-roam-child-hierarchies--internal "" '("abc.def.123" "abc.hij.123" "abc.def.456" "abc.def.123.456" "xyz") 't) ;; => '("abc" "xyz")
+
+(defun chloe/org-roam-notename-nextpart (notename prefix)
+  (if (or (equal prefix "") (s-prefix-p (concat prefix ".") notename))
+      (let* ((num-chars-to-remove (if (equal prefix "") 0 (+ 1 (length prefix)))) ;; prefix + "."
+             (notename-prefix-removed (substring notename num-chars-to-remove))
+             (first-dot-index (s-index-of "." notename-prefix-removed)))
+        (if first-dot-index (substring notename-prefix-removed 0 first-dot-index) notename-prefix-removed))
+    (error (concat "Note " notename " is not a child of " prefix))))
+
+;; (chloe/org-roam-notename-nextpart "abc.def.123.456" "") ;; => "abc"
+;; (chloe/org-roam-notename-nextpart "abc.def.123.456" "abc") ;; => "def"
+;; (chloe/org-roam-notename-nextpart "abc.def.123.456" "abc.def") ;; => "123"
+;; (chloe/org-roam-notename-nextpart "abc.def.123.456" "a") ;; => ERROR
+
 (use-package! org-roam
   :after org
   :init
@@ -421,6 +461,33 @@
 
 ;; (custom-set-faces! '(org-transclusion :background "#b9c9b9")
 ;;                 '(org-transclusion-source :background "#ebf6fa"))
+
+
+(use-package! treemacs-treelib
+  :after treemacs
+  :config
+  (treemacs-define-entry-node-type
+   chloe-notes
+   :label (propertize "Notes" 'face 'font-lock-keyword-face)
+   :key 'chloe-notes
+   :open-icon "+"
+   :closed-icon "-"
+   :children (mapcar (lambda (x) (list "" x)) (chloe/org-roam-child-hierarchies ""))
+   :child-type 'chloe-notes--note)
+
+  (treemacs-define-expandable-node-type
+   chloe-notes--note
+   :closed-icon "+"
+   :open-icon "-"
+   :label (propertize (nth 1 item) 'face 'font-lock-variable-name-face)
+   :key (nth 1 item)
+   :children (mapcar (lambda (x) (list (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item)) x))(chloe/org-roam-child-hierarchies (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item))))
+   :child-type 'chloe-notes--note)
+
+  (treemacs-enable-top-level-extension
+   :extension 'chloe-notes
+   :position 'top
+   :predicate (lambda (_) 't)))
 
 ;;
 ;;; Agenda

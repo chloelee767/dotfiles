@@ -236,9 +236,12 @@
 
 (use-package! writeroom-mode
   :init
+  (map! :leader
+        (:prefix "t"
+         :desc "Global zen mode" "Z" #'global-writeroom-mode))
   (setq +zen-text-scale 0)
   :config
-  (setq writeroom-extra-line-spacing 0.2
+  (setq writeroom-extra-line-spacing 0.4
         writeroom-width 120
         writeroom-mode-line t))
 

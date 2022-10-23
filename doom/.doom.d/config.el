@@ -108,6 +108,7 @@
 
 (setq org-directory "~/Dropbox/Org/"
       org-roam-directory (concat org-directory "notes/")
+      org-roam-dailies-directory "daily/"
       chloe/org-agenda-directory (concat org-directory "agenda/")
       chloe/documents-directory "~/Documents/"
       chloe/nus-directory (concat chloe/documents-directory "NUS/")
@@ -372,14 +373,21 @@
   :after org
   :init
   (map! :after org
+        :leader (:prefix "n" "d" nil))
+  (map! :after org
         :leader
-        :prefix ("n" . "notes")
-        :desc "Org roam find" "f" #'org-roam-node-find
-        :desc "Org roam find parent" "p" #'chloe/org-roam-node-find-parent
-        :desc "Org roam find siblings" "s" #'chloe/org-roam-node-find-siblings
-        :desc "Org roam find children" "c" #'chloe/org-roam-node-find-children
-        :desc "Org roam buffer" "b" #'org-roam-buffer-toggle
-        :desc "Org roam buffer" "B" #'org-roam-buffer-display-dedicated)
+        (:prefix ("n" . "Notes")
+         :desc "Find" "f" #'org-roam-node-find
+         :desc "Find Parent" "h" #'chloe/org-roam-node-find-parent
+         :desc "Find Siblings" "j" #'chloe/org-roam-node-find-siblings
+         :desc "Find Children" "l" #'chloe/org-roam-node-find-children
+         :desc "Backlinks buffer" "b" #'org-roam-buffer-toggle
+         :desc "Dedicated backlinks buffer" "B" #'org-roam-buffer-display-dedicated
+         (:prefix ("d" . "Daily")
+          :desc "Today" "d" #'org-roam-dailies-goto-today
+          :desc "Previous" "p" #'org-roam-dailies-goto-previous-note
+          :desc "Next" "n" #'org-roam-dailies-goto-next-note)))
+
   :config
   (org-roam-db-autosync-mode)
   (map! :map org-mode-map
@@ -393,6 +401,11 @@
                               "%(chloe/org-roam-input-title-to-file-title \"${title}\")")
            :immediate-finish t
            :unnarrowed t))
+        org-roam-dailies-capture-templates
+        '(("d" "default" entry
+           "* %?"
+           :target (file+head "%<%Y-%m-%d-%a>.org"
+                              "#+title: %<%Y-%m-%d %a>\n")))
         org-roam-mode-sections (list #'org-roam-backlinks-insert-section
                                      #'org-roam-reflinks-insert-section
                                      ;; #'org-roam-unlinked-references-insert-section

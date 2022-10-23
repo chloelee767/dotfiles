@@ -462,27 +462,50 @@
 ;; (custom-set-faces! '(org-transclusion :background "#b9c9b9")
 ;;                 '(org-transclusion-source :background "#ebf6fa"))
 
+(defun chloe/org-get-file-id (path)
+  (with-temp-buffer
+    (insert-file-contents path)
+    (org-id-get (point-min) nil nil)))
+
+;; (chloe/org-get-file-id (concat org-roam-directory "index.org"))
 
 (use-package! treemacs-treelib
   :after treemacs
   :config
+
+  (defun notes-hierarchy-RET-note-action (&optional use-other-window)
+    (let* ((note-info (treemacs-button-get (treemacs-current-button) :note-info))
+           (filepath (concat org-roam-directory
+                             (apply #'chloe/org-roam-concat-note-parts note-info)
+                             ".org")))
+      (if (file-exists-p filepath)
+          (if-let ((org-id (chloe/org-get-file-id filepath)))
+              (progn
+                (other-window 1)
+                (org-roam-node-visit (org-roam-populate (org-roam-node-create :id org-id)) use-other-window))
+            (error "Org roam file does not have id"))
+        (message "Note does not exist")))) ;; TODO option to create?
+
+
   (treemacs-define-entry-node-type
-   chloe-notes
-   :label (propertize "Notes" 'face 'font-lock-keyword-face)
-   :key 'chloe-notes
-   :open-icon "+"
-   :closed-icon "-"
-   :children (mapcar (lambda (x) (list "" x)) (chloe/org-roam-child-hierarchies ""))
-   :child-type 'chloe-notes--note)
+      chloe-notes
+    :label (propertize "Notes" 'face 'font-lock-keyword-face)
+    :key 'chloe-notes
+    :open-icon "+"
+    :closed-icon "-"
+    :children (mapcar (lambda (x) (list "" x)) (chloe/org-roam-child-hierarchies ""))
+    :child-type 'chloe-notes--note)
 
   (treemacs-define-expandable-node-type
-   chloe-notes--note
-   :closed-icon "+"
-   :open-icon "-"
-   :label (propertize (nth 1 item) 'face 'font-lock-variable-name-face)
-   :key (nth 1 item)
-   :children (mapcar (lambda (x) (list (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item)) x))(chloe/org-roam-child-hierarchies (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item))))
-   :child-type 'chloe-notes--note)
+      chloe-notes--note
+    :closed-icon "+"
+    :open-icon "-"
+    :label (propertize (nth 1 item) 'face 'font-lock-variable-name-face)
+    :key (nth 1 item)
+    :children (mapcar (lambda (x) (list (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item)) x))(chloe/org-roam-child-hierarchies (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item))))
+    :child-type 'chloe-notes--note
+    :ret-action #'notes-hierarchy-RET-note-action
+    :more-properties `(:note-info ,item)) ;;  list of (parent-notename nextpart)
 
   (treemacs-enable-top-level-extension
    :extension 'chloe-notes

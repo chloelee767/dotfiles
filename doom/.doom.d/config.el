@@ -512,6 +512,9 @@
    :position 'top
    :predicate (lambda (_) 't)))
 
+;; HACK org-element-cache: Unregistred buffer modifications caused by org-roam
+(setq warning-suppress-types (append warning-suppress-types '((org-element-cache) (defvaralias))))
+
 ;;
 ;;; Agenda
 

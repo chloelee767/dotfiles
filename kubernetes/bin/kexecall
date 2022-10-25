@@ -1,21 +1,47 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
+DRY_RUN=false
+SLEEP_TIME=0
+while [[ $# -gt 1 ]]
+do
+    key="$1"
+    case $key in
+        -s|--sleep)
+            SLEEP_TIME="$2"
+            shift
+            shift
+            ;;
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+    esac
+done
+
 CMD="$1"
 
 echo "COMMAND:" "$CMD"
+sleep 1
 
 PODS="$(kubectl get pods | tail -n +2 | awk '{print $1}' | grep --invert-match -E "datareplicator" | sort)"
 for P in $PODS; do
     CONTAINER=$(kubectl get pod $P -o jsonpath="{.spec.containers[*].name}" | tr -s '[[:space:]]' '\n' | grep --invert-match -E "log-svc-agent|istio-proxy")
     NUM_C=$(echo $CONTAINER | wc -l)
     echo "pod:" "$P" "container:" "$CONTAINER"
+    if $DRY_RUN; then
+        continue
+    fi
+
     if [[ $NUM_C -eq 1 ]]; then
         kubectl exec "$P" --container "$CONTAINER" -- /bin/bash -c "$CMD"
     else
         echo "FAILED: >1 container"
     fi
-    # sleep 2
+
+    if [[ $SLEEP_TIME -gt 0 ]]; then
+        sleep $SLEEP_TIME
+    fi
 done
 
 # TODO:

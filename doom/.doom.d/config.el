@@ -455,17 +455,21 @@
                                      ))
   (set-popup-rules!
     `((,(regexp-quote org-roam-buffer) ; persistent org-roam buffer
-       :side right :width .3 :height .5 :ttl nil :modeline nil :quit nil :slot 1)
+       :side right :width .2 :height .5 :ttl nil :modeline nil :quit nil :slot 1)
       ("^\\*org-roam: " ; node dedicated org-roam buffer
-       :side right :width .3 :height .5 :ttl nil :modeline nil :quit nil :slot 2))))
+       :side right :width .2 :height .5 :ttl nil :modeline nil :quit nil :slot 2))))
+
 
 ;; (custom-set-faces! '(org-transclusion :background "#b9c9b9")
 ;;                 '(org-transclusion-source :background "#ebf6fa"))
 
 (defun chloe/org-get-file-id (path)
   (with-temp-buffer
-    (insert-file-contents path)
-    (org-id-get (point-min) nil nil)))
+    (unwind-protect
+        (progn
+          (insert-file-contents path)
+          (org-id-get (point-min) nil nil))
+      (org-element-cache-reset))))
 
 ;; (chloe/org-get-file-id (concat org-roam-directory "index.org"))
 

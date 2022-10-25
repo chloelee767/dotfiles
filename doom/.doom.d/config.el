@@ -351,6 +351,7 @@
 ;; If collision, error
 (defun chloe/org-roam-rename-note (oldname newname)
   ;; oldname and newname should be notenames
+  (interactive "Mfrom: \nMto: ")
 
   ;; make sure at most 1 of the files exist
   (if (and (chloe/org-roam-note-exists-p oldname) (chloe/org-roam-note-exists-p newname))
@@ -426,6 +427,7 @@
          :desc "Find Children" "l" #'chloe/org-roam-node-find-children
          :desc "Backlinks buffer" "b" #'org-roam-buffer-toggle
          :desc "Dedicated backlinks buffer" "B" #'org-roam-buffer-display-dedicated
+         :desc "Rename notes" "r" #'chloe/org-roam-rename-note
          (:prefix ("d" . "Daily")
           :desc "Today" "d" #'org-roam-dailies-goto-today
           :desc "Previous" "p" #'org-roam-dailies-goto-previous-note

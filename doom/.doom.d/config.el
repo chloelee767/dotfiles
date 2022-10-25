@@ -449,9 +449,9 @@
            "* %?"
            :target (file+head "%<%Y-%m-%d-%a>.org"
                               "#+title: %<%Y-%m-%d %a>\n")))
-        org-roam-mode-sections (list #'org-roam-backlinks-insert-section
-                                     #'org-roam-reflinks-insert-section
-                                     ;; #'org-roam-unlinked-references-insert-section
+        org-roam-mode-sections (list #'org-roam-backlinks-section
+                                     #'org-roam-reflinks-section
+                                     ;; #'org-roam-unlinked-references-section
                                      ))
   (set-popup-rules!
     `((,(regexp-quote org-roam-buffer) ; persistent org-roam buffer

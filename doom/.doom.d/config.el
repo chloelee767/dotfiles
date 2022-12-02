@@ -106,7 +106,7 @@
 ;;; Useful files and directories
 ;;; note: a lot of custom functions work under the assumption that directory paths end with /
 
-(setq org-directory "~/Dropbox/Org/"
+(setq org-directory (if IS-MAC "~/Library/CloudStorage/Dropbox/Org/" "~/Dropbox/Org/")
       org-roam-directory (concat org-directory "notes/")
       org-roam-dailies-directory "daily/"
       chloe/org-agenda-directory (concat org-directory "agenda/")

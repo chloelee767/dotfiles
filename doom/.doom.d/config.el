@@ -37,10 +37,22 @@
         :g "s-n" #'restart-emacs-start-new-emacs))
 (map! :leader
       :prefix ("y" . "yank")
-      :desc "Copy last kill to clipboard" "c" #'chloe/copy-last-kill-to-clipboard)
+      :desc "Copy last kill to clipboard" "c" #'chloe/copy-last-kill-to-clipboard
+      :desc "Copy clipboard to emacs kill ring" "e" #'chloe/copy-clipboard-to-kill-ring)
+
+;; FIXME vterm - s-v / C-S-v calling clipboard yank instead
+(after! vterm
+  (setq vterm-keymap-exceptions (append vterm-keymap-exceptions '("C-S-v" "s-v"))))
+(map! :after vterm
+      :mode 'vterm-mode-map
+      :gni "C-S-v" #'chloe/vterm-yank-clipboard
+      (:when IS-MAC
+        :gni "s-v" #'chloe/vterm-yank-clipboard))
+
+
 ;; disable tmm=menubar
-(map! :g "`" nil
-      :g "M-`" nil)
+;; (map! :g "`" nil
+;;       :g "M-`" nil)
 
 ;; be similar to org
 (map! :map 'markdown-mode-map

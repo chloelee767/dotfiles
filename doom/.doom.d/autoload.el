@@ -50,6 +50,20 @@
     (clipboard-kill-region (point-min) (point-max))))
 
 ;;;###autoload
+(defun chloe/copy-clipboard-to-kill-ring ()
+  "Copy clipboard contents to emacs kill ring."
+  (interactive)
+  (with-temp-buffer
+    (clipboard-yank)
+    (kill-region (point-min) (point-max))))
+
+;;;###autoload
+(defun chloe/vterm-yank-clipboard ()
+  "Paste clipboard contents into vterm"
+  (interactive)
+  (progn (chloe/copy-clipboard-to-kill-ring) (vterm-yank)))
+
+;;;###autoload
 (defun chloe/org-roam-input-title-to-file-name (input)
   ;; ref.An Interesting Article => ref.an-interesting-article
   (downcase (string-replace

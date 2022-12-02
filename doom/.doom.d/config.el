@@ -494,24 +494,24 @@
 
 
   (treemacs-define-entry-node-type
-      chloe-notes
-    :label (propertize "Notes" 'face 'font-lock-keyword-face)
-    :key 'chloe-notes
-    :open-icon "+"
-    :closed-icon "-"
-    :children (mapcar (lambda (x) (list "" x)) (chloe/org-roam-child-hierarchies ""))
-    :child-type 'chloe-notes--note)
+   chloe-notes
+   :label (propertize "Notes" 'face 'font-lock-keyword-face)
+   :key 'chloe-notes
+   :open-icon "+"
+   :closed-icon "-"
+   :children (mapcar (lambda (x) (list "" x)) (chloe/org-roam-child-hierarchies ""))
+   :child-type 'chloe-notes--note)
 
   (treemacs-define-expandable-node-type
-      chloe-notes--note
-    :closed-icon "+"
-    :open-icon "-"
-    :label (propertize (nth 1 item) 'face 'font-lock-variable-name-face)
-    :key (nth 1 item)
-    :children (mapcar (lambda (x) (list (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item)) x))(chloe/org-roam-child-hierarchies (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item))))
-    :child-type 'chloe-notes--note
-    :ret-action #'notes-hierarchy-RET-note-action
-    :more-properties `(:note-info ,item)) ;;  list of (parent-notename nextpart)
+   chloe-notes--note
+   :closed-icon "+"
+   :open-icon "-"
+   :label (propertize (nth 1 item) 'face 'font-lock-variable-name-face)
+   :key (nth 1 item)
+   :children (mapcar (lambda (x) (list (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item)) x))(chloe/org-roam-child-hierarchies (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item))))
+   :child-type 'chloe-notes--note
+   :ret-action #'notes-hierarchy-RET-note-action
+   :more-properties `(:note-info ,item)) ;;  list of (parent-notename nextpart)
 
   (treemacs-enable-top-level-extension
    :extension 'chloe-notes

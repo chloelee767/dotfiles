@@ -49,6 +49,11 @@
       (:when IS-MAC
         :gni "s-v" #'chloe/vterm-yank-clipboard))
 
+;; project search symbol at point using <leader>-s-P, similar to <leader>-s-S
+(map! :leader
+      (:prefix "s"
+       :desc "Search project for thing at point" "P" #'chloe/project-search-symbol-at-point
+       :desc "Search other project" "C-p" #'+default/search-other-project))
 
 ;; disable tmm=menubar
 ;; (map! :g "`" nil

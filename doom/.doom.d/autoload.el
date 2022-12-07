@@ -64,6 +64,11 @@
   (progn (chloe/copy-clipboard-to-kill-ring) (vterm-yank)))
 
 ;;;###autoload
+(defun chloe/project-search-symbol-at-point (&optional arg)
+  (interactive "P")
+  (+vertico/project-search arg (thing-at-point 'symbol)))
+
+;;;###autoload
 (defun chloe/org-roam-input-title-to-file-name (input)
   ;; ref.An Interesting Article => ref.an-interesting-article
   (downcase (string-replace

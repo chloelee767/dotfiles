@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: seteou-pipefail
+# key: sete
+# condition: t
+# --
+set -eou pipefail
+$0

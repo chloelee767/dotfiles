@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: A2D-struct-assign
+# key: a2d
+# --
+dbRoot.${1:attribute} = appRoot.$1$0

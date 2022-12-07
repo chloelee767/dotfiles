@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: D2A-struct-assign
+# key: d2a
+# --
+appRoot.${1:attribute} = dbRoot.$1$0

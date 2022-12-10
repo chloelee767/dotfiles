@@ -174,11 +174,11 @@
 (after! prog-mode
   (which-function-mode 1))
 
-(after! lsp-mode
-  (setq lsp-headerline-breadcrumb-enable t
-        lsp-headerline-breadcrumb-segments '(symbols)
-        which-func-functions (list (lambda () (if lsp-mode (lsp-headerline--build-symbol-string) nil))
-                                   (lambda () nil))))
+(use-package! lsp-headerline
+  :after lsp-mode
+  :config
+  (setq lsp-headerline-breadcrumb-segments '(symbols)
+        which-func-functions (list (lambda () (if lsp-mode (s-trim (substring-no-properties (lsp-headerline--build-symbol-string))) nil)))))
 
 (defun chloe/toggle-which-function-position ()
   (interactive)

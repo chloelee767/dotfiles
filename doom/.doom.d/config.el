@@ -171,6 +171,23 @@
 ;;
 ;;; Programming languages
 
+(after! prog-mode
+  (which-function-mode 1))
+
+(after! lsp-mode
+  (setq lsp-headerline-breadcrumb-enable t
+        lsp-headerline-breadcrumb-segments '(symbols)
+        which-func-functions (list (lambda () (if lsp-mode (lsp-headerline--build-symbol-string) nil))
+                                   (lambda () nil))))
+
+(defun chloe/toggle-which-function-position ()
+  (interactive)
+  (if (and lsp-mode lsp-headerline-breadcrumb-mode)
+      (progn (which-function-mode 1)
+             (lsp-headerline-breadcrumb-mode -1))
+    (progn (which-function-mode -1)
+           (lsp-headerline-breadcrumb-mode 1))))
+
 ;; associate .pl files as prolog files instead of perl
 (add-to-list 'auto-mode-alist '("\\.pl\\'" . prolog-mode))
 
@@ -511,24 +528,24 @@
 
 
   (treemacs-define-entry-node-type
-   chloe-notes
-   :label (propertize "Notes" 'face 'font-lock-keyword-face)
-   :key 'chloe-notes
-   :open-icon "+"
-   :closed-icon "-"
-   :children (mapcar (lambda (x) (list "" x)) (chloe/org-roam-child-hierarchies ""))
-   :child-type 'chloe-notes--note)
+      chloe-notes
+    :label (propertize "Notes" 'face 'font-lock-keyword-face)
+    :key 'chloe-notes
+    :open-icon "+"
+    :closed-icon "-"
+    :children (mapcar (lambda (x) (list "" x)) (chloe/org-roam-child-hierarchies ""))
+    :child-type 'chloe-notes--note)
 
   (treemacs-define-expandable-node-type
-   chloe-notes--note
-   :closed-icon "+"
-   :open-icon "-"
-   :label (propertize (nth 1 item) 'face 'font-lock-variable-name-face)
-   :key (nth 1 item)
-   :children (mapcar (lambda (x) (list (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item)) x))(chloe/org-roam-child-hierarchies (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item))))
-   :child-type 'chloe-notes--note
-   :ret-action #'notes-hierarchy-RET-note-action
-   :more-properties `(:note-info ,item)) ;;  list of (parent-notename nextpart)
+      chloe-notes--note
+    :closed-icon "+"
+    :open-icon "-"
+    :label (propertize (nth 1 item) 'face 'font-lock-variable-name-face)
+    :key (nth 1 item)
+    :children (mapcar (lambda (x) (list (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item)) x))(chloe/org-roam-child-hierarchies (chloe/org-roam-concat-note-parts (nth 0 item) (nth 1 item))))
+    :child-type 'chloe-notes--note
+    :ret-action #'notes-hierarchy-RET-note-action
+    :more-properties `(:note-info ,item)) ;;  list of (parent-notename nextpart)
 
   (treemacs-enable-top-level-extension
    :extension 'chloe-notes

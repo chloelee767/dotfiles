@@ -64,6 +64,18 @@
   (set-company-backend! 'go-mode 'company-go)
   (setq company-go-show-annotation t))
 
-(use-package! flycheck-golangci-lint
-  :when (featurep! :checkers syntax)
-  :hook (go-mode . flycheck-golangci-lint-setup))
+;; (use-package! flycheck-golangci-lint
+;;   :when (featurep! :checkers syntax)
+;;   :hook (go-mode . flycheck-golangci-lint-setup))
+
+(after! lsp-mode
+  (add-to-list 'lsp-language-id-configuration '(go-mode . "golangci-lint"))
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection "golangci-server")
+                    ;; :major-modes '(go-mode)
+                    :activation-fn (lsp-activate-on "golangci-lint")
+                    :server-id 'golangci-lint
+                    ;; :language-id "go"
+                    :priority 0
+                    :add-on? t
+                    :library-folders-fn #'lsp-go--library-default-directories)))

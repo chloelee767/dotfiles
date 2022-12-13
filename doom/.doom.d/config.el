@@ -169,7 +169,7 @@
       (:prefix "o" :desc "Google calendar" "c" #'(cmd! (browse-url "https://calendar.google.com"))))
 
 ;;
-;;; Programming languages
+;;; Programming
 
 (after! prog-mode
   (which-function-mode 1))
@@ -187,6 +187,9 @@
              (lsp-headerline-breadcrumb-mode -1))
     (progn (which-function-mode -1)
            (lsp-headerline-breadcrumb-mode 1))))
+
+;;
+;;; Programming languages
 
 ;; associate .pl files as prolog files instead of perl
 (add-to-list 'auto-mode-alist '("\\.pl\\'" . prolog-mode))
@@ -212,7 +215,9 @@
   :mode ("nextflow\\.config\\'" . nextflow-mode))
 
 (after! go-mode
-  (setq gofmt-command "goimports")
+  (setq gofmt-command "goimports"
+        lsp-go-goimports-local "github.com/carousell"
+        gofmt-args (append gofmt-args '("-local" "github.com/carousell")))
   (add-hook 'before-save-hook 'gofmt-before-save))
 
 

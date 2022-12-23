@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# Trilium sync server will be accessible at localhost:4000
+
+ssh -L 4000:localhost:8080 -N -T goose@hungrygoose.local

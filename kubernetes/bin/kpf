@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
-query="$@"
-
 PORT="grpc"
 SELECT_PORT=false
 
@@ -20,10 +18,12 @@ do
             shift
             ;;
         *)
-            shift
+            break
             ;;
     esac
 done
+
+query="$@"
 
 POD="$(kubectl get pods | tail -n +2 | grep -i run | fzf -1 --prompt 'pod>' --query "$query" | awk '{print $1}')"
 

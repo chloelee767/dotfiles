@@ -2,6 +2,7 @@
 set -eou pipefail
 
 PORT="grpc"
+LOCAL_PORT=""
 SELECT_PORT=false
 
 while [[ $# -gt 0 ]]
@@ -15,6 +16,11 @@ do
             ;;
         -ip|--interactive-port)
             SELECT_PORT=true
+            shift
+            ;;
+        -l|--local-port)
+            LOCAL_PORT="$2"
+            shift
             shift
             ;;
         *)
@@ -32,4 +38,8 @@ if $SELECT_PORT; then
 fi
 
 set -x # print commands executed
-kubectl port-forward "$POD" "$PORT"
+if [[ -z "$LOCAL_PORT" ]]; then
+    kubectl port-forward "$POD" "$PORT"
+else
+    kubectl port-forward "$POD" "$LOCAL_PORT":"$PORT"
+fi

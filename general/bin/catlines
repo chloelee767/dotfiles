@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# print lines X to Y (inclusive) of file
+
+set -euo pipefail
+
+X=$1
+Y=$2
+FILE="$3"
+
+tail -n "+$X" "$FILE" | head -n "$((Y-X+1))"

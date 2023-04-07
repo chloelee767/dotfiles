@@ -13,6 +13,9 @@
 - [[#features][Features]]
 - [[#configuration][Configuration]]
 - [[#troubleshooting][Troubleshooting]]
+- [[#todos][Todos]]
+  - [[#single-named-test-case][single named test case]]
+  - [[#run-test-suite][run test suite]]
 
 * Description
 This module adds [[https://golang.org][Go]] support, with optional (but recommended) LSP support via
@@ -98,3 +101,7 @@ go install github.com/fatih/gomodifytags@latest
 * TODO Configuration
 
 * TODO Troubleshooting
+
+* Todos
+** TODO single named test case
+** TODO run test suite

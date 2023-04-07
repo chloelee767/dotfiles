@@ -15,6 +15,33 @@
     (setq +go-test-last (concat "cd " default-directory ";" cmd))
     (+go--spawn cmd)))
 
+(defun +go--function-name ()
+  (save-excursion
+    (go-goto-function 1) ;; skip anonymous functions
+    (substring-no-properties (go--function-name))))
+
+(defun +go--method-receiver ()
+  "Returns method receiver or nil if not in a method."
+  (save-excursion
+    (go-goto-function 1) ;; skip anonymous functions
+    (let ((line (substring-no-properties (thing-at-point 'line)))
+          (regex (rx "func" (one-or-more space)
+                     "("
+                     (zero-or-more space)
+                     ;; <varname>
+                     (? (one-or-more (or alnum "_")) (one-or-more space))
+                     ;; receiver type
+                     (group (? "*") (one-or-more (or alnum "_")))
+                     (zero-or-more space)
+                     ")")))
+      (string-match regex line)
+      (match-string 1 line))))
+
+(defun +go--type-name (type-string)
+  (if (string-prefix-p "*" type-string)
+      (substring type-string 1) ;; remove * from pointer type
+    type-string))
+
 ;;;###autoload
 (defun +go/test-rerun ()
   (interactive)
@@ -54,6 +81,11 @@
         (re-search-backward "^func[ ]+\\(([[:alnum:]]*?[ ]?[*]?[[:alnum:]]+)[ ]+\\)?\\(Benchmark[[:alnum:]_]+\\)(.*)")
         (+go--run-tests (concat "-test.run=NONE -test.bench" "='" (match-string-no-properties 2) "'")))
     (error "Must be in a _test.go file")))
+
+;; TODO testify suite
+
+;; (defun +go/testify-suite-all ())
+;; (defun +go/testify-suite-method ())
 
 ;;
 ;;; Run

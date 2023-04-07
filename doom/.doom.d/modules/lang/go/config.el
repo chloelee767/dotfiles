@@ -27,28 +27,28 @@
         "e" #'+go/play-buffer-or-region
         "i" #'go-goto-imports      ; Go to imports
         (:prefix ("ri" . "imports")
-         "a" #'go-import-add
-         "r" #'go-remove-unused-imports)
+                 "a" #'go-import-add
+                 "r" #'go-remove-unused-imports)
         (:prefix ("b" . "build")
          :desc "go run ." "r" (cmd! (compile "go run ."))
          :desc "go build" "b" (cmd! (compile "go build"))
          :desc "go clean" "c" (cmd! (compile "go clean")))
         (:prefix ("t" . "test")
-         "t" #'+go/test-rerun
-         "a" #'+go/test-all
-         "s" #'+go/test-single
-         "n" #'+go/test-nested
-         "g" #'go-gen-test-dwim
-         "G" #'go-gen-test-all
-         "e" #'go-gen-test-exported
-         (:prefix ("b" . "bench")
-          "s" #'+go/bench-single
-          "a" #'+go/bench-all))
+                 "t" #'+go/test-rerun
+                 "a" #'+go/test-all
+                 "s" #'+go/test-single
+                 "n" #'+go/test-nested
+                 "g" #'go-gen-test-dwim
+                 "G" #'go-gen-test-all
+                 "e" #'go-gen-test-exported
+                 (:prefix ("b" . "bench")
+                          "s" #'+go/bench-single
+                          "a" #'+go/bench-all))
         (:prefix ("g" . "generate")
-         "f" #'+go/generate-file
-         "l" #'+go/generate-line
-         "d" #'+go/generate-dir
-         "p" #'+go/generate-project)
+                 "f" #'+go/generate-file
+                 "l" #'+go/generate-line
+                 "d" #'+go/generate-dir
+                 "p" #'+go/generate-project)
         ))
 
 
@@ -68,14 +68,15 @@
 ;;   :when (featurep! :checkers syntax)
 ;;   :hook (go-mode . flycheck-golangci-lint-setup))
 
-(after! lsp-mode
-  (add-to-list 'lsp-language-id-configuration '(go-mode . "golangci-lint"))
-  (lsp-register-client
-   (make-lsp-client :new-connection (lsp-stdio-connection "golangci-server")
-                    ;; :major-modes '(go-mode)
-                    :activation-fn (lsp-activate-on "golangci-lint")
-                    :server-id 'golangci-lint
-                    ;; :language-id "go"
-                    :priority 0
-                    :add-on? t
-                    :library-folders-fn #'lsp-go--library-default-directories)))
+;; golangci-lint server
+;; (after! lsp-mode
+;;   (add-to-list 'lsp-language-id-configuration '(go-mode . "golangci-lint"))
+;;   (lsp-register-client
+;;    (make-lsp-client :new-connection (lsp-stdio-connection "golangci-server")
+;;                     ;; :major-modes '(go-mode)
+;;                     :activation-fn (lsp-activate-on "golangci-lint")
+;;                     :server-id 'golangci-lint
+;;                     ;; :language-id "go"
+;;                     :priority 0
+;;                     :add-on? t
+;;                     :library-folders-fn #'lsp-go--library-default-directories)))

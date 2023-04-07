@@ -91,11 +91,13 @@
 ;;
 ;;; Visuals
 
-(setq doom-theme (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 17)) 'doom-tomorrow-day 'doom-tomorrow-night) ;; set theme based on time
-      doom-font (font-spec :family "Iosevka SS14" :size (if IS-MAC 13.0 11.0))
-      doom-variable-pitch-font doom-font
-      doom-serif-font (font-spec :family "Noto Serif")
-      )
+(setq
+ ;; doom-theme (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 17)) 'doom-tomorrow-day 'doom-tomorrow-night) ;; set theme based on time
+ doom-theme 'doom-nord-aurora
+ doom-font (font-spec :family "Iosevka SS14" :size (if IS-MAC 13.0 11.0))
+ doom-variable-pitch-font doom-font
+ doom-serif-font (font-spec :family "Noto Serif")
+ )
 
 (global-prettify-symbols-mode 1)
 

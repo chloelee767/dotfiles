@@ -191,6 +191,49 @@
            (lsp-headerline-breadcrumb-mode 1))))
 
 ;;
+;;; Github copilot
+
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  ;; :bind (:map copilot-completion-map
+  ;;             ("<tab>" . 'copilot-accept-completion)
+  ;;             ("TAB" . 'copilot-accept-completion)
+  ;;             ("C-TAB" . 'copilot-accept-completion-by-word)
+  ;;             ("C-<tab>" . 'copilot-accept-completion-by-word))
+  )
+
+(defvar chloe/no-copilot-modes '(shell-mode
+                                 inferior-python-mode
+                                 eshell-mode
+                                 term-mode
+                                 vterm-mode
+                                 comint-mode
+                                 compilation-mode
+                                 debugger-mode
+                                 dired-mode-hook
+                                 compilation-mode-hook
+                                 flutter-mode-hook
+                                 minibuffer-mode-hook)
+  "Modes in which copilot is inconvenient.")
+
+(defun chloe/copilot-disable-predicate ()
+  "When copilot should not automatically show completions."
+  (or ;; rk/copilot-manual-mode
+   (member major-mode chloe/no-copilot-modes)
+   (company--active-p)))
+
+(after! copilot
+  (add-to-list 'copilot-disable-predicates #'chloe/copilot-disable-predicate)
+  (map! :map copilot-mode-map
+        :leader
+        (:prefix ("l" . "copilot")
+         :desc "next completion" "n" #'copilot-next-completion
+         :desc "previous completion" "p" #'copilot-previous-completion
+         ;; :desc "accept word" "l" #'copilot-accept-completion-by-word
+         :desc "accept line" "l" #'copilot-accept-completion-by-line
+         :desc "accept all" "j" #'copilot-accept-completion)))
+
+;;
 ;;; Programming languages
 
 ;; associate .pl files as prolog files instead of perl

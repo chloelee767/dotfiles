@@ -27,3 +27,6 @@
 (package! clang-format :pin "e48ff8ae18dc7ab6118c1f6752deb48cb1fc83ac")
 
 (package! modus-themes :ignore (>= emacs-major-version 28))
+
+(package! copilot
+  :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))

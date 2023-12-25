@@ -229,7 +229,7 @@
         (:prefix ("l" . "copilot")
          :desc "next completion" "n" #'copilot-next-completion
          :desc "previous completion" "p" #'copilot-previous-completion
-         ;; :desc "accept word" "l" #'copilot-accept-completion-by-word
+         :desc "accept word" "w" #'copilot-accept-completion-by-word
          :desc "accept line" "l" #'copilot-accept-completion-by-line
          :desc "accept all" "j" #'copilot-accept-completion)))
 

@@ -7,15 +7,6 @@
   (set-docsets! 'go-mode "Go")
   (set-repl-handler! 'go-mode #'gorepl-run)
 
-
-  ;; Redefines default formatter to *not* use goimports if reformatting a
-  ;; region; as it doesn't play well with partial code.
-  (set-formatter! 'gofmt
-    '(("%s" (if (or +format-region-p
-                    (not (executable-find "goimports")))
-                "gofmt"
-              "goimports"))))
-
   (if (featurep! +lsp)
       (add-hook 'go-mode-local-vars-hook #'lsp!)
     (add-hook 'go-mode-hook #'go-eldoc-setup))
@@ -65,7 +56,8 @@
   (setq company-go-show-annotation t))
 
 ;; (use-package! flycheck-golangci-lint
-;;   :when (featurep! :checkers syntax)
+;;   :when (and (modulep! :checkers syntax)
+;;              (not (modulep! :checkers syntax +flymake)))
 ;;   :hook (go-mode . flycheck-golangci-lint-setup))
 
 ;; golangci-lint server

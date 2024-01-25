@@ -195,6 +195,7 @@
 
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
+  :hook (yaml-mode . copilot-mode)
   ;; :bind (:map copilot-completion-map
   ;;             ("<tab>" . 'copilot-accept-completion)
   ;;             ("TAB" . 'copilot-accept-completion)

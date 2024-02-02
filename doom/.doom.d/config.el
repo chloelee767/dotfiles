@@ -195,13 +195,7 @@
 
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
-  :hook (yaml-mode . copilot-mode)
-  ;; :bind (:map copilot-completion-map
-  ;;             ("<tab>" . 'copilot-accept-completion)
-  ;;             ("TAB" . 'copilot-accept-completion)
-  ;;             ("C-TAB" . 'copilot-accept-completion-by-word)
-  ;;             ("C-<tab>" . 'copilot-accept-completion-by-word))
-  )
+  :hook (yaml-mode . copilot-mode))
 
 (defvar chloe/no-copilot-modes '(shell-mode
                                  inferior-python-mode
@@ -223,8 +217,14 @@
    (member major-mode chloe/no-copilot-modes)
    (company--active-p)))
 
+(defvar chloe/go-indent 4)
+(defvar chloe/elisp-indent 2)
+
 (after! copilot
   (add-to-list 'copilot-disable-predicates #'chloe/copilot-disable-predicate)
+  ;; copilot-indentatin-alist requires values to be symbols (ie. return true for symbolp)
+  (add-to-list 'copilot-indentation-alist '(go-mode chloe/go-indent))
+  (add-to-list 'copilot-indentation-alist '(emacs-lisp-mode chloe/elisp-indent))
   (map! :map copilot-mode-map
         :leader
         (:prefix ("l" . "copilot")

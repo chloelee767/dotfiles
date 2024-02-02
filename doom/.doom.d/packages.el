@@ -29,4 +29,5 @@
 (package! modus-themes :ignore (>= emacs-major-version 28))
 
 (package! copilot
-  :recipe (:host github :repo "zerolfx/copilot.el" :files ("*.el" "dist")))
+  :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el" "dist"))
+  :pin "2c1c425761e3cdaf139c9e2fa531f942cfb14b16")

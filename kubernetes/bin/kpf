@@ -31,7 +31,7 @@ done
 
 query="$@"
 
-POD="$(kubectl get pods | tail -n +2 | grep -i run | fzf -1 --prompt 'pod>' --query "$query" | awk '{print $1}')"
+POD="$(kubectl get pods | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$query" | awk '{print $1}')"
 
 if $SELECT_PORT; then
     PORT=$(kubectl get pod ${POD} -o go-template='{{range.spec.containers}}{{range.ports}}{{.name}}{{" "}}{{.containerPort}}{{"\n"}}{{end}}{{end}}' | fzf -1 --prompt 'port>' | awk '{ print $1 }')

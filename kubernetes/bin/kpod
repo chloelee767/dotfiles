@@ -5,7 +5,9 @@
 
 set -eou pipefail
 
-selected_row=$(kubectl get pods | tail -n +2 | grep -iv terminated | fzf -1)
+query="$@"
+
+selected_row=$(kubectl get pods | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$query")
 echo ${selected_row}
 # tr: remove any newlines (trailing newlines)
 awk '{print $1}' <<< ${selected_row} | tr -d '\n' | pbcopy

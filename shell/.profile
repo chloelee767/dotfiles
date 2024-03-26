@@ -2,6 +2,7 @@ export EDITOR=/usr/bin/nvim
 export TERMINAL=/usr/bin/kitty # used by i3
 
 export PATH=$PATH:$HOME/bin
+export PATH=$PATH:$HOME/.local/bin
 export PATH=$PATH:$HOME/.emacs.d/bin # doom emacs
 
 # programming languages

@@ -13,7 +13,8 @@ disabled = false
 style = "bold dimmed"
 
 [gcloud]
-disabled = true
+disabled = false
+format = '[$symbol$project]($style) '
 
 [aws]
 disabled = true

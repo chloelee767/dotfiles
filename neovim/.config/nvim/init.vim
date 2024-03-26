@@ -11,7 +11,8 @@ Plug 'vim-airline/vim-airline'
 "Plug 'vim-airline/vim-airline-themes'
 Plug 'sheerun/vim-polyglot'
 Plug 'scrooloose/nerdtree'
-Plug '~/Downloads/fzf'
+Plug '/usr/bin/fzf'
+Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 call plug#end()
 

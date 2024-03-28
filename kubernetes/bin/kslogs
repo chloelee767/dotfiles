@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eou pipefail
+
+query="$@"
+
+POD="$(kubectl get pods | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$query" | awk '{print $1}')"
+CONTAINER=$(kubectl get pod ${POD} -o jsonpath="{.spec.containers[*].name}" | tr -s '[[:space:]]' '\n' | grep --invert-match -E "log-svc-agent|istio-proxy" | fzf -1 --prompt 'container>')
+
+set -x
+kubectl exec -it "$POD" --container "$CONTAINER" -- /bin/bash logs

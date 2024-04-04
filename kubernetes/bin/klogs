@@ -1,10 +1,36 @@
 #!/usr/bin/env bash
+
+# Tail the logs of a pod.
+# If the --dry-run flag is passed, the command is printed and copied to the clipboard instead.
+
 set -eou pipefail
 
-query="$@"
+DRY_RUN=false
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    case $key in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
-POD="$(kubectl get pods | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$query" | awk '{print $1}')"
+QUERY="$@"
+
+POD="$(kubectl get pods | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$QUERY" | awk '{print $1}')"
 CONTAINER=$(kubectl get pod ${POD} -o jsonpath="{.spec.containers[*].name}" | tr -s '[[:space:]]' '\n' | grep --invert-match -E "log-svc-agent|istio-proxy" | fzf -1 --prompt 'container>')
 
-set -x
-kubectl logs "$POD" --container "$CONTAINER" --tail=50 -f
+
+CMD="kubectl logs "$POD" --container "$CONTAINER" --tail=50 -f"
+if $DRY_RUN; then
+    echo "$CMD"
+    echo "$CMD" | pbcopy
+else
+    set -x
+    exec $CMD
+fi

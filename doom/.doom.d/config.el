@@ -264,7 +264,21 @@
   (setq gofmt-command "goimports"
         lsp-go-goimports-local "github.com/carousell"
         gofmt-args (append gofmt-args '("-local" "github.com/carousell")))
-  (add-hook 'before-save-hook 'gofmt-before-save))
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  (defun chloe/go-cleanup-imports ()
+    (interactive)
+    (save-excursion
+      (go-goto-imports)
+      ;; remove blank lines before gofmt
+      (evil-command-window-ex-execute
+       (concat "1,"
+               (int-to-string (line-number-at-pos (point) t))
+               "s/\n\n+/\n"))
+      (gofmt)
+      (save-buffer)))
+  (map! :map go-mode-map
+        :localleader
+        (:prefix "ri" "c" #'chloe/go-cleanup-imports)))
 
 
 (setq lsp-clients-clangd-args '("-j=3"

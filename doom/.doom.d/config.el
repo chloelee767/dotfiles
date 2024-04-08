@@ -234,6 +234,14 @@
          :desc "accept line" "l" #'copilot-accept-completion-by-line
          :desc "accept all" "j" #'copilot-accept-completion)))
 
+(after! magit
+  (defun chloe/magit-go-to-file-in-worktree ()
+    (interactive)
+    (magit-find-file "{worktree}" (magit-current-file)))
+  (map! :map magit-mode-map
+        :leader
+        :prefix "gf" "F" #'chloe/magit-go-to-file-in-worktree))
+
 ;;
 ;;; Programming languages
 

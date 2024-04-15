@@ -6,12 +6,17 @@
 set -eou pipefail
 
 DRY_RUN=false
+ALL=false
 while [[ $# -gt 0 ]]
 do
     key="$1"
     case $key in
         --dry-run)
             DRY_RUN=true
+            shift
+            ;;
+        --all)
+            ALL=true
             shift
             ;;
         *)
@@ -27,10 +32,15 @@ CONTAINER=$(kubectl get pod ${POD} -o jsonpath="{.spec.containers[*].name}" | tr
 
 
 CMD="kubectl logs "$POD" --container "$CONTAINER" --tail=50 -f"
+FILTER="cat"
+if ! $ALL; then
+    FILTER="grep -iv healthcheck"
+fi
+# TODO support dry run + filter?
 if $DRY_RUN; then
     echo "$CMD"
     echo "$CMD" | pbcopy
 else
     set -x
-    exec $CMD
+    exec $CMD | $FILTER
 fi

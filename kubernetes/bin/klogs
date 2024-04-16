@@ -15,7 +15,7 @@ do
             DRY_RUN=true
             shift
             ;;
-        --all)
+        --all|-a)
             ALL=true
             shift
             ;;

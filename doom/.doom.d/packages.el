@@ -25,5 +25,5 @@
 (package! modus-themes :ignore (>= emacs-major-version 28))
 
 (package! copilot
-  :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el" "dist"))
-  :pin "2c1c425761e3cdaf139c9e2fa531f942cfb14b16")
+  :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+  :pin "733bff26450255e092c10873580e9abfed8a81b8")

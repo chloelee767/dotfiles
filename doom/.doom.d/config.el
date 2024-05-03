@@ -64,6 +64,16 @@
       "C-RET" #'markdown-insert-list-item
       "<C-return>" #'markdown-insert-list-item)
 
+(after! evil-surround
+  ;; swap space and non-space brackets
+  (dolist (key '(?\( ?\) ?\[ ?\] ?\{ ?\}))
+    (setq evil-surround-pairs-alist (assoc-delete-all key evil-surround-pairs-alist)))
+  (add-to-list 'evil-surround-pairs-alist '(?\( . ("(" . ")")))
+  (add-to-list 'evil-surround-pairs-alist '(?\[ . ("[" . "]")))
+  (add-to-list 'evil-surround-pairs-alist '(?\{ . ("{" . "}")))
+  (add-to-list 'evil-surround-pairs-alist '(?\) . ("( " . " )")))
+  (add-to-list 'evil-surround-pairs-alist '(?\] . ("[ " . " ]")))
+  (add-to-list 'evil-surround-pairs-alist '(?\} . ("{ " . " }"))))
 
 ;;
 ;;; Visuals

@@ -64,29 +64,6 @@
       "C-RET" #'markdown-insert-list-item
       "<C-return>" #'markdown-insert-list-item)
 
-;; additional evil text objectts
-;; https://stackoverflow.com/questions/18102004/emacs-evil-mode-how-to-create-a-new-text-object-to-select-words-with-any-non-sp
-(defmacro define-and-bind-quoted-text-object (name key start-regex end-regex)
-  (let ((inner-name (make-symbol (concat "evil-inner-" name)))
-        (outer-name (make-symbol (concat "evil-a-" name))))
-    `(progn
-       (evil-define-text-object ,inner-name (count &optional beg end type)
-         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
-       (evil-define-text-object ,outer-name (count &optional beg end type)
-         (evil-select-paren ,start-regex ,end-regex beg end type count t))
-       (define-key evil-inner-text-objects-map ,key #',inner-name)
-       (define-key evil-outer-text-objects-map ,key #',outer-name))))
-
-(after! evil
-  (define-and-bind-quoted-text-object "slash" "/" "/" "/")
-  (define-and-bind-quoted-text-object "asterisk" "*" "*" "*")
-  (define-and-bind-quoted-text-object "underscore" "l" "_" "_") ;; underLine ;; _ is already taken by _{ }
-
-  (define-and-bind-quoted-text-object "tidle" "~" "~" "~")
-  (define-and-bind-quoted-text-object "equals" "=" "=" "=")
-  (define-and-bind-quoted-text-object "plus" "+" "+" "+"))
-;; FIXME not sure why it isn't working
-(after! evil-surround (push '(?l . ("_" . "_")) evil-surround-pairs-alist))
 
 ;;
 ;;; Visuals

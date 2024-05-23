@@ -41,3 +41,6 @@ alias kn="kubens"
 alias kgp="kubectl get pods"
 
 alias uuid="uuidgen | tr '[:upper:]' '[:lower:]'"
+
+alias goget="go get"
+alias gogetb="GOPROXY=direct go get" # go get for branches, needed because non-master branches are generally not in the proxy

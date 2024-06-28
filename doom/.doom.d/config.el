@@ -215,6 +215,7 @@
     (magit-find-file "{worktree}" (magit-current-file)))
   (map! :map magit-mode-map
         :leader
+        :prefix "g" "F" #'chloe/magit-go-to-file-in-worktree
         :prefix "gf" "F" #'chloe/magit-go-to-file-in-worktree))
 
 ;;

@@ -40,14 +40,10 @@
       :desc "Copy last kill to clipboard" "c" #'chloe/copy-last-kill-to-clipboard
       :desc "Copy clipboard to emacs kill ring" "e" #'chloe/copy-clipboard-to-kill-ring)
 
-;; FIXME vterm - s-v / C-S-v calling clipboard yank instead
-(after! vterm
-  (setq vterm-keymap-exceptions (append vterm-keymap-exceptions '("C-S-v" "s-v"))))
-(map! :after vterm
-      :mode 'vterm-mode-map
-      :gni "C-S-v" #'chloe/vterm-yank-clipboard
+(map! :map 'vterm-mode-map
+      :g "C-S-v" #'chloe/vterm-yank-clipboard
       (:when IS-MAC
-        :gni "s-v" #'chloe/vterm-yank-clipboard))
+        :g "s-v" #'chloe/vterm-yank-clipboard))
 
 ;; project search symbol at point using <leader>-s-P, similar to <leader>-s-S
 (map! :leader

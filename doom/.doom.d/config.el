@@ -184,15 +184,6 @@
 ;;
 ;;; Github copilot
 
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
-  :hook (yaml-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("C-TAB" . 'copilot-accept-completion)
-              ("C-<tab>" . 'copilot-accept-completion)
-              ("C-S-TAB" . 'copilot-accept-completion-by-word)
-              ("C-S-<tab>" . 'copilot-accept-completion-by-word))
-  )
 
 (defvar chloe/no-copilot-modes '(shell-mode
                                  inferior-python-mode
@@ -215,7 +206,15 @@
 (defvar chloe/go-indent 4)
 (defvar chloe/elisp-indent 2)
 
-(after! copilot
+(use-package! copilot
+  :hook (prog-mode . copilot-mode)
+  :hook (yaml-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("C-TAB" . 'copilot-accept-completion)
+              ("C-<tab>" . 'copilot-accept-completion)
+              ("C-S-TAB" . 'copilot-accept-completion-by-word)
+              ("C-S-<tab>" . 'copilot-accept-completion-by-word))
+  :config
   (add-to-list 'copilot-disable-predicates #'chloe/copilot-disable-predicate)
   ;; copilot-indentatin-alist requires values to be symbols (ie. return true for symbolp)
   (add-to-list 'copilot-indentation-alist '(go-mode chloe/go-indent))
@@ -228,6 +227,9 @@
          :desc "accept word" "w" #'copilot-accept-completion-by-word
          :desc "accept line" "l" #'copilot-accept-completion-by-line
          :desc "accept all" "j" #'copilot-accept-completion)))
+
+;;
+;;; Magit
 
 (after! magit
   (defun chloe/magit-go-to-file-in-worktree ()

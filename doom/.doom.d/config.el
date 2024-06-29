@@ -186,7 +186,13 @@
 
 (use-package! copilot
   :hook (prog-mode . copilot-mode)
-  :hook (yaml-mode . copilot-mode))
+  :hook (yaml-mode . copilot-mode)
+  :bind (:map copilot-completion-map
+              ("C-TAB" . 'copilot-accept-completion)
+              ("C-<tab>" . 'copilot-accept-completion)
+              ("C-S-TAB" . 'copilot-accept-completion-by-word)
+              ("C-S-<tab>" . 'copilot-accept-completion-by-word))
+  )
 
 (defvar chloe/no-copilot-modes '(shell-mode
                                  inferior-python-mode

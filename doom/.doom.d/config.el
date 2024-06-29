@@ -261,13 +261,13 @@
 ;;; Magit
 
 (after! magit
-  (defun chloe/magit-go-to-file-in-worktree ()
-    (interactive)
-    (magit-find-file "{worktree}" (magit-current-file)))
   (map! :map magit-mode-map
         :leader
-        :prefix "g" "F" #'chloe/magit-go-to-file-in-worktree
-        :prefix "gf" "F" #'chloe/magit-go-to-file-in-worktree))
+        :prefix "g" "F" #'magit-blob-visit-file
+        :prefix "gf" "F" #'magit-blob-visit-file)
+  (map! :map magit-blob-mode-map
+        :g "RET" #'magit-blob-visit-file
+        :g "<return>" #'magit-blob-visit-file))
 
 ;;
 ;;; Programming languages

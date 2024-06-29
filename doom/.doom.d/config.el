@@ -64,6 +64,22 @@
       "C-RET" #'markdown-insert-list-item
       "<C-return>" #'markdown-insert-list-item)
 
+;; Unbind TAB for summoning corfu completion.
+;; Completion automatically appears early enough.
+;; (map! :map 'global-map
+;;       :i "TAB" #'indent-for-tab-command
+;;       :i "<tab>" #'indent-for-tab-command)
+
+(setq tab-first-completion 'eol)
+
+;; Fix yasnippet tab bindings.
+;; This way yasnippet will take predence over corfu when snippet expansion is ongoing.
+(map! :map 'yas-keymap
+      :i "TAB" #'yas-next-field-or-maybe-expand
+      :i "<tab>" #'yas-next-field-or-maybe-expand
+      :i "S-TAB" #'yas-prev-field
+      :i "<backtab>" #'yas-prev-field)
+
 
 ;;
 ;;; Visuals
@@ -188,9 +204,7 @@
 
 (defun chloe/copilot-disable-predicate ()
   "When copilot should not automatically show completions."
-  (or ;; rk/copilot-manual-mode
-   (member major-mode chloe/no-copilot-modes)
-   (company--active-p)))
+  (member major-mode chloe/no-copilot-modes))
 
 (defvar chloe/go-indent 4)
 (defvar chloe/elisp-indent 2)

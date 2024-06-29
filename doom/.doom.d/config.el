@@ -8,7 +8,6 @@
       enable-dir-local-variables t
       enable-local-variables t
       evil-ex-substitute-global t
-      company-idle-delay 3.0
       +latex-viewers '(pdf-tools okular)
       display-line-numbers-type 'relative
       frame-title-format  '("[" (:eval (projectile-project-name)) "] %b - Emacs")
@@ -344,9 +343,6 @@
   (setq writeroom-extra-line-spacing 0.4
         writeroom-width 120
         writeroom-mode-line t))
-
-;; (use-package! org-superstar
-;;   :hook (writeroom-mode . org-superstar-mode))
 
 (after! org
   (setq org-id-link-to-org-use-id  'create-if-interactive-and-no-custom-id)

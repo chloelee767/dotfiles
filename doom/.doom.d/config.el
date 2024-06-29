@@ -11,11 +11,10 @@
       company-idle-delay 3.0
       +latex-viewers '(pdf-tools okular)
       display-line-numbers-type 'relative
-      frame-title-format  '("[" (:eval (safe-persp-name (get-current-persp))) "] %b - Emacs")
-      ;; TODO renenable when compatible with workspaces module
-      ;; uniquify-buffer-name-style 'forward
-      ;; uniquify-after-kill-buffer-p t
-      )
+      frame-title-format  '("[" (:eval (projectile-project-name)) "] %b - Emacs")
+      ;; note: uniquify is not compatible with persp-mode (:ui workspaces module)
+      uniquify-buffer-name-style 'forward
+      uniquify-after-kill-buffer-p t)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)

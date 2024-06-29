@@ -74,7 +74,42 @@
       :i "S-TAB" #'yas-prev-field
       :i "<backtab>" #'yas-prev-field)
 
+;; Fix buffer switching when :ui workspaces is disabled
+(after! consult
+  (defvar chloe/consult--source-file-buffer
+    `(:name     "File Buffer"
+      :narrow   ?f
+      :category buffer
+      :face     consult-buffer
+      :history  buffer-name-history
+      :state    ,#'consult--buffer-state
+      :default  t
+      :items
+      ,(lambda () (consult--buffer-query :sort 'visibility
+                                    :as #'consult--buffer-pair
+                                    :predicate
+                                    (lambda (buf)
+                                      (buffer-file-name buf)))))
+    "Source for `consult-buffer' consisting of buffers associated with a file")
 
+  (defvar chloe/consult--source-non-file-buffer
+    `(:name     "Non-File Buffer"
+      :narrow   ?n
+      :category buffer
+      :face     consult-buffer
+      :history  buffer-name-history
+      :state    ,#'consult--buffer-state
+      :items
+      ,(lambda () (consult--buffer-query :sort 'visibility
+                                    :as #'consult--buffer-pair
+                                    :predicate
+                                    (lambda (buf)
+                                      (not (buffer-file-name buf))))))
+    "Source for `consult-buffer' consisting of non-file buffers")
+
+  (map! :leader
+        :g "," (cmd! (consult-buffer '(chloe/consult--source-file-buffer)))
+        :g "<" (cmd! (consult-buffer '(chloe/consult--source-file-buffer chloe/consult--source-non-file-buffer)))))
 ;;
 ;;; Visuals
 

@@ -68,11 +68,12 @@
 
 ;; Fix yasnippet tab bindings.
 ;; This way yasnippet will take predence over corfu when snippet expansion is ongoing.
+;; Note: with :i, sometimes yasnippet can still get overriden by corfu.
 (map! :map 'yas-keymap
-      :i "TAB" #'yas-next-field-or-maybe-expand
-      :i "<tab>" #'yas-next-field-or-maybe-expand
-      :i "S-TAB" #'yas-prev-field
-      :i "<backtab>" #'yas-prev-field)
+      :g "TAB" #'yas-next-field-or-maybe-expand
+      :g "<tab>" #'yas-next-field-or-maybe-expand
+      :g "S-TAB" #'yas-prev-field
+      :g "<backtab>" #'yas-prev-field)
 
 ;; Fix buffer switching when :ui workspaces is disabled
 (after! consult

@@ -273,6 +273,9 @@
 ;;
 ;;; Programming languages
 
+;; zmk
+(add-to-list 'auto-mode-alist '("\\.keymap\\'" . prog-mode))
+
 ;; associate .pl files as prolog files instead of perl
 (add-to-list 'auto-mode-alist '("\\.pl\\'" . prolog-mode))
 

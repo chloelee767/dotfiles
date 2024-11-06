@@ -24,11 +24,15 @@
        ;;japanese
 
        :completion
-       ;; (company           ; the ultimate code completion backend
-       ;;  +childframe)
-       (corfu
-        +orderless
-        +icons)
+       (company           ; the ultimate code completion backend
+        +childframe)
+
+       ;; TODO fix: order of completions are different from LSP in some scenarios
+       ;; eg. empty struct - completions for struct fields don't appear in the first page
+       ;; (corfu
+       ;;  ;; +orderless
+       ;;  +icons)
+
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
        ;; ivy               ; a search engine for love and life

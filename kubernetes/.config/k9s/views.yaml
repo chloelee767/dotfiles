@@ -1,0 +1,22 @@
+# Reference:
+# https://k9scli.io/topics/columns/
+
+views:
+  v1/pods:
+  # Same as default, except that we move the AGE column to the front
+    columns:
+      - NAME
+      - AGE
+      - PF
+      - READY
+      - STATUS
+      - RESTARTS
+      - CPU
+      - MEM
+      - "%CPU/R"
+      - "%CPU/L"
+      - "%MEM/R"
+      - "%MEM/L"
+      - IP
+      - NODE
+

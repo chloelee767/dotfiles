@@ -2,12 +2,25 @@
 set -eou pipefail
 
 ALL=false
+CONTEXT=""
+NAMESPACE=""
+
 while [[ $# -gt 0 ]]
 do
     key="$1"
     case $key in
         --all | -a)
             ALL=true
+            shift
+            ;;
+        -c|--context)
+            CONTEXT="$2"
+            shift
+            shift
+            ;;
+        -n|--namespace)
+            NAMESPACE="$2"
+            shift
             shift
             ;;
         *)
@@ -18,10 +31,20 @@ done
 
 query="$@"
 
-POD="$(kubectl get pods | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$query" | awk '{print $1}')"
-CONTAINER=$(kubectl get pod ${POD} -o jsonpath="{.spec.containers[*].name}" | tr -s '[[:space:]]' '\n' | grep --invert-match -E "log-svc-agent|istio-proxy" | fzf -1 --prompt 'container>')
+if [[ -z "$CONTEXT" ]]; then
+    CONTEXT="$(kubectl config current-context)"
+fi
 
-CMD="kubectl exec -it "$POD" --container "$CONTAINER" -- /bin/bash logs"
+if [[ -z "$NAMESPACE" ]]; then
+    NAMESPACE="$(kcurrentnamespace $CONTEXT)"
+fi
+
+echo "Context:" $CONTEXT "  Namespace:" $NAMESPACE
+
+POD="$(kpod -c $CONTEXT -n $NAMESPACE $query)"
+CONTAINER=$(kcontainer --pod $POD --context $CONTEXT --namespace $NAMESPACE)
+
+CMD="kubectl exec -it "$POD" --container "$CONTAINER" --context "$CONTEXT" -n "$NAMESPACE" -- /bin/bash logs"
 FILTER="cat"
 if ! $ALL; then
     FILTER="grep -iv healthcheck"

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-# Interactively select the name of a pod and copy it to the clipboard
+# Interactively select the name of a pod and
+# if the script is not being piped, copy it to the clipboard
 # TODO support linux (pbcopy not available)
 
 set -eou pipefail
@@ -11,5 +12,10 @@ selected_row=$(kubectl get pods | tail -n +2 | grep -iv terminated | fzf -1 --pr
 # echo ${selected_row}
 # tr: remove any newlines (trailing newlines)
 pod_name=$(awk '{print $1}' <<< ${selected_row} | tr -d '\n')
-echo ${pod_name} | pbcopy
+
 echo ${pod_name}
+
+if [[ -t 1 ]]; then
+    # Script output is not being piped
+    echo ${pod_name} | pbcopy
+fi

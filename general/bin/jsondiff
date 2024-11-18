@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Process redirection is not a standard POSIX feature, so we need to use bash
+
+set -euo pipefail
+
+FILE1="$1"
+FILE2="$2"
+
+diff <(jq --sort-keys . "$FILE1") <(jq --sort-keys . "$FILE2")

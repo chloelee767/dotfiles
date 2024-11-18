@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+set -eou pipefail
+
+POD=""
+CONTEXT=""
+NAMESPACE=""
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    case $key in
+        -p|--pod)
+            POD="$2"
+            shift
+            shift
+            ;;
+        -c|--context)
+            CONTEXT="$2"
+            shift
+            shift
+            ;;
+        -n|--namespace)
+            NAMESPACE="$2"
+            shift
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if [ -z "$POD" ]; then
+    echo "Please provide the pod name"
+    exit 1
+fi
+
+get_pod_cmd="kubectl get pod ${POD} -o jsonpath={.spec.containers[*].name}"
+if [ -n "$CONTEXT" ]; then
+    get_pod_cmd="${get_pod_cmd} --context ${CONTEXT}"
+fi
+if [ -n "$NAMESPACE" ]; then
+    get_pod_cmd="${get_pod_cmd} -n ${NAMESPACE}"
+fi
+
+CONTAINER=$(exec $get_pod_cmd | tr -s '[[:space:]]' '\n' | grep --invert-match -E "log-svc-agent|istio-proxy" | fzf -1 --prompt 'container>')
+
+echo $CONTAINER

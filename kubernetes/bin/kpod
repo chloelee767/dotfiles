@@ -6,9 +6,41 @@
 
 set -eou pipefail
 
+CONTEXT=""
+NAMESPACE=""
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    case $key in
+        -c|--context)
+            CONTEXT="$2"
+            shift
+            shift
+            ;;
+        -n|--namespace)
+            NAMESPACE="$2"
+            shift
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
 query="$@"
 
-selected_row=$(kubectl get pods | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$query")
+get_pods_cmd="kubectl get pods"
+
+if [[ -n ${CONTEXT} ]]; then
+    get_pods_cmd="${get_pods_cmd} --context ${CONTEXT}"
+fi
+if [[ -n ${NAMESPACE} ]]; then
+    get_pods_cmd="${get_pods_cmd} -n ${NAMESPACE}"
+fi
+
+selected_row=$(exec $get_pods_cmd | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$query")
 # echo ${selected_row}
 # tr: remove any newlines (trailing newlines)
 pod_name=$(awk '{print $1}' <<< ${selected_row} | tr -d '\n')

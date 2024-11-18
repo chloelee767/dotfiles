@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -eou pipefail
+
+CONTEXT="$1"
+
+# kubectl config view --output 'jsonpath={.contexts[?(@.name=="prod-a")].context.namespace}'
+NAMESPACE="$(kubectl config view --output "jsonpath={.contexts[?(@.name==\"$CONTEXT\")].context.namespace}")"
+
+echo $NAMESPACE

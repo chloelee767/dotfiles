@@ -47,14 +47,13 @@ if [[ -z "$CONTEXT" ]]; then
     CONTEXT="$(kubectl config current-context)"
 fi
 
-# kubectl config view --output 'jsonpath={.contexts[?(@.name=="prod-a")].context.namespace}'
 if [[ -z "$NAMESPACE" ]]; then
-    NAMESPACE="$(kubectl config view --output "jsonpath={.contexts[?(@.name==\"$CONTEXT\")].context.namespace}")"
+    NAMESPACE="$(kcurrentnamespace $CONTEXT)"
 fi
 
 echo "Context:" $CONTEXT "  Namespace:" $NAMESPACE
 
-POD="$(kubectl get pods --context $CONTEXT -n $NAMESPACE | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$query" | awk '{print $1}')"
+POD="$(kpod --context $CONTEXT -n $NAMESPACE $query)"
 
 if $SELECT_PORT; then
     PORT=$(kubectl get pod ${POD} --context $CONTEXT -n $NAMESPACE -o go-template='{{range.spec.containers}}{{range.ports}}{{.name}}{{" "}}{{.containerPort}}{{"\n"}}{{end}}{{end}}' | fzf -1 --prompt 'port>' | awk '{ print $1 }')

@@ -4,6 +4,8 @@ set -eou pipefail
 PORT="grpc"
 LOCAL_PORT=""
 SELECT_PORT=false
+CONTEXT=""
+NAMESPACE=""
 
 while [[ $# -gt 0 ]]
 do
@@ -23,6 +25,16 @@ do
             shift
             shift
             ;;
+        -c|--context)
+            CONTEXT="$2"
+            shift
+            shift
+            ;;
+        -n|--namespace)
+            NAMESPACE="$2"
+            shift
+            shift
+            ;;
         *)
             break
             ;;
@@ -31,15 +43,26 @@ done
 
 query="$@"
 
-POD="$(kubectl get pods | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$query" | awk '{print $1}')"
+if [[ -z "$CONTEXT" ]]; then
+    CONTEXT="$(kubectl config current-context)"
+fi
+
+# kubectl config view --output 'jsonpath={.contexts[?(@.name=="prod-a")].context.namespace}'
+if [[ -z "$NAMESPACE" ]]; then
+    NAMESPACE="$(kubectl config view --output "jsonpath={.contexts[?(@.name==\"$CONTEXT\")].context.namespace}")"
+fi
+
+echo "Context:" $CONTEXT "  Namespace:" $NAMESPACE
+
+POD="$(kubectl get pods --context $CONTEXT -n $NAMESPACE | tail -n +2 | grep -iv terminated | fzf -1 --prompt 'pod>' --query "$query" | awk '{print $1}')"
 
 if $SELECT_PORT; then
-    PORT=$(kubectl get pod ${POD} -o go-template='{{range.spec.containers}}{{range.ports}}{{.name}}{{" "}}{{.containerPort}}{{"\n"}}{{end}}{{end}}' | fzf -1 --prompt 'port>' | awk '{ print $1 }')
+    PORT=$(kubectl get pod ${POD} --context $CONTEXT -n $NAMESPACE -o go-template='{{range.spec.containers}}{{range.ports}}{{.name}}{{" "}}{{.containerPort}}{{"\n"}}{{end}}{{end}}' | fzf -1 --prompt 'port>' | awk '{ print $1 }')
 fi
 
 set -x # print commands executed
 if [[ -z "$LOCAL_PORT" ]]; then
-    kubectl port-forward "$POD" "$PORT"
+    kubectl port-forward "$POD" "$PORT" --context $CONTEXT -n $NAMESPACE
 else
-    kubectl port-forward "$POD" "$LOCAL_PORT":"$PORT"
+    kubectl port-forward "$POD" "$LOCAL_PORT":"$PORT" --context $CONTEXT -n $NAMESPACE
 fi

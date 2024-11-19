@@ -29,6 +29,7 @@ alias gco="git checkout"
 alias gpl="git pull"
 alias gph="git push"
 alias gd="git diff"
+alias gds="git diff --staged"
 alias gb="git branch"
 
 alias ra="ranger"
@@ -40,7 +41,7 @@ alias kc="kubectx"
 alias kn="kubens"
 alias kgp="kubectl get pods"
 
-alias uuid="uuidgen | tr '[:upper:]' '[:lower:]'"
+alias uuid="uuidgen | tr '[:upper:]' '[:lower:]' | tr -d '\n'"
 
 alias goget="go get"
 alias gogetb="GOPROXY=direct go get" # go get for branches, needed because non-master branches are generally not in the proxy

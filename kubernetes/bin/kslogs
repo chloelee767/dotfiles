@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
-ALL=false
 CONTEXT=""
 NAMESPACE=""
+FILTER="grep -iv healthcheck"
 
 while [[ $# -gt 0 ]]
 do
     key="$1"
     case $key in
-        --all | -a)
-            ALL=true
+        -f|--filter)
+            FILTER="$2"
+            shift
             shift
             ;;
         -c|--context)
@@ -45,10 +46,9 @@ POD="$(kpod -c $CONTEXT -n $NAMESPACE $query)"
 CONTAINER=$(kcontainer --pod $POD --context $CONTEXT --namespace $NAMESPACE)
 
 CMD="kubectl exec -it "$POD" --container "$CONTAINER" --context "$CONTEXT" -n "$NAMESPACE" -- /bin/bash logs"
-FILTER="cat"
-if ! $ALL; then
-    FILTER="grep -iv healthcheck"
+if [[ -n "$FILTER" ]]; then
+    CMD="$CMD | $FILTER"
 fi
 
 set -x
-exec $CMD | $FILTER
+bash -c "$CMD"

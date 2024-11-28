@@ -2,11 +2,18 @@
 
 # Tail the logs of a pod.
 # If the --dry-run flag is passed, the command is printed and copied to the clipboard instead.
+#
+# Sample usage:
+# klogs
+# klogs checkout
+# klogs -f 'grep -i hello' checkout
+# klogs -a checkout > logs.txt
 
 set -eou pipefail
 
 DRY_RUN=false
 ALL=false
+FILTER="grep -iv healthcheck"
 CONTEXT=""
 NAMESPACE=""
 
@@ -18,8 +25,13 @@ do
             DRY_RUN=true
             shift
             ;;
-        --all|-a)
+        -a|--all)
             ALL=true
+            shift
+            ;;
+        -f|--filter)
+            FILTER="$2"
+            shift
             shift
             ;;
         -c|--context)
@@ -54,16 +66,21 @@ POD="$(kpod -c $CONTEXT -n $NAMESPACE $QUERY)"
 CONTAINER=$(kcontainer --pod $POD --context $CONTEXT --namespace $NAMESPACE)
 
 
-CMD="kubectl logs "$POD" --container "$CONTAINER" --context "$CONTEXT" -n "$NAMESPACE" --tail=50 -f"
-FILTER="cat"
+CMD="kubectl logs "$POD" --container "$CONTAINER" --context "$CONTEXT" -n "$NAMESPACE""
+
 if ! $ALL; then
-    FILTER="grep -iv healthcheck"
+    CMD="$CMD --tail=50 -f"
+
+    # only apply filter if we are following logs
+    if [[ -n "$FILTER" ]]; then
+        CMD="$CMD | $FILTER"
+    fi
 fi
-# TODO support dry run + filter?
+
 if $DRY_RUN; then
     echo "$CMD"
     echo "$CMD" | pbcopy
 else
     set -x
-    exec $CMD | $FILTER
+    bash -c "$CMD"
 fi

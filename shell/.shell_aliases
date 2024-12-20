@@ -22,6 +22,7 @@ alias vim="nvim"
 # emacs
 alias eg="emacs -nw --eval '(magit-status)'"
 alias em="emacs -nw"
+alias dired="emacs -nw --eval '(dired \".\")'"
 
 # git
 alias gs="git status"

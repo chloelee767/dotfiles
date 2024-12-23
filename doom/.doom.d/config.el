@@ -141,6 +141,10 @@
       doom-modeline-buffer-state-icon t
       doom-modeline-modal-icon nil)
 
+;; spelling
+(after! spell-fu
+  (setq spell-fu-word-delimit-camel-case t))
+
 ;; popups
 ;; don't close help and info until I really want to
 ;; (set-popup-rule! "^\\*info.*" :size 80 :side 'right :ttl nil :select nil :quit 'current)

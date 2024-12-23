@@ -57,3 +57,66 @@
   (interactive "P")
   (+vertico/project-search arg (thing-at-point 'symbol)))
 
+;;;###autoload
+(defun chloe/go-cleanup-imports ()
+    (interactive)
+    (save-excursion
+      (go-goto-imports)
+      ;; remove blank lines before gofmt
+      (evil-command-window-ex-execute
+       (concat "1,"
+               (int-to-string (line-number-at-pos (point) t))
+               "s/\n\n+/\n"))
+      (gofmt)
+      (save-buffer)))
+
+;;
+;;; go generate
+
+(defun +go--spawn (cmd)
+  (save-selected-window
+    (compile cmd)))
+
+(defun +go--generate (dir args)
+  (let ((cd-cmd (concat "cd " dir))
+        (generate-cmd (concat "go generate " args)))
+    (+go--spawn (concat cd-cmd " && " generate-cmd))))
+
+;;;###autoload
+(defun +go/generate-file ()
+  "Run go generate for the current file only."
+  (interactive)
+  (if buffer-file-name
+      (+go--generate default-directory (file-name-nondirectory buffer-file-name))
+    (error "Couldn't get filename of curent buffer")))
+
+;;;###autoload
+(defun +go/generate-dir ()
+  "Run go generate for the current directory recursively."
+  (interactive)
+  (+go--generate default-directory "./..."))
+
+;;;###autoload
+(defun +go/generate-project ()
+  "Run go generate for the entire project."
+  (interactive)
+  ;; interactively choose project root if we cannot find it
+  (if-let ((project (project-current t nil)))
+      (+go--generate (file-truename (project-root project)) "./..."))
+  (error "Couldn't get current project."))
+
+;;;###autoload
+(defun +go/generate-line ()
+  "Run go generate for just the line at the current point."
+  (interactive)
+  (let ((curr-line-string (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
+        (regexp (rx line-start "//go:generate")))
+    (cond ((string-match "\"" curr-line-string)
+           (error "go generate cannot handle quotes (I think)"))
+
+          ((string-match regexp curr-line-string)
+           (let ((run-opt (concat "-run=\"" curr-line-string "\""))
+                 (filename (file-name-nondirectory buffer-file-name)))
+             (+go--generate default-directory (concat run-opt " " filename))))
+
+          (t (error "Line does not begin with //go:generate")))))

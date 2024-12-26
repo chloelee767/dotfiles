@@ -58,6 +58,11 @@
   (+vertico/project-search arg (thing-at-point 'symbol)))
 
 ;;;###autoload
+(defun chloe/cwd-search-symbol-at-point (&optional arg)
+  (interactive "P")
+  (+vertico/project-search-from-cwd arg (thing-at-point 'symbol)))
+
+;;;###autoload
 (defun chloe/go-cleanup-imports ()
     (interactive)
     (save-excursion

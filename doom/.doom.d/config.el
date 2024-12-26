@@ -28,7 +28,8 @@
       :g "C-c SPC" #'doom/leader
       :g "C-S-c" #'clipboard-kill-ring-save
       :g "C-S-v" #'clipboard-yank
-      :g "C-S-n" #'restart-emacs-start-new-emacs ;; does not quit current emacs, just spawns new instance
+      :g "C-S-n" #'restart-emacs-start-new-emacs ;; does not quit current emacs, st spawns new instance ;; FIXME macOS treats these as separate application types
+      ;; :g "C-S-n" (lambda () (interactive) (start-process "open-emacs" nil "open" "-na" "Emacs.app")) ;; doesn't work either
       (:when IS-MAC
         :g "s-c" #'clipboard-kill-ring-save
         :g "s-v" #'clipboard-yank
@@ -43,11 +44,13 @@
       (:when IS-MAC
         :g "s-v" #'chloe/vterm-yank-clipboard))
 
-;; project search symbol at point using <leader>-s-P, similar to <leader>-s-S
+;; project/directory search symbol at point using <leader>-s-P / <leader>-s-D, similar to <leader>-s-S
 (map! :leader
       (:prefix "s"
        :desc "Search project for thing at point" "P" #'chloe/project-search-symbol-at-point
-       :desc "Search other project" "C-p" #'+default/search-other-project))
+       :desc "Search other project" "C-p" #'+default/search-other-project
+       :desc "Search current directory for thing at point" "D" #'chloe/cwd-search-symbol-at-point
+       :desc "Search other directory" "C-d" #'+default/search-other-cwd))
 
 ;; disable tmm=menubar
 ;; (map! :g "`" nil

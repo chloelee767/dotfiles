@@ -24,4 +24,4 @@
 
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
-  :pin "733bff26450255e092c10873580e9abfed8a81b8")
+  :pin "c5dfa99f05878db5e6a6a378dc7ed09f11e803d4")

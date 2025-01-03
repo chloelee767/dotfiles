@@ -15,3 +15,5 @@ spoon.MiroWindowsManager:bindHotkeys({
 -- switcher_space = hs.window.switcher.new(hs.window.filter.new():setCurrentSpace(true))
 -- hs.hotkey.bind('alt', 'tab', 'Next window', function()switcher_space:next()end)
 -- hs.hotkey.bind('alt-shift', 'tab', 'Prev window', function()switcher_space:previous()end)
+
+hs.hotkey.bind(hyper, "s", function() hs.application.open("Slack") end)

@@ -54,3 +54,7 @@ alias gogetb="GOPROXY=direct go get" # go get for branches, needed because non-m
 alias ra="ranger"
 # alias ssh="TERM=vt100 ssh"
 alias uuid="uuidgen | tr '[:upper:]' '[:lower:]' | tr -d '\n'"
+
+highlight() {
+    grep --color=always -e "^" -e "$1"
+}

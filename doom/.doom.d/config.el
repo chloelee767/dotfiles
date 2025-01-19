@@ -203,6 +203,9 @@
 ;;
 ;;; Programming
 
+(after! lsp-mode
+  (setq lsp-idle-delay 0.25))
+
 (after! prog-mode
   (which-function-mode 1))
 

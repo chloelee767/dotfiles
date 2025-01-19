@@ -115,7 +115,9 @@
        (lookup           ; helps you navigate your code and documentation
         +docsets)        ; ...or in Dash docsets locally
        (lsp
-        +peek)
+        ;; Disable lsp peek so that I can use consult + embark
+        ;; +peek
+        )
        magit             ; a git porcelain for Emacs
        make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
@@ -135,7 +137,7 @@
        ;;(cc                ; C/C++/Obj-C madness
        ;; +lsp
        ;;)
-       clojure           ; java with a lisp
+       ;; clojure           ; java with a lisp
        ;;common-lisp       ; if you've seen one lisp, you've seen them all
        ;;coq               ; proofs-as-programs
        ;;crystal           ; ruby at the speed of c
@@ -212,11 +214,11 @@
         +lsp
        )
        ;;solidity          ; do you need a blockchain? No.
-       ;;swift             ; who asked for emoji variables?
+       (swift ; who asked for emoji variables?
+        +lsp)
        ;;terra             ; Earth and Moon in alignment for performance.
        (web               ; the tubes
-        +lsp
-       )
+        +lsp)
        yaml
 
        :email

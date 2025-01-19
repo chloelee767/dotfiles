@@ -13,7 +13,10 @@
       frame-title-format  '("[" (:eval (projectile-project-name)) "] %b - Emacs")
       ;; note: uniquify is not compatible with persp-mode (:ui workspaces module)
       uniquify-buffer-name-style 'forward
-      uniquify-after-kill-buffer-p t)
+      uniquify-after-kill-buffer-p t
+      ;; Focus new window after splitting
+      evil-split-window-below t
+      evil-vsplit-window-right t)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)
@@ -287,6 +290,8 @@ relative to the project."
 
 ;;
 ;;; Magit
+
+(setq transient-values '((magit-pull "--rebase" )))
 
 (after! magit
   (map! :map magit-mode-map

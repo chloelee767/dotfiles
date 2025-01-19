@@ -326,6 +326,7 @@ relative to the project."
 
 (use-package! protobuf-mode
   :mode ("\\.proto\\'" . protobuf-mode))
+(add-hook 'protobuf-mode-hook (lambda () (push '("Rpc" "^[[:space:]]*rpc[[:space:]]+\\([[:alnum:]]+\\)" 1) imenu-generic-expression)))
 
 (use-package! nextflow-mode
   :mode ("\\.nf\\'" . nextflow-mode)

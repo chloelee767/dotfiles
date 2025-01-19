@@ -85,8 +85,12 @@
 relative to the project."
     (let ((filename (buffer-file-name buffer))
           (project-root (doom-project-root)))
-      (if (and filename project-root)
-          (cons (file-relative-name filename project-root) buffer)
+      (if filename
+          (cons
+           (if (and project-root (file-in-directory-p filename project-root))
+               (file-relative-name filename project-root)
+             filename)
+           buffer)
         (consult--buffer-pair buffer))))
 
   (defvar chloe/consult--source-file-buffer

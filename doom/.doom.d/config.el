@@ -78,8 +78,11 @@
       :g "S-TAB" #'yas-prev-field
       :g "<backtab>" #'yas-prev-field)
 
-;; Fix buffer switching when :ui workspaces is disabled
-(after! consult
+;; Fix buffer switching when :ui workspaces is disabled.
+;; Don't use after!, otherwise it will still use the default consult-buffer
+;; the first time.
+(use-package! consult
+  :config
   (defun chloe/consult-file-buffer-pair (buffer)
     "Custom version of `consult--buffer-pair' that uses the full path of the file
 relative to the project."

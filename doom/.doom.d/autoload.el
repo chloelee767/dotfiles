@@ -1,17 +1,6 @@
 ;;; ../dotfiles/doom/.doom.d/autoload.el -*- lexical-binding: t; -*-
 
 ;;;###autoload
-(defun chloe/set-file-local-org-download-dir ()
-  "Still need to manually refresh the file local variables afterwards."
-  (interactive)
-  (if-let (filename (buffer-file-name))
-      (progn
-        (add-file-local-variable 'org-download-image-dir
-                                 (concat (file-name-sans-extension (file-name-nondirectory filename)) "_images"))
-        (message "Refresh file local variables now."))
-    (error "Couldn't get filename of current buffer")))
-
-;;;###autoload
 (defun chloe/yank-buffer-filename-only ()
   "Copy the current buffer's filename, exlucluding directories, to the kill ring."
   (interactive)

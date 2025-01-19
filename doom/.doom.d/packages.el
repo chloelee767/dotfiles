@@ -6,10 +6,6 @@
 ;; (package! another-package :recipe (:host github :repo "username/repo"))
 ;; (package! builtin-package :disable t)
 
-(package! org-download :pin "42ac361ef5502017e6fc1bceb00333eba90402f4")
-
-(package! ox-gfm)
-
 (package! groovy-mode)
 
 (package! protobuf-mode

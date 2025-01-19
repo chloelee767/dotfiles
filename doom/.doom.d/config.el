@@ -80,6 +80,15 @@
 
 ;; Fix buffer switching when :ui workspaces is disabled
 (after! consult
+  (defun chloe/consult-file-buffer-pair (buffer)
+    "Custom version of `consult--buffer-pair' that uses the full path of the file
+relative to the project."
+    (let ((filename (buffer-file-name buffer))
+          (project-root (doom-project-root)))
+      (if (and filename project-root)
+          (cons (file-relative-name filename project-root) buffer)
+        (consult--buffer-pair buffer))))
+
   (defvar chloe/consult--source-file-buffer
     `(:name     "File Buffer"
       :narrow   ?f
@@ -90,7 +99,7 @@
       :default  t
       :items
       ,(lambda () (consult--buffer-query :sort 'visibility
-                                    :as #'consult--buffer-pair
+                                    :as #'chloe/consult-file-buffer-pair
                                     :predicate
                                     (lambda (buf)
                                       (buffer-file-name buf)))))
@@ -225,7 +234,6 @@
 
 ;;
 ;;; Github copilot
-
 
 (defvar chloe/no-copilot-modes '(shell-mode
                                  inferior-python-mode

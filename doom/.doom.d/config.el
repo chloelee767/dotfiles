@@ -305,6 +305,14 @@ relative to the project."
         :g "RET" #'magit-blob-visit-file
         :g "<return>" #'magit-blob-visit-file))
 
+(use-package! magit-todos
+  :after magit
+  :config
+  (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?") ; make colon optional
+  (define-key magit-todos-section-map "j" nil)
+  (map! :leader
+        :prefix "p" "t" #'magit-todos-list))
+
 ;;
 ;;; Programming languages
 

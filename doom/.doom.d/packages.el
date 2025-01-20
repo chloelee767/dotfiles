@@ -6,6 +6,9 @@
 ;; (package! another-package :recipe (:host github :repo "username/repo"))
 ;; (package! builtin-package :disable t)
 
+(package! magit-todos
+  :pin "4c17b73355ad0f6537bec5776154ee7465a4c2f8")
+
 (package! groovy-mode)
 
 (package! protobuf-mode
@@ -21,3 +24,8 @@
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
   :pin "c5dfa99f05878db5e6a6a378dc7ed09f11e803d4")
+
+;; TODO setup
+(package! copilot-chat
+  :recipe (:host github :repo "chep/copilot-chat.el" :files ("*.el"))
+  :pin "8f0dcb8d21ff42b680bdc94aff89e9c3a6cbb8d8")

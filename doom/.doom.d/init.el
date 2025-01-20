@@ -29,6 +29,7 @@
 
        ;; TODO fix: order of completions are different from LSP in some scenarios
        ;; eg. empty struct - completions for struct fields don't appear in the first page
+       ;; It is probably due to corfu-history -- see if disabling it helps.
        ;; (corfu
        ;;  ;; +orderless
        ;;  +icons)

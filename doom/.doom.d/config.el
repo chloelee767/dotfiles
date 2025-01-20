@@ -10,13 +10,14 @@
       evil-ex-substitute-global t
       +latex-viewers '(pdf-tools okular)
       display-line-numbers-type 'relative
-      frame-title-format  '("[" (:eval (projectile-project-name)) "] %b - Emacs")
+      frame-title-format  '((:eval (doom-project-name)) " | %b - Emacs")
       ;; note: uniquify is not compatible with persp-mode (:ui workspaces module)
       uniquify-buffer-name-style 'forward
       uniquify-after-kill-buffer-p t
       ;; Focus new window after splitting
       evil-split-window-below t
-      evil-vsplit-window-right t)
+      evil-vsplit-window-right t
+      company-show-quick-access t)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)
@@ -273,7 +274,9 @@ relative to the project."
               ("C-TAB" . 'copilot-accept-completion)
               ("C-<tab>" . 'copilot-accept-completion)
               ("C-S-TAB" . 'copilot-accept-completion-by-word)
-              ("C-S-<tab>" . 'copilot-accept-completion-by-word))
+              ("C-S-<tab>" . 'copilot-accept-completion-by-word)
+              ("C-M-TAB" . 'copilot-accept-completion-by-line)
+              ("C-M-<tab>" . 'copilot-accept-completion-by-line))
   :config
   (add-to-list 'copilot-disable-predicates #'chloe/copilot-disable-predicate)
   ;; copilot-indentatin-alist requires values to be symbols (ie. return true for symbolp)

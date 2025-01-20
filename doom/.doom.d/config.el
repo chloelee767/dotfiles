@@ -386,6 +386,16 @@ relative to the project."
                  "d" #'+go/generate-dir
                  "p" #'+go/generate-project)))
 
+;; this doesn't seem to be used
+(use-package! lsp-mode
+  :config
+  (setq lsp-golangci-lint-fast t))
+
+;; golangci-lint uses too much memory and cpu sometimes
+(use-package! flycheck-golangci-lint
+  :config
+  (setq flycheck-golangci-lint-fast t))
+
 
 ;; (setq lsp-clients-clangd-args '("-j=3"
 ;;                                 "--background-index"

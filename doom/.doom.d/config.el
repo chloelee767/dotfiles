@@ -48,9 +48,11 @@
       (:when IS-MAC
         :g "s-v" #'chloe/vterm-yank-clipboard))
 
-;; project/directory search symbol at point using <leader>-s-P / <leader>-s-D, similar to <leader>-s-S
 (map! :leader
       (:prefix "s"
+       :desc "Search buffer for thing at point" "S" #'chloe/search-symbol-at-point
+
+        ;; project/directory search symbol at point using <leader>-s-P / <leader>-s-D, similar to <leader>-s-S
        :desc "Search project for thing at point" "P" #'chloe/project-search-symbol-at-point
        :desc "Search other project" "C-p" #'+default/search-other-project
        :desc "Search current directory for thing at point" "D" #'chloe/cwd-search-symbol-at-point

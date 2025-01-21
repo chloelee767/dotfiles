@@ -42,14 +42,20 @@
   (progn (chloe/copy-clipboard-to-kill-ring) (vterm-yank)))
 
 ;;;###autoload
+(defun chloe/search-symbol-at-point ()
+  "Performs a search in the current buffer for thing at point."
+  (interactive)
+  (consult-line (doom-thing-at-point-or-region)))
+
+;;;###autoload
 (defun chloe/project-search-symbol-at-point (&optional arg)
   (interactive "P")
-  (+vertico/project-search arg (thing-at-point 'symbol)))
+  (+vertico/project-search arg (doom-thing-at-point-or-region)))
 
 ;;;###autoload
 (defun chloe/cwd-search-symbol-at-point (&optional arg)
   (interactive "P")
-  (+vertico/project-search-from-cwd arg (thing-at-point 'symbol)))
+  (+vertico/project-search-from-cwd arg (doom-thing-at-point-or-region)))
 
 ;;;###autoload
 (defun chloe/go-cleanup-imports ()

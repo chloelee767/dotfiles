@@ -382,7 +382,6 @@ relative to the project."
         :localleader
         (:prefix ("g" . "generate")
                  "f" #'+go/generate-file
-                 "l" #'+go/generate-line ;; remove?
                  "d" #'+go/generate-dir
                  "p" #'+go/generate-project)))
 

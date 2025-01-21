@@ -98,19 +98,3 @@
   (if-let ((project (project-current t nil)))
       (+go--generate (file-truename (project-root project)) "./..."))
   (error "Couldn't get current project."))
-
-;;;###autoload
-(defun +go/generate-line ()
-  "Run go generate for just the line at the current point."
-  (interactive)
-  (let ((curr-line-string (buffer-substring-no-properties (line-beginning-position) (line-end-position)))
-        (regexp (rx line-start "//go:generate")))
-    (cond ((string-match "\"" curr-line-string)
-           (error "go generate cannot handle quotes (I think)"))
-
-          ((string-match regexp curr-line-string)
-           (let ((run-opt (concat "-run=\"" curr-line-string "\""))
-                 (filename (file-name-nondirectory buffer-file-name)))
-             (+go--generate default-directory (concat run-opt " " filename))))
-
-          (t (error "Line does not begin with //go:generate")))))

@@ -48,6 +48,9 @@
       (:when IS-MAC
         :g "s-v" #'chloe/vterm-yank-clipboard))
 
+(map! :leader
+      :prefix "b" "j" #'consult-bookmark)
+
 ;; project/directory search symbol at point using <leader>-s-P / <leader>-s-D, similar to <leader>-s-S
 (map! :leader
       (:prefix "s"

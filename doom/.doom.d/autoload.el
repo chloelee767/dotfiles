@@ -102,5 +102,5 @@
   (interactive)
   ;; interactively choose project root if we cannot find it
   (if-let ((project (project-current t nil)))
-      (+go--generate (file-truename (project-root project)) "./..."))
-  (error "Couldn't get current project."))
+      (+go--generate (file-truename (project-root project)) "./...")
+  (error "Couldn't get current project.")))

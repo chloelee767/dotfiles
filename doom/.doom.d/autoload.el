@@ -43,7 +43,8 @@
 
 ;;;###autoload
 (defun chloe/search-symbol-at-point ()
-  "Performs a search in the current buffer for thing at point."
+  "Performs a search in the current buffer for thing at point or selected
+region."
   (interactive)
   (consult-line (doom-thing-at-point-or-region)))
 
@@ -59,16 +60,16 @@
 
 ;;;###autoload
 (defun chloe/go-cleanup-imports ()
-    (interactive)
-    (save-excursion
-      (go-goto-imports)
-      ;; remove blank lines before gofmt
-      (evil-command-window-ex-execute
-       (concat "1,"
-               (int-to-string (line-number-at-pos (point) t))
-               "s/\n\n+/\n"))
-      (gofmt)
-      (save-buffer)))
+  (interactive)
+  (save-excursion
+    (go-goto-imports)
+    ;; remove blank lines before gofmt
+    (evil-command-window-ex-execute
+     (concat "1,"
+             (int-to-string (line-number-at-pos (point) t))
+             "s/\n\n+/\n"))
+    (gofmt)
+    (save-buffer)))
 
 ;;
 ;;; go generate
@@ -103,4 +104,4 @@
   ;; interactively choose project root if we cannot find it
   (if-let ((project (project-current t nil)))
       (+go--generate (file-truename (project-root project)) "./...")
-  (error "Couldn't get current project.")))
+    (error "Couldn't get current project.")))

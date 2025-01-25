@@ -55,8 +55,10 @@
         ;; project/directory search symbol at point using <leader>-s-P / <leader>-s-D, similar to <leader>-s-S
        :desc "Search project for thing at point" "P" #'chloe/project-search-symbol-at-point
        :desc "Search other project" "C-p" #'+default/search-other-project
-       :desc "Search current directory for thing at point" "D" #'chloe/cwd-search-symbol-at-point
-       :desc "Search other directory" "C-d" #'+default/search-other-cwd))
+       :desc "Search directory for thing at point" "D" #'chloe/cwd-search-symbol-at-point
+       :desc "Search other directory" "C-d" #'+default/search-other-cwd
+
+       :desc "consult-yank-pop" "y" #'consult-yank-pop))
 
 ;; disable tmm=menubar
 ;; (map! :g "`" nil
@@ -171,9 +173,10 @@ relative to the project."
   (setq spell-fu-word-delimit-camel-case t))
 
 ;; popups
-;; don't close help and info until I really want to
+;; don't close these kinds of popups until I really want to
 ;; (set-popup-rule! "^\\*info.*" :size 80 :side 'right :ttl nil :select nil :quit 'current)
-;; (set-popup-rule! "^\\*[Hh]elp.*" :size 80 :side 'right :ttl nil :select nil :quit 'current)
+(set-popup-rule! "^\\*Embark Export.*" :ttl nil :select t :quit 'current)
+(set-popup-rule! "^\\*[Hh]elp.*" :ttl 600 :select nil :quit 'current) ;; 10 mins ttl
 
 ;;
 ;;; Useful files and directories
@@ -388,9 +391,9 @@ relative to the project."
                  "p" #'+go/generate-project)))
 
 ;; this doesn't seem to be used
-(use-package! lsp-mode
-  :config
-  (setq lsp-golangci-lint-fast t))
+;; (use-package! lsp-mode
+;;   :config
+;;   (setq lsp-golangci-lint-fast t))
 
 ;; golangci-lint uses too much memory and cpu sometimes
 (use-package! flycheck-golangci-lint

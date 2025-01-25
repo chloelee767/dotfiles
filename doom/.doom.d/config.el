@@ -80,6 +80,13 @@
 (setq-hook! 'lsp-mode-hook
   corfu-sort-function nil)
 
+(defun chloe/format-path (path)
+  "Beautifies a string PATH for display."
+  (let ((homepath (expand-file-name "~/")))
+    (if (string-prefix-p homepath path)
+        (concat "~/" (substring path (length homepath)))
+      path)))
+
 ;; Fix buffer switching when :ui workspaces is disabled.
 ;; Don't use after!, otherwise it will still use the default consult-buffer
 ;; the first time.
@@ -92,9 +99,9 @@ relative to the project."
           (project-root (doom-project-root)))
       (if filename
           (cons
-           (if (and project-root (file-in-directory-p filename project-root))
+           (chloe/format-path (if (and project-root (file-in-directory-p filename project-root))
                (file-relative-name filename project-root)
-             filename)
+             filename))
            buffer)
         (consult--buffer-pair buffer))))
 
@@ -222,30 +229,6 @@ relative to the project."
 ;;
 ;;; Programming
 
-;; copied from :ui hl-todo module, except without XXX
-(after! hl-todo
-  (setq hl-todo-keyword-faces
-        '(;; For reminders to change or add something at a later date.
-          ("TODO" warning bold)
-          ;; For code (or code paths) that are broken, unimplemented, or slow,
-          ;; and may become bigger problems later.
-          ("FIXME" error bold)
-          ;; For code that needs to be revisited later, either to upstream it,
-          ;; improve it, or address non-critical issues.
-          ("REVIEW" font-lock-keyword-face bold)
-          ;; For code smells where questionable practices are used
-          ;; intentionally, and/or is likely to break in a future update.
-          ("HACK" font-lock-constant-face bold)
-          ;; For sections of code that just gotta go, and will be gone soon.
-          ;; Specifically, this means the code is deprecated, not necessarily
-          ;; the feature it enables.
-          ("DEPRECATED" font-lock-doc-face bold)
-          ;; Extra keywords commonly found in the wild, whose meaning may vary
-          ;; from project to project.
-          ("NOTE" success bold)
-          ("BUG" error bold))))
-
-
 (after! lsp-mode
   (setq lsp-idle-delay 0.25))
 
@@ -331,7 +314,8 @@ relative to the project."
 (use-package! magit-todos
   :after magit
   :config
-  (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?") ; make colon optional
+  (setq magit-todos-keyword-suffix "\\(?:([^)]+)\\)?:?" ; make colon optional
+        magit-todos-exclude-globs (append magit-todos-exclude-globs '("*.pb.go" "vendor/")))
   (define-key magit-todos-section-map "j" nil)
   (map! :leader
         :prefix "p" "t" #'magit-todos-list))
@@ -389,7 +373,8 @@ relative to the project."
 ;;   :config
 ;;   (setq lsp-golangci-lint-fast t))
 
-;; golangci-lint uses too much memory and cpu sometimes
+;; For projects with large dependencies, golangci-lint is slow and extremely
+;; resource-intensive, even when the project itself is small.
 (use-package! flycheck-golangci-lint
   :config
   (setq flycheck-golangci-lint-fast t))

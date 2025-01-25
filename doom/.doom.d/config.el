@@ -69,22 +69,16 @@
       "C-RET" #'markdown-insert-list-item
       "<C-return>" #'markdown-insert-list-item)
 
-;; Unbind TAB for summoning corfu completion.
-;; Completion automatically appears early enough.
-;; (map! :map 'global-map
-;;       :i "TAB" #'indent-for-tab-command
-;;       :i "<tab>" #'indent-for-tab-command)
+;; (setq tab-first-completion 'eol)
+(after! corfu
+  (setq +corfu-want-tab-prefer-expand-snippets t
+        +corfu-want-tab-prefer-navigating-snippets t
+        +corfu-want-tab-prefer-navigating-org-tables t))
 
-(setq tab-first-completion 'eol)
-
-;; Fix yasnippet tab bindings.
-;; This way yasnippet will take predence over corfu when snippet expansion is ongoing.
-;; Note: with :i, sometimes yasnippet can still get overriden by corfu.
-(map! :map 'yas-keymap
-      :g "TAB" #'yas-next-field-or-maybe-expand
-      :g "<tab>" #'yas-next-field-or-maybe-expand
-      :g "S-TAB" #'yas-prev-field
-      :g "<backtab>" #'yas-prev-field)
+;; TODO is there a nicer way to do this? I imagine that the sorting is useful
+;; for other completions.
+(setq-hook! 'lsp-mode-hook
+  corfu-sort-function nil)
 
 ;; Fix buffer switching when :ui workspaces is disabled.
 ;; Don't use after!, otherwise it will still use the default consult-buffer

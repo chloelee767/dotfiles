@@ -230,7 +230,15 @@ relative to the project."
 ;;; Programming
 
 (after! lsp-mode
-  (setq lsp-idle-delay 0.25))
+  ;; go overlay hints
+  ;; see:
+  ;; https://github.com/emacs-lsp/lsp-mode/issues/4357
+  ;; https://github.com/golang/tools/blob/master/gopls/doc/inlayHints.md
+  (lsp-register-custom-settings
+   '(("gopls.hints" ((parameterNames . t)))))
+
+  (setq lsp-idle-delay 0.25
+        lsp-inlay-hint-enable t))
 
 (after! prog-mode
   (which-function-mode 1))

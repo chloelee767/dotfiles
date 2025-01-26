@@ -4,7 +4,7 @@
 ;;; Defaults
 
 (setq delete-by-moving-to-trash t
-      select-enable-clipboard nil ;; don't clutter OS clipboard with evil delete etc. Use + register for OS clipboard.
+      select-enable-clipboard nil ; don't clutter OS clipboard with evil delete etc. Use + register for OS clipboard.
       enable-dir-local-variables t
       enable-local-variables t
       evil-ex-substitute-global t
@@ -17,6 +17,7 @@
       ;; Focus new window after splitting
       evil-split-window-below t
       evil-vsplit-window-right t
+      size-indication-mode nil ; don't show the file size in the modeline
       company-show-quick-access t)
 
 (global-visual-line-mode 1)
@@ -80,13 +81,6 @@
 (setq-hook! 'lsp-mode-hook
   corfu-sort-function nil)
 
-(defun chloe/format-path (path)
-  "Beautifies a string PATH for display."
-  (let ((homepath (expand-file-name "~/")))
-    (if (string-prefix-p homepath path)
-        (concat "~/" (substring path (length homepath)))
-      path)))
-
 ;; Fix buffer switching when :ui workspaces is disabled.
 ;; Don't use after!, otherwise it will still use the default consult-buffer
 ;; the first time.
@@ -99,9 +93,9 @@ relative to the project."
           (project-root (doom-project-root)))
       (if filename
           (cons
-           (chloe/format-path (if (and project-root (file-in-directory-p filename project-root))
+           (if (and project-root (file-in-directory-p filename project-root))
                (file-relative-name filename project-root)
-             filename))
+             (abbreviate-file-name filename))
            buffer)
         (consult--buffer-pair buffer))))
 
@@ -139,6 +133,12 @@ relative to the project."
   (map! :leader
         :g "," (cmd! (consult-buffer '(chloe/consult--source-file-buffer)))
         :g "<" (cmd! (consult-buffer '(chloe/consult--source-file-buffer chloe/consult--source-non-file-buffer)))))
+
+;; in `consult-buffer', don't annotate the file name again next to a file buffer
+(after! marginalia
+  (advice-add #'marginalia--buffer-file
+              :around (lambda (oldfun buffer) (if (buffer-file-name buffer) "" (funcall oldfun buffer)))))
+
 ;;
 ;;; Visuals
 
@@ -149,8 +149,7 @@ relative to the project."
  ;; doom-theme 'doom-solarized-light
  doom-font (font-spec :family "Iosevka SS14" :size (if IS-MAC 13.0 11.0))
  doom-variable-pitch-font doom-font
- doom-serif-font (font-spec :family "Noto Serif")
- )
+ doom-serif-font (font-spec :family "Noto Serif"))
 
 (global-prettify-symbols-mode 1)
 
@@ -184,15 +183,10 @@ relative to the project."
 ;;; note: a lot of custom functions work under the assumption that directory paths end with /
 
 (setq org-directory (if IS-MAC "~/Library/CloudStorage/Dropbox/Org/" "~/Dropbox/Org/")
-      chloe/org-agenda-directory (concat org-directory "agenda/")
       chloe/documents-directory "~/Documents/"
-      chloe/nus-directory (concat chloe/documents-directory "NUS/")
       chloe/gosrc-directory "~/go/src/"
       chloe/carousell-gocode-directory (concat chloe/gosrc-directory "github.com/carousell/")
-      chloe/dropbox-directory "~/Dropbox/"
-      chloe/work-dropbox (concat chloe/dropbox-directory "Work/")
-      chloe/current-tickets-dropbox (concat chloe/work-dropbox "tickets/current/")
-      )
+      chloe/dropbox-directory "~/Dropbox/")
 
 ;;
 ;;; Shortcuts and utils
@@ -201,7 +195,6 @@ relative to the project."
 
 (map! :leader
       (:prefix "f"
-
                ;; shortcuts to useful folders
                (:prefix ("f" . "favourites")
                 :desc "Home" "h" (cmd! (doom-project-browse "~/"))
@@ -212,11 +205,7 @@ relative to the project."
                 :desc "Go src" "G" (cmd! (doom-project-browse chloe/gosrc-directory))
                 :desc "Dotfiles" "t" (cmd! (doom-project-browse "~/dotfiles/"))
                 :desc "Dotfiles (find in project)" "T" (cmd! (doom-project-find-file "~/dotfiles/"))
-                :desc "Agenda folder" "a" (cmd! (doom-project-browse chloe/org-agenda-directory))
-                :desc "Org folder" "o" (cmd! (doom-project-browse org-directory))
-                :desc "NUS" "n" (cmd! (doom-project-browse chloe/nus-directory))
-                :desc "Work" "w" (cmd! (doom-project-browse chloe/work-dropbox))
-                :desc "Current tickets" "i" (cmd! (doom-project-browse chloe/current-tickets-dropbox)))
+                :desc "Org folder" "o" (cmd! (doom-project-browse org-directory)))
 
                ;; file utils
                :desc "Yank filename only" "C-y" #'chloe/yank-buffer-filename-only
@@ -238,24 +227,17 @@ relative to the project."
    '(("gopls.hints" ((parameterNames . t)))))
 
   (setq lsp-idle-delay 0.25
-        lsp-inlay-hint-enable t))
+        lsp-inlay-hint-enable nil ; turn on as needed
+        ))
 
 (after! prog-mode
   (which-function-mode 1))
 
+;; Use lsp to implement which-func
 (use-package! lsp-headerline
   :after lsp-mode
   :config
-  (setq lsp-headerline-breadcrumb-segments '(symbols)
-        which-func-functions (list (lambda () (if lsp-mode (s-trim (substring-no-properties (lsp-headerline--build-symbol-string))) nil)))))
-
-(defun chloe/toggle-which-function-position ()
-  (interactive)
-  (if (and lsp-mode lsp-headerline-breadcrumb-mode)
-      (progn (which-function-mode 1)
-             (lsp-headerline-breadcrumb-mode -1))
-    (progn (which-function-mode -1)
-           (lsp-headerline-breadcrumb-mode 1))))
+  (setq which-func-functions (list (lambda () (if lsp-mode (s-replace-regexp "[[:space:]]+" " " (s-trim (substring-no-properties (lsp-headerline--build-symbol-string)))) nil)))))
 
 ;;
 ;;; Github copilot
@@ -308,7 +290,7 @@ relative to the project."
 ;;
 ;;; Magit
 
-(setq transient-values '((magit-pull "--rebase" )))
+(setq transient-values '((magit-pull "--rebase")))
 
 (after! magit
   (map! :map magit-mode-map

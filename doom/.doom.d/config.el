@@ -228,6 +228,7 @@ relative to the project."
 
   (setq lsp-idle-delay 0.25
         lsp-inlay-hint-enable nil ; turn on as needed
+        lsp-modeline-code-actions-enable nil ; flycheck already shows this in the modeline
         ))
 
 (after! prog-mode

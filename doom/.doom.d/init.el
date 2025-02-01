@@ -94,9 +94,9 @@
 
        :checkers
        syntax              ; tasing you for every semicolon you forget
-       (spell             ; tasing you for misspelling mispelling
-        +enchant
-        )
+       ;; (spell             ; tasing you for misspelling mispelling
+       ;;  +enchant
+       ;;  )
        ;;grammar           ; tasing grammar mistake every you make
 
        :tools

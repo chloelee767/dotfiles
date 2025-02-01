@@ -71,6 +71,25 @@ region."
     (gofmt)
     (save-buffer)))
 
+;;;###autoload
+(defun chloe/string-inflection-yank ()
+  (interactive)
+  (if-let* ((thing (doom-thing-at-point-or-region))
+            (options '(("snake case" . string-inflection-underscore-function)
+                       ("kebab case" . string-inflection-kebab-case-function)
+                       ("camel case" . string-inflection-camelcase-function)
+                       ("pascal case" . string-inflection-pascal-case-function)
+                       ("constant case (upper underscore)" . string-inflection-upcase-function)))
+            (choice (completing-read "Case: "
+                                     (mapcar #'car options)
+                                     nil t))
+            (action (cdr (assoc choice options)))
+            (result (funcall action thing)))
+      (progn
+        (kill-new result)
+        (message result))
+    (error "nothing found")))
+
 ;;
 ;;; go generate
 

@@ -28,10 +28,6 @@
 (add-hook 'text-mode-hook #'turn-off-auto-fill)
 (remove-hook 'text-mode-hook #'auto-fill-mode)
 
-;; Don't show file size in modeline
-(setq size-indication-mode nil)
-(remove-hook 'doom-modeline-mode-hook #'size-indication-mode)
-
 (map! :nvm "C-w" #'ace-window
       :g "C-c SPC" #'doom/leader
       :g "C-S-c" #'clipboard-kill-ring-save
@@ -150,9 +146,11 @@ relative to the project."
  doom-theme 'doom-gruvbox
  ;; doom-theme 'doom-tomorrow-day
  ;; doom-theme 'doom-solarized-light
+ ;; doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size (if IS-MAC 13.0 11.0))
+ ;; line-spacing 0.2
+ ;; doom-themes-enable-bold nil
  doom-font (font-spec :family "Iosevka SS14" :size (if IS-MAC 13.0 11.0))
- doom-variable-pitch-font doom-font
- doom-serif-font (font-spec :family "Noto Serif"))
+ )
 
 (global-prettify-symbols-mode 1)
 
@@ -169,7 +167,10 @@ relative to the project."
 ;; modeline appearance
 (setq doom-modeline-buffer-modification-icon t
       doom-modeline-buffer-state-icon t
-      doom-modeline-modal-icon nil)
+      doom-modeline-modal-icon t)
+;; don't show file size in modeline
+(setq size-indication-mode nil)
+(remove-hook 'doom-modeline-mode-hook #'size-indication-mode)
 
 ;; spelling
 (after! spell-fu

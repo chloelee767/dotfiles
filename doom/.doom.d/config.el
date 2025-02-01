@@ -17,7 +17,6 @@
       ;; Focus new window after splitting
       evil-split-window-below t
       evil-vsplit-window-right t
-      size-indication-mode nil ; don't show the file size in the modeline
       company-show-quick-access t)
 
 (global-visual-line-mode 1)
@@ -28,6 +27,10 @@
 (add-hook 'org-mode-hook #'turn-off-auto-fill)
 (add-hook 'text-mode-hook #'turn-off-auto-fill)
 (remove-hook 'text-mode-hook #'auto-fill-mode)
+
+;; Don't show file size in modeline
+(setq size-indication-mode nil)
+(remove-hook 'doom-modeline-mode-hook #'size-indication-mode)
 
 (map! :nvm "C-w" #'ace-window
       :g "C-c SPC" #'doom/leader

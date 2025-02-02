@@ -1,6 +1,6 @@
 # Dotfiles
 
-Setup: `stow -R -t ~ -v <name of directory>` eg. `stow -R -t -v shell`
+Setup: `./sync-dir.sh <DIR>` eg. `./sync-dir.sh shell`
 
 ## Mac
 

@@ -58,3 +58,24 @@ alias uuid="uuidgen | tr '[:upper:]' '[:lower:]' | tr -d '\n'"
 highlight() {
     grep --color=always -e "^" -e "$1"
 }
+
+# prevent nested ranger instances: https://wiki.archlinux.org/title/Ranger#PDF_file_preview
+ranger() {
+    if [ -z "$RANGER_LEVEL" ]; then
+        /usr/bin/ranger "$@"
+    else
+        exit
+    fi
+}
+
+# use yazi to cd into a directory
+# press q to change the directory, Q to avoid changing directory
+# https://yazi-rs.github.io/docs/quick-start#shell-wrapper
+yz() {
+    local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(command cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        builtin cd -- "$cwd"
+    fi
+    rm -f -- "$tmp"
+}

@@ -58,15 +58,6 @@ source ~/.zsh-plugins/zsh-z/zsh-z.plugin.zsh
 
 source ~/.shell_aliases
 
-# prevent nested ranger instances: https://wiki.archlinux.org/title/Ranger#PDF_file_preview
-ranger() {
-    if [ -z "$RANGER_LEVEL" ]; then
-        /usr/bin/ranger "$@"
-    else
-        exit
-    fi
-}
-
 [ -f "$HOME/.zshrc.system" ] && source "$HOME/.zshrc.system"
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
 

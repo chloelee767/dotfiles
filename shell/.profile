@@ -7,8 +7,6 @@ export PATH=$PATH:$HOME/.emacs.d/bin # doom emacs
 
 # programming languages
 
-export PATH="$HOME/.cargo/bin:$PATH"
-
 #export JAVA_HOME=/usr/lib/jvm/java-14-openjdk
 #export PATH=$PATH:$JAVA_HOME/bin
 #export PATH=$PATH:$HOME/.jenv/bin
@@ -19,9 +17,6 @@ export PATH="$HOME/.cargo/bin:$PATH"
 export PATH=$PATH:$HOME/go/bin
 export GO111MODULE=auto
 
-# export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-
 [ -f "$HOME/.profile.system" ] && . "$HOME/.profile.system"
 [ -f "$HOME/.profile.local" ] && . "$HOME/.profile.local"
 
@@ -31,3 +26,9 @@ eval `ssh-agent`
 
 # for qt5ct, so that okular icons work
 export QT_QPA_PLATFORMTHEME=qt5ct
+
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

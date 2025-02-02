@@ -1,0 +1,43 @@
+export BREWDIR="/opt/homebrew"
+
+# homebrew
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# gnu commands
+PATH="$BREWDIR/opt/coreutils/libexec/gnubin:$PATH"
+PATH="$BREWDIR/opt/findutils/libexec/gnubin:$PATH"
+PATH="$BREWDIR/opt/gnu-sed/libexec/gnubin:$PATH"
+PATH="$BREWDIR/opt/gnu-tar/libexec/gnubin:$PATH"
+PATH="$BREWDIR/opt/grep/libexec/gnubin:$PATH"
+PATH="$BREWDIR/opt/make/libexec/gnubin:$PATH"
+
+# Emacs
+# https://github.com/jimeh/emacs-builds
+if [ -f "/Applications/Emacs.app/Contents/MacOS/Emacs" ]; then
+  export EMACS="/Applications/Emacs.app/Contents/MacOS/Emacs"
+  alias emacs="$EMACS"
+fi
+
+# Go
+# use system DNS resolver, ensures .local addresses are resolved on mac, which is needed for https://github.com/davidnarayan/go-flake
+# https://stackoverflow.com/questions/52131336/net-lookuphost-outputs-no-such-host-after-using-os-hostname#comment91224998_52131700
+# export GODEBUG=netdns=cgo
+# fix warning from xcode 15 linker
+# https://github.com/golang/go/issues/63135
+export CGO_LDFLAGS="-Wl,-no_warn_duplicate_libraries"
+export CGO_ENABLED=off
+
+# Android SDK
+PATH="$BREWDIR/Caskroom/android-sdk/4333796/platform-tools:$PATH"
+
+# Postgres cli tools
+PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
+
+# localenv
+export LOCALENV_PATH=${HOME}/carousell-localenv
+PATH="${LOCALENV_PATH}/localenv:$PATH"
+PATH="${PATH}:${HOME}/.istio/istio-1.14.0/bin"
+
+# gcloud
+export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+PATH="$BREWDIR/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin:$PATH"

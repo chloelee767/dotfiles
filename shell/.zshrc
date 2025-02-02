@@ -55,19 +55,27 @@ source ~/.zsh-plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.z
 source ~/.zsh-plugins/zsh-z/zsh-z.plugin.zsh
 [ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh # arch
 [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] && source /usr/share/doc/fzf/examples/key-bindings.zsh # ubuntu
+[ -f /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh ] && source /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh
 
 source ~/.shell_aliases
 
 [ -f "$HOME/.zshrc.system" ] && source "$HOME/.zshrc.system"
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
 
-function set_win_title(){
-    echo -ne "\033]0; $PWD \007"
-}
-precmd_functions+=(set_win_title)
+# function set_win_title(){
+#     echo -ne "\033]0; $PWD \007"
+# }
+# precmd_functions+=(set_win_title)
 
 eval "$(starship init zsh)"
 
 eval "$(direnv hook zsh)"
 
-autoload -U compinit && compinit # load completions
+# load completions
+autoload -U compinit
+# only update zcompdump once a day since it's slow
+# https://gist.github.com/ctechols/ca1035271ad134841284
+if [ "$(find ~/.zcompdump -mtime +1)" ] ; then
+    compinit
+fi
+compinit -C

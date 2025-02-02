@@ -1,9 +1,22 @@
 add_newline = false
-format = "$all$time$line_break$character"
+format = """
+$directory\
+$all\
+$kubernetes\
+$cmd_duration\
+$time\
+$line_break\
+$character"""
 
 [character]
 success_symbol = "[\\$](green)"
 error_symbol = "[\\$](red)"
+
+[directory]
+style="bold fg:#34c6eb"
+truncate_to_repo = false
+fish_style_pwd_dir_length = 3
+format = "[$path]($style)[$read_only]($read_only_style) "
 
 [line_break]
 disabled = false
@@ -12,9 +25,29 @@ disabled = false
 disabled = false
 style = "bold dimmed"
 
+# pure prompt style git status: https://starship.rs/presets/pure-preset.html
+[git_branch]
+format = "[$symbol$branch(:$remote_branch)]($style) "
+# style = "bright-black"
+
+[git_status]
+disabled = true
+format = "[[(*$conflicted$untracked$modified$staged$renamed$deleted)](218) ($ahead_behind$stashed)]($style)"
+style = "cyan"
+conflicted = "​"
+untracked = "​"
+modified = "​"
+staged = "​"
+renamed = "​"
+deleted = "​"
+stashed = "≡"
+
+[git_state]
+format = '\([$state( $progress_current/$progress_total)]($style)\) '
+style = "bright-black"
+
 [gcloud]
-disabled = false
-format = '[$symbol$project]($style) '
+disabled = true
 
 [aws]
 disabled = true
@@ -23,4 +56,11 @@ disabled = true
 disabled = true
 
 [golang]
+disabled = true
+
+[kubernetes]
+disabled = false
+format = '[$symbol$context( \($namespace\))]($style) '
+
+[python]
 disabled = true

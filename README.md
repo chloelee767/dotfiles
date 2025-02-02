@@ -1,6 +1,11 @@
 # Dotfiles
 
-Setup: `./sync-dir.sh <DIR>` eg. `./sync-dir.sh shell`
+``` sh
+git clone git@github.com:chloelee767/dotfiles.git
+git submodule update --init
+```
+
+Sync changes to repo: `./sync-dir.sh <DIR>` eg. `./sync-dir.sh shell`
 
 ## Mac
 

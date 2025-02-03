@@ -1,12 +1,48 @@
 ;;; ../dotfiles/doom/.doom.d/autoload.el -*- lexical-binding: t; -*-
 
-;;;###autoload
-(defun chloe/yank-buffer-filename-only ()
+(defun chloe/get-selected-lines-str ()
+  (if (doom-region-active-p)
+      (let ((beg (line-number-at-pos (doom-region-beginning)))
+            (end (line-number-at-pos (- (doom-region-end) 1))))
+        (if (= beg end) (number-to-string beg) (format "%d-%d" beg end)))))
+
+(defun chloe--yank-path (fn)
+  "Calls fn, a function which yanks the current path to the clipboard, except
+that it includes the line numbers if a region is active."
+  (funcall fn)
+  (when-let* ((lines (chloe/get-selected-lines-str))
+              (path (pop kill-ring))
+              (final-path (if lines (s-concat path ":" lines) path)))
+    (kill-new final-path)
+    (message "Copied path: %s" final-path)))
+
+(defun chloe--yank-buffer-filename-only ()
   "Copy the current buffer's filename, exlucluding directories, to the kill ring."
   (interactive)
   (if-let (filename (or buffer-file-name (bound-and-true-p list-buffers-directory)))
       (message (kill-new (file-name-nondirectory filename)))
     (error "Couldn't get filename of current buffer")))
+
+;;;###autoload
+(defun chloe/yank-buffer-path (&optional arg)
+  "`+default/yank-buffer-path' except that it includes the line numbers if a
+region is active."
+  (interactive "P")
+  (chloe--yank-path (lambda () (+default/yank-buffer-path arg))))
+
+;;;###autoload
+(defun chloe/yank-buffer-path-relative-to-project (&optional arg)
+  "`+default/yank-buffer-path-relative-to-project' except that it includes the
+line numbers if a region is active."
+  (interactive "P")
+  (chloe--yank-path (lambda () (+default/yank-buffer-path-relative-to-project arg))))
+
+;;;###autoload
+(defun chloe/yank-buffer-filename-only ()
+  "Copy the current buffer's filename to the kill ring. If a region is active,
+the line numbers are included."
+  (interactive)
+  (chloe--yank-path #'chloe--yank-buffer-filename-only))
 
 ;;;###autoload
 (defun chloe/chmod-current-file ()

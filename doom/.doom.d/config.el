@@ -208,6 +208,8 @@ relative to the project."
                 :desc "Org folder" "o" (cmd! (doom-project-browse org-directory)))
 
                ;; file utils
+               :desc "Yank file path" "y" #'chloe/yank-buffer-path
+               :desc "Yank file path from project" "Y" #'chloe/yank-buffer-path-relative-to-project
                :desc "Yank filename only" "C-y" #'chloe/yank-buffer-filename-only
                :desc "chmod" "x" #'chloe/chmod-current-file
                :desc "make executable" "X" #'chloe/make-current-file-executable)

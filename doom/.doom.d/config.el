@@ -16,8 +16,7 @@
       uniquify-after-kill-buffer-p t
       ;; Focus new window after splitting
       evil-split-window-below t
-      evil-vsplit-window-right t
-      company-show-quick-access t)
+      evil-vsplit-window-right t)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)
@@ -41,7 +40,9 @@
 (map! :leader
       :prefix ("y" . "yank")
       :desc "Copy last kill to clipboard" "c" #'chloe/copy-last-kill-to-clipboard
-      :desc "Copy clipboard to emacs kill ring" "e" #'chloe/copy-clipboard-to-kill-ring)
+      :desc "Copy clipboard to emacs kill ring" "e" #'chloe/copy-clipboard-to-kill-ring
+      ; also bound to SPC i y
+      :desc "yank pop" "p" #'+default/yank-pop)
 
 (map! :map 'vterm-mode-map
       :g "C-S-v" #'chloe/vterm-yank-clipboard
@@ -56,9 +57,7 @@
        :desc "Search project for thing at point" "P" #'chloe/project-search-symbol-at-point
        :desc "Search other project" "C-p" #'+default/search-other-project
        :desc "Search directory for thing at point" "D" #'chloe/cwd-search-symbol-at-point
-       :desc "Search other directory" "C-d" #'+default/search-other-cwd
-
-       :desc "consult-yank-pop" "y" #'consult-yank-pop))
+       :desc "Search other directory" "C-d" #'+default/search-other-cwd))
 
 ;; disable tmm=menubar
 ;; (map! :g "`" nil
@@ -146,7 +145,7 @@ relative to the project."
  doom-theme 'doom-gruvbox
  ;; doom-theme 'doom-tomorrow-day
  ;; doom-theme 'doom-solarized-light
- ;; doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size (if IS-MAC 13.0 11.0))
+ ;; doom-font (font-spec :family "JetBrainsMono Nerd Font" :size (if IS-MAC 13.0 11.0))
  ;; line-spacing 0.2
  ;; doom-themes-enable-bold nil
  doom-font (font-spec :family "Iosevka SS14" :size (if IS-MAC 13.0 11.0))
@@ -165,9 +164,6 @@ relative to the project."
   '(org-table :foreground nil))
 
 ;; modeline appearance
-(setq doom-modeline-buffer-modification-icon t
-      doom-modeline-buffer-state-icon t
-      doom-modeline-modal-icon t)
 ;; don't show file size in modeline
 (setq size-indication-mode nil)
 (remove-hook 'doom-modeline-mode-hook #'size-indication-mode)

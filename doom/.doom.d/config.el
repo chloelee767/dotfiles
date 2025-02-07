@@ -205,6 +205,7 @@ relative to the project."
                 :desc "Go src" "G" (cmd! (doom-project-browse chloe/gosrc-directory))
                 :desc "Dotfiles" "t" (cmd! (doom-project-browse "~/dotfiles/"))
                 :desc "Dotfiles (find in project)" "T" (cmd! (doom-project-find-file "~/dotfiles/"))
+                :desc "/" "/" (cmd! (doom-project-browse "/"))
                 :desc "Org folder" "o" (cmd! (doom-project-browse org-directory)))
 
                ;; file utils

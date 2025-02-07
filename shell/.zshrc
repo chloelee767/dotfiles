@@ -69,13 +69,14 @@ source ~/.shell_aliases
 
 eval "$(starship init zsh)"
 
-eval "$(direnv hook zsh)"
+# eval "$(direnv hook zsh)"
 
 # load completions
 autoload -U compinit
 # only update zcompdump once a day since it's slow
 # https://gist.github.com/ctechols/ca1035271ad134841284
 if [ "$(find ~/.zcompdump -mtime +1)" ] ; then
+    echo "Checking zsh completions cache..."
     compinit
 fi
 compinit -C

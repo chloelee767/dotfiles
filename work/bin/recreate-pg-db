@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+set -eou pipefail
+
+DB_NAME="$1"
+
+psql -c "DROP DATABASE $DB_NAME;" -U postgres && psql -c "CREATE DATABASE $DB_NAME;" -U postgres

@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# Example:
+# test-migrate merchantcheckout up
+
+set -eou pipefail
+
+DB_NAME=$1
+
+shift
+
+set -x
+migrate -database "postgres://localhost:5432/$DB_NAME?sslmode=disable&user=carousell&password=carousell123" -path "$(pwd)/migration/pg" "$@"

@@ -71,7 +71,7 @@
 ;; (setq tab-first-completion 'eol)
 (after! corfu
   (setq +corfu-want-tab-prefer-expand-snippets t
-        +corfu-want-tab-prefer-navigating-snippets t
+        +corfu-want-tab-prefer-navigating-snippets nil
         +corfu-want-tab-prefer-navigating-org-tables t))
 
 ;; TODO is there a nicer way to do this? I imagine that the sorting is useful

@@ -18,6 +18,7 @@ export FZF_DEFAULT_OPTS="--select-1"
 export KUBECTX_FZF_USE_QUERY=1
 export BAT_THEME="Coldark-Dark"
 export K9S_CONFIG_DIR="$HOME/.config/k9s"
+export GH_DASH_CONFIG="$HOME/.config/gh-dash/config.yml"
 
 # emacs
 PATH="$HOME/.emacs.d/bin:$PATH"

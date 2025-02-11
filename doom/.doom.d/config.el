@@ -234,14 +234,21 @@ relative to the project."
         lsp-modeline-code-actions-enable nil ; flycheck already shows this in the modeline
         ))
 
-(after! prog-mode
-  (which-function-mode 1))
+(which-function-mode 1)
+;; (add-hook 'prog-mode-hook 'which-function-mode)
+(setq ;; which-func-display 'header ; Note: only available from emacs 30.1
+      which-func-unknown "")
 
-;; Use lsp to implement which-func
+;; Use lsp-headerline instead of which-func if available
 (use-package! lsp-headerline
   :after lsp-mode
   :config
-  (setq which-func-functions (list (lambda () (if lsp-mode (s-replace-regexp "[[:space:]]+" " " (s-trim (substring-no-properties (lsp-headerline--build-symbol-string)))) nil)))))
+  (setq lsp-headerline-breadcrumb-enable t
+        ;; Use lsp to implement which-func
+        which-func-functions (list (lambda () (if lsp-mode (s-replace-regexp "[[:space:]]+" " " (s-trim (substring-no-properties (lsp-headerline--build-symbol-string)))) nil)))
+        lsp-headerline-breadcrumb-segments '(symbols)))
+(add-hook 'lsp-headerline-breadcrumb-mode-hook
+          (lambda () (setq-local which-function-mode (if lsp-headerline-breadcrumb-mode nil t))))
 
 ;;
 ;;; Github copilot

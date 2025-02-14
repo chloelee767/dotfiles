@@ -235,9 +235,28 @@ relative to the project."
         ))
 
 (which-function-mode 1)
-;; (add-hook 'prog-mode-hook 'which-function-mode)
+
+(defun chloe/which-func-current-truncated (len)
+  (s-truncate len
+              (string-replace "%" "%%"
+                              (or (gethash (selected-window) which-func-table)
+                                  which-func-unknown))))
 (setq ;; which-func-display 'header ; Note: only available from emacs 30.1
-      which-func-unknown "")
+      which-func-unknown ""
+      ;; same as which-func-format, except that the function name is truncated beyond a certain point
+      which-func-format '("["
+                        (:propertize
+                                (:eval (chloe/which-func-current-truncated 40)) local-map
+                                (keymap
+                                (mode-line keymap (mouse-3 . end-of-defun)
+                                                (mouse-2
+                                                . #[0 "e\300=\203	 \301 \207~\207"
+                                                        [1 narrow-to-defun] 2 nil nil])
+                                                (mouse-1 . beginning-of-defun)))
+                                face which-func mouse-face mode-line-highlight help-echo
+                                "Current function\nmouse-1: go to beginning\nmouse-2: toggle rest visibility\nmouse-3: go to end")
+                        "]"))
+
 
 ;; Use lsp-headerline instead of which-func if available
 (use-package! lsp-headerline
@@ -245,7 +264,7 @@ relative to the project."
   :config
   (setq lsp-headerline-breadcrumb-enable t
         ;; Use lsp to implement which-func
-        which-func-functions (list (lambda () (if lsp-mode (s-replace-regexp "[[:space:]]+" " " (s-trim (substring-no-properties (lsp-headerline--build-symbol-string)))) nil)))
+        ;; which-func-functions (list (lambda () (if lsp-mode (s-replace-regexp "[[:space:]]+" " " (s-trim (substring-no-properties (lsp-headerline--build-symbol-string)))) nil)))
         lsp-headerline-breadcrumb-segments '(symbols)))
 (add-hook 'lsp-headerline-breadcrumb-mode-hook
           (lambda () (setq-local which-function-mode (if lsp-headerline-breadcrumb-mode nil t))))

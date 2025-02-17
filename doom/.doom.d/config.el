@@ -27,6 +27,10 @@
 (add-hook 'text-mode-hook #'turn-off-auto-fill)
 (remove-hook 'text-mode-hook #'auto-fill-mode)
 
+;; unbind `evil-emacs-state'
+(map! :im "C-z" nil)
+(map! :map magit-mode-map :n "C-z" nil)
+
 (map! :nvm "C-w" #'ace-window
       :g "C-c SPC" #'doom/leader
       :g "C-S-c" #'clipboard-kill-ring-save
@@ -137,13 +141,18 @@ relative to the project."
   (advice-add #'marginalia--buffer-file
               :around (lambda (oldfun buffer) (if (buffer-file-name buffer) "" (funcall oldfun buffer)))))
 
+;; TODO learn how to use dirvish?
+(use-package! treemacs
+  :config
+  (map! :leader (:prefix "o" "p" #'+treemacs/toggle)))
+
+
 ;;
 ;;; Visuals
 
 (setq
  ;; doom-theme (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 17)) 'doom-tomorrow-day 'doom-tomorrow-night) ;; set theme based on time
- doom-theme 'doom-gruvbox
- ;; doom-theme 'doom-tomorrow-day
+ doom-theme 'doom-tomorrow-night
  ;; doom-theme 'doom-solarized-light
  ;; doom-font (font-spec :family "JetBrainsMono Nerd Font" :size (if IS-MAC 13.0 11.0))
  ;; line-spacing 0.2
@@ -199,7 +208,6 @@ relative to the project."
                (:prefix ("f" . "favourites")
                 :desc "Home" "h" (cmd! (doom-project-browse "~/"))
                 :desc "Documents" "d" (cmd! (doom-project-browse chloe/documents-directory))
-                :desc "Dropbox" "r" (cmd! (doom-project-browse chloe/dropbox-directory))
                 :desc "Code" "c" (cmd! (doom-project-browse "~/Code/"))
                 :desc "Go (Carousell)" "g" (cmd! (doom-project-browse chloe/carousell-gocode-directory))
                 :desc "Go src" "G" (cmd! (doom-project-browse chloe/gosrc-directory))

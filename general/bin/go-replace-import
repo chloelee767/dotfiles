@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # Example usage:
 # $ go-replace-import github.com/Shopify/sarama github.com/IBM/sarama
@@ -30,9 +30,11 @@ for f in $(grep -R --include="*.go" --exclude="*.pb.go" -l "$OLD_PKG" .); do
         # Replace imports which already have an alias first, as we don't want to
         # change existing aliases since they will be used in the code.
         sed -i -E "s|(\w+) \"$OLD_PKG\"|\1 \"$NEW_PKG\"|g" "$f"
-    fi
 
-    sed -i -E "s|\"$OLD_PKG\"|$PKG_ALIAS \"$NEW_PKG\"|g" "$f"
+        sed -i -E "s|\"$OLD_PKG\"|$PKG_ALIAS \"$NEW_PKG\"|g" "$f"
+    else
+        sed -i -E "s|\"$OLD_PKG\"|\"$NEW_PKG\"|g" "$f"
+    fi
 
     echo "replaced in $f"
 done

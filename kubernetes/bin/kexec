@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+# Execute a command in a pod
+# Exmaple usage:
+# kexec --cmd 'cat /etc/hosts'
+
+set -eou pipefail
+
+CONTEXT=""
+NAMESPACE=""
+POD_CMD=""
+BASH_CMD=""
+
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    case $key in
+        -c|--context)
+            CONTEXT="$2"
+            shift
+            shift
+            ;;
+        -n|--namespace)
+            NAMESPACE="$2"
+            shift
+            shift
+            ;;
+        --raw-cmd)
+            POD_CMD="$2"
+            shift
+            shift
+            ;;
+        --cmd|--bash-cmd)
+            BASH_CMD="$2"
+            shift
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+query="$@"
+
+if [[ -n "$BASH_CMD" ]]; then
+    POD_CMD="/bin/bash -c '$BASH_CMD'"
+fi
+
+if [[ -z "$POD_CMD" ]]; then
+    echo "Please provide the command to run in the pod"
+    exit 1
+fi
+
+if [[ -z "$CONTEXT" ]]; then
+    CONTEXT="$(kubectl config current-context)"
+fi
+
+if [[ -z "$NAMESPACE" ]]; then
+    NAMESPACE="$(kcurrentnamespace $CONTEXT)"
+fi
+
+echo "Context:" $CONTEXT "  Namespace:" $NAMESPACE
+
+POD="$(kpod -c $CONTEXT -n $NAMESPACE $query)"
+CONTAINER=$(kcontainer --pod $POD --context $CONTEXT --namespace $NAMESPACE)
+
+CMD="kubectl exec $POD --container $CONTAINER --context $CONTEXT -n $NAMESPACE -- $POD_CMD"
+
+set -x
+bash -c "$CMD"

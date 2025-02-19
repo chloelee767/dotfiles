@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Add the computer's hostname to the /etc/hosts file of the remote pod.
+# Needed for some services in order to use mirrord.
+
+set -eou pipefail
+
+host="$(hostname)"
+
+echo "Adding host: $host"
+
+kexec --bash-cmd "echo 127.0.0.1 $host >> /etc/hosts; cat /etc/hosts"

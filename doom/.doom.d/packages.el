@@ -23,7 +23,7 @@
 
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
-  :pin "c5dfa99f05878db5e6a6a378dc7ed09f11e803d4")
+  :pin "8a0068afcfb98af7f172d04f6f8cc932c1a22fe8")
 
 ;; TODO setup
 (package! copilot-chat

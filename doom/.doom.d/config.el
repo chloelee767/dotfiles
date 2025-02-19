@@ -78,10 +78,7 @@
         +corfu-want-tab-prefer-navigating-snippets nil
         +corfu-want-tab-prefer-navigating-org-tables t))
 
-;; TODO is there a nicer way to do this? I imagine that the sorting is useful
-;; for other completions.
-(setq-hook! 'lsp-mode-hook
-  corfu-sort-function nil)
+(setq-hook! 'lsp-mode-hook corfu-sort-function nil)
 
 ;; Fix buffer switching when :ui workspaces is disabled.
 ;; Don't use after!, otherwise it will still use the default consult-buffer

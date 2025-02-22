@@ -125,3 +125,45 @@ region."
         (kill-new result)
         (message result))
     (error "nothing found")))
+
+;;;###autoload
+(defun +helpful--buffer-index (&optional buffer)
+  "If BUFFER is a Helpful buffer, return its index in the buffer ring."
+  (let ((buf (or buffer (current-buffer))))
+    (and (eq (buffer-local-value 'major-mode buf) 'helpful-mode)
+         (seq-position (ring-elements +helpful--buffer-ring) buf #'eq))))
+
+(defun +helpful--next (&optional buffer)
+  "Return the next live Helpful buffer relative to BUFFER."
+  (let ((buf-ring +helpful--buffer-ring)
+        (index (or (+helpful--buffer-index buffer) -1)))
+    (cl-block nil
+      (while (> index 0)
+        (cl-decf index)
+        (let ((buf (ring-ref buf-ring index)))
+          (if (buffer-live-p buf) (cl-return buf)))
+        (ring-remove buf-ring index)))))
+
+(defun +helpful--previous (&optional buffer)
+  "Return the previous live Helpful buffer relative to BUFFER."
+  (let ((buf-ring +helpful--buffer-ring)
+        (index (1+ (or (+helpful--buffer-index buffer) -1))))
+    (cl-block nil
+      (while (< index (ring-length buf-ring))
+        (let ((buf (ring-ref buf-ring index)))
+          (if (buffer-live-p buf) (cl-return buf)))
+        (ring-remove buf-ring index)))))
+
+;;;###autoload
+(defun +helpful-next ()
+  "Go to the next Helpful buffer."
+  (interactive)
+  (when-let (buf (+helpful--next))
+    (funcall helpful-switch-buffer-function buf)))
+
+;;;###autoload
+(defun +helpful-previous ()
+  "Go to the previous Helpful buffer."
+  (interactive)
+  (when-let (buf (+helpful--previous))
+    (funcall helpful-switch-buffer-function buf)))

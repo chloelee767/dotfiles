@@ -248,20 +248,20 @@ relative to the project."
                               (or (gethash (selected-window) which-func-table)
                                   which-func-unknown))))
 (setq ;; which-func-display 'header ; Note: only available from emacs 30.1
-      which-func-unknown ""
-      ;; same as which-func-format, except that the function name is truncated beyond a certain point
-      which-func-format '("["
-                        (:propertize
-                                (:eval (chloe/which-func-current-truncated 40)) local-map
-                                (keymap
-                                (mode-line keymap (mouse-3 . end-of-defun)
-                                                (mouse-2
-                                                . #[0 "e\300=\203	 \301 \207~\207"
-                                                        [1 narrow-to-defun] 2 nil nil])
-                                                (mouse-1 . beginning-of-defun)))
-                                face which-func mouse-face mode-line-highlight help-echo
-                                "Current function\nmouse-1: go to beginning\nmouse-2: toggle rest visibility\nmouse-3: go to end")
-                        "]"))
+ which-func-unknown ""
+ ;; same as which-func-format, except that the function name is truncated beyond a certain point
+ which-func-format `("["
+                     (:propertize which-func-current
+                                  (:eval (chloe/which-func-current-truncated 40)) local-map
+                                  ,which-func-keymap
+                                  face which-func
+                                  mouse-face mode-line-highlight
+                                  help-echo ,(concat
+                                              "Current function\n"
+                                              "mouse-1: go to beginning\n"
+                                              "mouse-2: toggle rest visibility\n"
+                                              "mouse-3: go to end"))
+                     "]"))
 
 
 ;; Use lsp-headerline instead of which-func if available
@@ -279,6 +279,7 @@ relative to the project."
 ;;; Github copilot
 
 (defvar chloe/no-copilot-modes '(shell-mode
+                                 emacs-lisp-mode
                                  inferior-python-mode
                                  eshell-mode
                                  term-mode
@@ -346,7 +347,7 @@ relative to the project."
   (map! :leader
         :prefix "p" "t" #'magit-todos-list))
 
-(load! "magit-forge-config.el" doom-user-dir t)
+;; (load! "magit-forge-config.el" doom-user-dir t)
 
 ;;
 ;;; Programming languages
@@ -439,5 +440,33 @@ relative to the project."
 ;;; Org mode
 
 (after! org
+  ;; edit src blocks in current window
   (setq org-src-window-setup 'current-window)
   (set-popup-rule! "^\\*Org Src" :ignore t))
+
+;;
+;;; Helpful mode
+
+;; helpful buffers history
+;; copied from https://github.com/Wilfred/helpful/issues/250
+
+(defvar +helpful-buffer-ring-size 20
+    "How many buffers are stored for use with `+helpful-next'.")
+
+(defvar +helpful--buffer-ring (make-ring +helpful-buffer-ring-size)
+  "Ring that stores the current Helpful buffer history.")
+
+(after! helpful
+  (defadvice! +helpful--new-buffer-a (help-buf)
+    "Update the buffer ring according to the current buffer and HELP-BUF."
+    :filter-return #'helpful--buffer
+    (let ((buf-ring +helpful--buffer-ring))
+      (let ((newer-buffers (or (+helpful--buffer-index) 0)))
+        (dotimes (_ newer-buffers) (ring-remove buf-ring 0)))
+      (when (/= (ring-size buf-ring) +helpful-buffer-ring-size)
+        (ring-resize buf-ring +helpful-buffer-ring-size))
+      (ring-insert buf-ring help-buf))))
+
+(map! :map helpful-mode-map
+      :n "[ b" #'+helpful-previous
+      :n "] b" #'+helpful-next)

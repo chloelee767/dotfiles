@@ -78,6 +78,7 @@
         +corfu-want-tab-prefer-navigating-snippets nil
         +corfu-want-tab-prefer-navigating-org-tables t))
 
+;; don't reorder completions from the language server
 (setq-hook! 'lsp-mode-hook corfu-sort-function nil)
 
 ;; Fix buffer switching when :ui workspaces is disabled.
@@ -345,6 +346,8 @@ relative to the project."
   (map! :leader
         :prefix "p" "t" #'magit-todos-list))
 
+(load! "magit-forge-config.el" doom-user-dir t)
+
 ;;
 ;;; Programming languages
 
@@ -387,15 +390,7 @@ relative to the project."
 
   (map! :map go-mode-map
         :localleader
-        (:prefix "ri" "c" #'chloe/go-cleanup-imports))
-
-  ;; TODO open PR for this?
-  (map! :map go-mode-map
-        :localleader
-        (:prefix ("g" . "generate")
-                 "f" #'+go/generate-file
-                 "d" #'+go/generate-dir
-                 "p" #'+go/generate-project)))
+        (:prefix "ri" "c" #'chloe/go-cleanup-imports)))
 
 ;; this doesn't seem to be used
 ;; (use-package! lsp-mode
@@ -440,3 +435,9 @@ relative to the project."
   ;;       :desc "format buffer" "f" #'clang-format-buffer)
   ;; )
 
+;;
+;;; Org mode
+
+(after! org
+  (setq org-src-window-setup 'current-window)
+  (set-popup-rule! "^\\*Org Src" :ignore t))

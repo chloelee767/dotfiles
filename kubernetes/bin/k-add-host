@@ -10,3 +10,5 @@ host="$(hostname)"
 echo "Adding host: $host"
 
 kexec --bash-cmd "echo 127.0.0.1 $host >> /etc/hosts; cat /etc/hosts"
+
+# kubectl exec bump-7bb5c66cd4-kzwsd --container bump -- /bin/bash -c 'echo "127.0.0.1  CMBP-SG-MAR22-0323.local" >> /etc/hosts'

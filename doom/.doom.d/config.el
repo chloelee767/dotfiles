@@ -276,55 +276,6 @@ relative to the project."
           (lambda () (setq-local which-function-mode (if lsp-headerline-breadcrumb-mode nil t))))
 
 ;;
-;;; Github copilot
-
-(defvar chloe/no-copilot-modes '(shell-mode
-                                 emacs-lisp-mode
-                                 inferior-python-mode
-                                 eshell-mode
-                                 term-mode
-                                 vterm-mode
-                                 comint-mode
-                                 compilation-mode
-                                 debugger-mode
-                                 dired-mode-hook
-                                 compilation-mode-hook
-                                 flutter-mode-hook
-                                 minibuffer-mode-hook)
-  "Modes in which copilot is inconvenient.")
-
-(defun chloe/copilot-disable-predicate ()
-  "When copilot should not automatically show completions."
-  (member major-mode chloe/no-copilot-modes))
-
-(defvar chloe/go-indent 4)
-(defvar chloe/elisp-indent 2)
-
-(use-package! copilot
-  :hook (prog-mode . copilot-mode)
-  :hook (yaml-mode . copilot-mode)
-  :bind (:map copilot-completion-map
-              ("C-TAB" . 'copilot-accept-completion)
-              ("C-<tab>" . 'copilot-accept-completion)
-              ("C-S-TAB" . 'copilot-accept-completion-by-word)
-              ("C-S-<tab>" . 'copilot-accept-completion-by-word)
-              ("C-M-TAB" . 'copilot-accept-completion-by-line)
-              ("C-M-<tab>" . 'copilot-accept-completion-by-line))
-  :config
-  (add-to-list 'copilot-disable-predicates #'chloe/copilot-disable-predicate)
-  ;; copilot-indentatin-alist requires values to be symbols (ie. return true for symbolp)
-  (add-to-list 'copilot-indentation-alist '(go-mode chloe/go-indent))
-  (add-to-list 'copilot-indentation-alist '(emacs-lisp-mode chloe/elisp-indent))
-  (map! :map copilot-mode-map
-        :leader
-        (:prefix ("l" . "copilot")
-         :desc "next completion" "n" #'copilot-next-completion
-         :desc "previous completion" "p" #'copilot-previous-completion
-         :desc "accept word" "w" #'copilot-accept-completion-by-word
-         :desc "accept line" "l" #'copilot-accept-completion-by-line
-         :desc "accept all" "j" #'copilot-accept-completion)))
-
-;;
 ;;; Magit
 
 (setq transient-values '((magit-pull "--rebase")))

@@ -150,7 +150,7 @@ relative to the project."
 
 (setq
  ;; doom-theme (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 17)) 'doom-tomorrow-day 'doom-tomorrow-night) ;; set theme based on time
- doom-theme 'doom-tomorrow-night
+ doom-theme 'doom-gruvbox
  ;; doom-theme 'doom-solarized-light
  ;; doom-font (font-spec :family "JetBrainsMono Nerd Font" :size (if IS-MAC 13.0 11.0))
  ;; line-spacing 0.2
@@ -251,8 +251,7 @@ relative to the project."
  which-func-unknown ""
  ;; same as which-func-format, except that the function name is truncated beyond a certain point
  which-func-format `("["
-                     (:propertize which-func-current
-                                  (:eval (chloe/which-func-current-truncated 40)) local-map
+                     (:propertize (:eval (chloe/which-func-current-truncated 40)) local-map
                                   ,which-func-keymap
                                   face which-func
                                   mouse-face mode-line-highlight

@@ -12,11 +12,26 @@ set -eou pipefail
 
 OLD_PKG="$1"
 NEW_PKG="$2"
-
 PKG_ALIAS=""
 if [ $# = 3 ]; then
     PKG_ALIAS="$3"
 fi
+
+# GNU sed has the --version flag, BSD sed does not
+if sed --version >/dev/null 2>&1; then
+    USE_GNU_SED=true
+else
+    USE_GNU_SED=false
+fi
+smartsed() {
+    REGEX="$1"
+    FILE="$2"
+    if $USE_GNU_SED; then
+        sed -i -E "$REGEX" "$FILE"
+    else
+        sed -i "" -E "$REGEX" "$FILE"
+    fi
+}
 
 echo "Old package: $OLD_PKG"
 echo "New package: $NEW_PKG"
@@ -29,11 +44,11 @@ for f in $(grep -R --include="*.go" --exclude="*.pb.go" -l "$OLD_PKG" .); do
     if [ -n "$PKG_ALIAS" ]; then
         # Replace imports which already have an alias first, as we don't want to
         # change existing aliases since they will be used in the code.
-        sed -i -E "s|(\w+) \"$OLD_PKG\"|\1 \"$NEW_PKG\"|g" "$f"
+        smartsed "s|(\w+) \"$OLD_PKG\"|\1 \"$NEW_PKG\"|g" "$f"
 
-        sed -i -E "s|\"$OLD_PKG\"|$PKG_ALIAS \"$NEW_PKG\"|g" "$f"
+        smartsed "s|\"$OLD_PKG\"|$PKG_ALIAS \"$NEW_PKG\"|g" "$f"
     else
-        sed -i -E "s|\"$OLD_PKG\"|\"$NEW_PKG\"|g" "$f"
+        smartsed "s|\"$OLD_PKG\"|\"$NEW_PKG\"|g" "$f"
     fi
 
     echo "replaced in $f"

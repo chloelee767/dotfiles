@@ -16,15 +16,25 @@ alias rm="rm -I" # only prompt once for multiple/recursive deletes
 alias cp="cp -i"
 alias mv="mv -i"
 
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias .....="cd ../../../.."
+
+mkcd () {
+    mkdir -p "$1"
+    cd "$1"
+}
+
 # vim
 alias vim="nvim"
 
 # emacs
-alias eg="emacs -nw --eval '(magit-status)'"
-alias em="emacs -nw"
+alias magit="emacs -nw --eval '(magit-status)'"
+alias mg="emacs -nw --eval '(magit-status)'"
 alias dired="emacs -nw --eval '(dired \".\")'"
 
 # git
+alias g="git"
 alias gs="git status"
 alias gsta="git stash"
 alias ga="git add"

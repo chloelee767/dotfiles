@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+set -eou pipefail
+
+# em - Script to open Emacs GUI in a specified directory or file
+# Usage: em [directory|file]
+#        If no argument is specified, opens Emacs in the current directory
+
+# Get the path to open
+if [ $# -eq 0 ]; then
+    # No arguments provided, use current directory
+    TARGET="$(pwd)"
+else
+    TARGET="$1"
+
+    # Convert to absolute path if it's a relative path
+    if [[ ! "$TARGET" = /* ]]; then
+        TARGET="$(pwd)/$TARGET"
+    fi
+fi
+
+# Check if the target exists
+if [ ! -e "$TARGET" ]; then
+    echo "Error: '$TARGET' does not exist"
+    exit 1
+fi
+
+# If target is a directory, open Emacs in that directory
+if [ -d "$TARGET" ]; then
+    nohup emacs --chdir="$TARGET" >/dev/null 2>&1 &
+# If target is a file, open that file in Emacs
+else
+    # Get the directory of the file
+    DIR=$(dirname "$TARGET")
+    FILE=$(basename "$TARGET")
+
+    # Change to the directory and open the file in Emacs
+    nohup emacs --chdir="$DIR" "$FILE" >/dev/null 2>&1 &
+fi
+
+# Disown the process so it's not terminated when the terminal closes
+disown
+
+if [ -d "$TARGET" ]; then
+    echo "Emacs launched in $TARGET"
+else
+    echo "Emacs launched with file $TARGET"
+fi

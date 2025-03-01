@@ -1,0 +1,7 @@
+[manager]
+prepend_keymap = [
+    # swap q and Q
+    { on = "q", run = 'quit --no-cwd-file'},
+    { on = "Q", run = 'quit'},
+]
+

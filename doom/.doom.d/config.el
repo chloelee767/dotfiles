@@ -394,6 +394,12 @@ relative to the project."
   (setq org-src-window-setup 'current-window)
   (set-popup-rule! "^\\*Org Src" :ignore t))
 
+(after! ox
+  (setq org-export-with-toc nil))
+
+;; (after! ox-pandoc
+;;   (add-to-list org-pandoc-options '(toc . t)))
+
 ;;
 ;;; Helpful mode
 

@@ -50,14 +50,14 @@ zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
 zstyle ':completion:*' group-name ''
 
 # plugins
-source ~/.zsh-plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
-source ~/.zsh-plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
-source ~/.zsh-plugins/zsh-z/zsh-z.plugin.zsh
+[ -f ~/.zsh-plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ] && source ~/.zsh-plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+[ -f ~/.zsh-plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ] && source ~/.zsh-plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+[ -f ~/.zsh-plugins/zsh-z/zsh-z.plugin.zsh ] && source ~/.zsh-plugins/zsh-z/zsh-z.plugin.zsh
 [ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh # arch
 [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] && source /usr/share/doc/fzf/examples/key-bindings.zsh # ubuntu
 [ -f /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh ] && source /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh
 
-source ~/.shell_aliases
+[ -f ~/.shell_aliases ] && source ~/.shell_aliases
 
 [ -f "$HOME/.zshrc.system" ] && source "$HOME/.zshrc.system"
 [ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
@@ -67,7 +67,9 @@ source ~/.shell_aliases
 # }
 # precmd_functions+=(set_win_title)
 
-eval "$(starship init zsh)"
+if [ "$(command -v starship)" ]; then
+    eval "$(starship init zsh)"
+fi
 
 # eval "$(direnv hook zsh)"
 

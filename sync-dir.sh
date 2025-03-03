@@ -1,23 +1,30 @@
 #!/usr/bin/env bash
 # Usage:
-# ./sync-dir.sh <DIR>
-# Example: ./sync-dir.sh shell
+# ./sync-dir.sh <DIR1> [DIR2] [DIR3] ...
+# Example: ./sync-dir.sh shell general doom
 
 set -eou pipefail
 
-DIR=$1
+if [ $# -eq 0 ]; then
+    echo "Error: No directories specified"
+    echo "Usage: ./sync-dir.sh <DIR1> [DIR2] [DIR3] ..."
+    exit 1
+fi
 
-# Execute setup.sh if it exists.
-# It is normally used to create the directories that I don't wish to be folded by stow.
-# Global setup.sh
+# Execute global setup.sh if it exists
 if [ -f "./setup.sh" ]; then
     echo "Executing ./setup.sh"
     bash "./setup.sh"
 fi
-# Directory specific setup.sh
-if [ -f "$DIR/setup.sh" ]; then
-    echo "Executing $DIR/setup.sh"
-    bash "$DIR/setup.sh"
-fi
 
-stow -R -t ~ --ignore="^setup.sh$" -v "$DIR"
+for DIR in "$@"; do
+    echo "Syncing directory: $DIR"
+
+    # Directory specific setup.sh
+    if [ -f "$DIR/setup.sh" ]; then
+        echo "Executing $DIR/setup.sh"
+        bash "$DIR/setup.sh"
+    fi
+
+    stow -R -t ~ --ignore="^setup.sh$" -v "$DIR"
+done

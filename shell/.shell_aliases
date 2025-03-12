@@ -79,7 +79,7 @@ ranger() {
 }
 
 # use yazi to cd into a directory
-# press q to change the directory, Q to avoid changing directory
+# press Q to change the directory, q to avoid changing directory
 # https://yazi-rs.github.io/docs/quick-start#shell-wrapper
 yz() {
     local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd

@@ -11,5 +11,7 @@ custom.el
 doom/.doom.d/local/
 
 scripts/gcal-to-org-urls.sh
+
 .aider*
 !ai/*
+!.aiderignore

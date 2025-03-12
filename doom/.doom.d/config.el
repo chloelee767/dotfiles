@@ -312,6 +312,9 @@ relative to the project."
 ;; associate .pl files as prolog files instead of perl
 (add-to-list 'auto-mode-alist '("\\.pl\\'" . prolog-mode))
 
+;; aider
+(add-to-list 'auto-mode-alist '("\\.aiderignore\\'" . gitignore-mode))
+
 (map! :after coq-mode
       :map coq-mode-map
       :localleader

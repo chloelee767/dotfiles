@@ -305,6 +305,7 @@ relative to the project."
 ;; shell
 (add-to-list 'auto-mode-alist '("\\.zshrc\\..+" . sh-mode))
 (add-to-list 'auto-mode-alist '("\\.profile\\..+" . sh-mode))
+(add-to-list 'auto-mode-alist '("\\.gitconfig\\..+" . gitconfig-mode))
 
 ;; zmk
 (add-to-list 'auto-mode-alist '("\\.keymap\\'" . c++-mode))

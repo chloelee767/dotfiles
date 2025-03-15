@@ -1,0 +1,7 @@
+[pull]
+	rebase = true
+[push]
+	autoSetupRemote = true
+[alias]
+	uncommit = reset HEAD~
+	unstage = reset HEAD --

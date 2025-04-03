@@ -16,7 +16,8 @@
       uniquify-after-kill-buffer-p t
       ;; Focus new window after splitting
       evil-split-window-below t
-      evil-vsplit-window-right t)
+      evil-vsplit-window-right t
+      fill-column 80)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)

@@ -288,6 +288,13 @@ relative to the project."
   (map! :map magit-blob-mode-map
         :g "RET" #'magit-blob-visit-file
         :g "<return>" #'magit-blob-visit-file))
+(use-package! magit
+  :config
+  ;; Move stage/unstage file to s/u, I open magit if I need to manage hunks
+  (map! :leader
+        :prefix "g"
+        :desc "Stage this file" "s" #'magit-stage-buffer-file
+        :desc "Unstage this file" "u" #'magit-unstage-buffer-file))
 
 (use-package! magit-todos
   :after magit

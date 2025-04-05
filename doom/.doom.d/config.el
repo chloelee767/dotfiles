@@ -438,3 +438,17 @@ relative to the project."
 (map! :map helpful-mode-map
       :n "[ b" #'+helpful-previous
       :n "] b" #'+helpful-next)
+
+;;
+;;; gptel
+
+(use-package! gptel
+  :config
+  ;; api keys are configured using ~/.authinfo, see gptel's docs for more information
+  (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)
+  (gptel-make-gemini "Gemini" :stream t :key gptel-api-key)
+  (setq gptel-cache t))
+
+; add keybinds to summon gptel-send with menu
+(map! :g "<f2>" #'gptel-menu)
+(map! :leader :prefix "l" ";" #'gptel-menu)

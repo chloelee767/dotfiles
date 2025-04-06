@@ -293,8 +293,8 @@ relative to the project."
   ;; Move stage/unstage file to s/u, I open magit if I need to manage hunks
   (map! :leader
         :prefix "g"
-        :desc "Stage this file" "s" #'magit-stage-buffer-file
-        :desc "Unstage this file" "u" #'magit-unstage-buffer-file))
+        :desc "Stage this file" "s" #'magit-file-stage
+        :desc "Unstage this file" "u" #'magit-file-unstage))
 
 (use-package! magit-todos
   :after magit

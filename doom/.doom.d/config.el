@@ -310,6 +310,9 @@ relative to the project."
 ;;
 ;;; Programming languages
 
+(add-to-list 'auto-mode-alist '("\\.service\\'" . conf-mode))
+(add-to-list 'auto-mode-alist '("Caddyfile" . prog-mode))
+
 ;; shell
 (add-to-list 'auto-mode-alist '("\\.zshrc\\..+" . sh-mode))
 (add-to-list 'auto-mode-alist '("\\.profile\\..+" . sh-mode))

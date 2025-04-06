@@ -89,3 +89,5 @@ yz() {
     fi
     rm -f -- "$tmp"
 }
+
+alias aider-scrape="${HOME}/.local/share/uv/tools/aider-chat/bin/python -m aider.scrape"

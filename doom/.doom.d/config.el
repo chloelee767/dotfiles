@@ -468,12 +468,28 @@ relative to the project."
                       ("anthropic-version" . "2023-06-01")
                       ("anthropic-beta" . "pdfs-2024-09-25")
                       ("anthropic-beta" . "prompt-caching-2024-07-31")
-                        ; added headers below
+                                        ; added headers below
                       ("anthropic-beta" . "output-128k-2025-02-19"))))
     :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
                       :max_tokens 4096))
   (gptel-make-gemini "Gemini" :stream t :key gptel-api-key)
-  (setq gptel-cache t))
+  (setq gptel-cache t
+        gptel-default-mode 'org-mode
+        gptel-display-buffer-action
+        '(display-buffer-in-side-window
+          (side . right)
+          (window-width . 0.4)  ;; Takes up 40% of the frame width
+          (body-function . select-window)))
+
+  ;; regular buffer instead of dedicated buffer
+  ;; (setq gptel-display-buffer-action
+  ;;       '(display-buffer-pop-up-window
+  ;;         (inhibit-same-window . t)
+  ;;         (reusable-frames . visible)
+  ;;         (side . right)
+  ;;         (window-width . 80)  ;; Width in columns
+  ;;         (body-function . select-window)))
+  )
 
 ; add keybinds to summon gptel-send with menu
 (map! :g "<f2>" #'gptel-menu)

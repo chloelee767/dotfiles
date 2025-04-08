@@ -458,6 +458,20 @@ relative to the project."
   :config
   ;; api keys are configured using ~/.authinfo, see gptel's docs for more information
   (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)
+  (gptel-make-anthropic "Claude-thinking"
+    :stream t
+    :key gptel-api-key
+    :models '(claude-3-7-sonnet-20250219)
+    ;; default headers with modifications
+    :header (lambda () (when-let* ((key (gptel--get-api-key)))
+                    `(("x-api-key" . ,key)
+                      ("anthropic-version" . "2023-06-01")
+                      ("anthropic-beta" . "pdfs-2024-09-25")
+                      ("anthropic-beta" . "prompt-caching-2024-07-31")
+                        ; added headers below
+                      ("anthropic-beta" . "output-128k-2025-02-19"))))
+    :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
+                      :max_tokens 4096))
   (gptel-make-gemini "Gemini" :stream t :key gptel-api-key)
   (setq gptel-cache t))
 

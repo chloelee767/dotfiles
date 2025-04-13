@@ -153,11 +153,20 @@ relative to the project."
  ;; doom-theme (if (member (string-to-number (substring (current-time-string) 11 13)) (number-sequence 7 17)) 'doom-tomorrow-day 'doom-tomorrow-night) ;; set theme based on time
  doom-theme 'doom-gruvbox
  ;; doom-theme 'doom-solarized-light
- ;; doom-font (font-spec :family "JetBrainsMono Nerd Font" :size (if IS-MAC 13.0 11.0))
  ;; line-spacing 0.2
  ;; doom-themes-enable-bold nil
- doom-font (font-spec :family "Iosevka SS14" :size (if IS-MAC 13.0 11.0))
  )
+
+(setq my-font-size (if IS-MAC 13.0 11.0))
+(setq doom-font
+      (or
+       (when (find-font (font-spec :family "Iosevka SS14"))
+         (font-spec :family "Iosevka SS14" :size my-font-size))
+       (when (find-font (font-spec :family "JetBrainsMono Nerd Font"))
+         (font-spec :family "JetBrainsMono Nerd Font" :size my-font-size))
+       (when (find-font (font-spec :family "JetBrainsMono"))
+         (font-spec :family "JetBrainsMono" :size my-font-size))
+       doom-font))
 
 (global-prettify-symbols-mode 1)
 

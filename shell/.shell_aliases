@@ -45,6 +45,8 @@ alias gph="git push"
 alias gd="git diff"
 alias gds="git diff --staged"
 alias gb="git branch"
+alias git-update-master-merge="git fetch origin master:master && git merge master"
+alias git-update-master-rebase="git fetch origin master:master && git rebase master"
 
 # kubernetes
 alias k="kubectl"

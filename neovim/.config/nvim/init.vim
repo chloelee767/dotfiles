@@ -22,10 +22,10 @@ set wildmenu
 set mouse=a
 
 "use + register for clipboard
-set clipboard+=unnamedplus
+"set clipboard+=unnamedplus
 
 "remap jk to escape
-inoremap jk <Esc> 
+"inoremap jk <Esc> 
 
 " emacs keybinds in insert mode
 inoremap <C-b> <Left>

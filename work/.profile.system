@@ -1,7 +1,16 @@
 export BREWDIR="/opt/homebrew"
 
 # homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# eval "$(/opt/homebrew/bin/brew shellenv)"
+
+# same as brew shellenv, except we add brew bin directory to the to the back of
+# PATH so that version managers like nvm take precedence
+export HOMEBREW_PREFIX="/opt/homebrew"
+export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
+export HOMEBREW_REPOSITORY="/opt/homebrew"
+PATH="$PATH:/opt/homebrew/bin"
+[ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}"
+export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
 
 # gnu commands
 PATH="$BREWDIR/opt/coreutils/libexec/gnubin:$PATH"

@@ -3,7 +3,7 @@ set -eou pipefail
 
 CONTEXT=""
 NAMESPACE=""
-FILTER="grep -iv healthcheck"
+FILTER='grep -iv -E "(healthcheck|health/check)"'
 
 while [[ $# -gt 0 ]]
 do

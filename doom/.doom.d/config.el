@@ -474,12 +474,15 @@ relative to the project."
                       :max_tokens 4096))
   (gptel-make-gemini "Gemini" :stream t :key gptel-api-key)
   (setq gptel-cache t
-        gptel-default-mode 'org-mode
-        gptel-display-buffer-action
-        '(display-buffer-in-side-window
-          (side . right)
-          (window-width . 0.4)  ;; Takes up 40% of the frame width
-          (body-function . select-window)))
+        gptel-model 'gpt-4.1-mini)
+
+        ;; gptel-default-mode 'org-mode
+
+        ;; gptel-display-buffer-action
+        ;; '(display-buffer-in-side-window
+        ;;   (side . right)
+        ;;   (window-width . 0.4)  ;; Takes up 40% of the frame width
+        ;;   (body-function . select-window)))
 
   ;; regular buffer instead of dedicated buffer
   ;; (setq gptel-display-buffer-action
@@ -492,5 +495,5 @@ relative to the project."
   )
 
 ; add keybinds to summon gptel-send with menu
-(map! :g "<f2>" #'gptel-menu)
-(map! :leader :prefix "l" ";" #'gptel-menu)
+;; (map! :g "<f2>" #'gptel-menu)
+;; (map! :leader :prefix "l" ";" #'gptel-menu)

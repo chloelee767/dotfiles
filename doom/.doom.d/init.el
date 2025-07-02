@@ -126,6 +126,7 @@
        ;;tmux              ; an API for interacting with tmux
        upload            ; map local to remote projects via ssh/ftp
        gh-copilot
+       llm
 
        :os
        (:if IS-MAC macos)  ; improve compatibility with macOS

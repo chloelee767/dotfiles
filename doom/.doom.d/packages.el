@@ -24,7 +24,3 @@
 (package! string-inflection
   :recipe (:host github :repo "akicho8/string-inflection" :files ("*.el"))
   :pin "617df25e91351feffe6aff4d9e4724733449d608")
-
-(package! gptel
-  :recipe (:nonrecursive t)
-  :pin "4b505e72e9ad0cdbf800457996a4b85c6cb68519")

@@ -2,6 +2,7 @@
 
 ``` sh
 git clone git@github.com:chloelee767/dotfiles.git
+cd dotfiles
 git submodule update --init
 ```
 
@@ -17,11 +18,13 @@ GNU coreutils:
 ``` sh
 brew install coreutils ed findutils gawk gnu-sed gnu-tar grep make
 ```
+They are added to the path in `work/.profile.system`
 
-Emacs
+Emacs 30:
 ``` sh
-brew tap railwaycat/emacsmacport
-brew install --cask emacs-mac
+brew tap d12frosted/emacs-plus
+brew install emacs-plus@30 --with-native-comp
+cp -r /opt/homebrew/opt/emacs-plus@30/Emacs.app /Applications
 ```
 
 Fonts:
@@ -31,6 +34,24 @@ brew install --cask font-iosevka font-iosevka-nerd-font font-iosevka-ss14 font-i
 brew install --cask font-noto-sans font-noto-sans-display font-noto-serif
 ```
 
+Setup:
+```sh
+./sync-dir shell
+./sync-dir general
+./sync-dir doom
+./sync-dir hammerspoon
+./sync-dir work
+./sync-dir kubernetes
+```
+
+
+## Archived
+
+Install Emacs 28 on Mac:
+``` sh
+brew tap railwaycat/emacsmacport
+brew install --cask emacs-mac
+```
 
 Show only open applications in Dock:
 ```sh

@@ -194,6 +194,7 @@ relative to the project."
 ;; (set-popup-rule! "^\\*info.*" :size 80 :side 'right :ttl nil :select nil :quit 'current)
 (set-popup-rule! "^\\*Embark Export.*" :ttl nil :select t :quit 'current)
 (set-popup-rule! "^\\*[Hh]elp.*" :ttl 600 :select nil :quit 'current) ;; 10 mins ttl
+(set-popup-rule! "^\\*Gofmt Errors.*")
 
 ;;
 ;;; Useful files and directories

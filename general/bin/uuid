@@ -10,8 +10,8 @@ generate_uuid() {
 # Check if an argument is provided
 if [ $# -eq 0 ]; then
   # Generate 1 UUID
+  # Don't echo so it's more convenient for piping to pbcopy
   generate_uuid
-  echo
 else
   # Generate N UUIDs
   count=$1

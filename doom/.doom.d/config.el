@@ -304,7 +304,15 @@ relative to the project."
   (map! :leader
         :prefix "g"
         :desc "Stage this file" "s" #'magit-file-stage
-        :desc "Unstage this file" "u" #'magit-file-unstage))
+        :desc "Unstage this file" "u" #'magit-file-unstage)
+  (map! :leader
+        (:prefix "g"
+                 (:prefix "c"
+                  :desc "Amend" "a" #'magit-commit-amend
+                  ;; stage and commit commands
+                  :desc "Commit this file" "C" (cmd! (magit-file-stage) (magit-commit-create))
+                  :desc "Amend this file" "A" (cmd! (magit-file-stage) (magit-commit-amend))
+                  :desc "Fixup this file" "F" (cmd! (magit-file-stage) (magit-commit-fixup))))))
 
 (use-package! magit-todos
   :after magit

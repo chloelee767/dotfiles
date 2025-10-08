@@ -1,7 +1,7 @@
 # Dotfiles
 
 This repo contains my dotfiles for several machines.
-The dotfiles are organised into multiple modules -- these are the top level folders such as shell, doom etc. 
+The dotfiles are organised into multiple modules -- these are the top level folders such as shell, doom etc.
 On each machine, I opt-in to the subset of modules required.
 Some modules are independent, some are mutually exclusive, some are dependent on each other.
 
@@ -9,21 +9,57 @@ The dotfiles for each module are "applied" to the machine using symlinks (using 
 The `./sync-dir.sh` script is used to "apply" modules, eg. `./sync-dir.sh shell`.
 The script should be run after any files are added/removed to the dotfiles repo.
 
-## Setup
+## Overview of modules
 
-```sh
-git clone git@github.com:chloelee767/dotfiles.git
-cd dotfiles
-git submodule update --init
-```
+### `shell`
 
-Install dependencies:
+- Base zsh environment.
+- This module is practically always enabled, many other modules assume it will be present.
+- It includes zsh settings, prompts, plugins, etc.
+- Sets up various "APIs" for other modules to use, such as:
+  - `.zshrc.system`, `.zshrc.local` system
+- Designed to be compatible with both mac and different flavours of linux
+
+**Dependencies to install:**
 - fzf
 - starship
 
-Run `./sync-dir.sh` for the appropriate modules.
+### `general`
 
-## Mac
+- Misc. shell scripts
+- This module is practically always enabled, many other modules assume it will be present and will utilize the scripts defined here.
+
+### Text Editors
+
+#### `doom`
+
+- Configs for [Doom Emacs](https://github.com/doomemacs/doomemacs), my current primary editor + IDE
+
+#### `neovim`
+
+- Configs for Neovim, my current fallback editor
+
+### `kubernetes`
+
+- A collection of kubernetes scripts and related tooling config
+
+### `hammerspon`
+
+- Configs for [Hammerspoon](https://www.hammerspoon.org/), a OSX automation and scripting library.
+
+### Desktop environments
+
+These are modules with machine-specific configs, they are mutually exclusive.
+
+#### `arch`
+
+- Arch linux
+
+#### `work`
+
+- Work macbook
+
+**Setup notes:**
 
 Brew: https://brew.sh/
 
@@ -54,9 +90,15 @@ Setup:
 ./sync-dir shell general doom hammerspoon work kubernetes
 ```
 
-## Overview of modules
+## Setup
 
-TODO
+```sh
+git clone git@github.com:chloelee767/dotfiles.git
+cd dotfiles
+git submodule update --init
+```
+
+Run `./sync-dir.sh` for the appropriate modules.
 
 ## Archived
 

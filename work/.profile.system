@@ -60,8 +60,6 @@ export PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/b
 # export AUTOENV_ENABLE_LEAVE=yes
 # source "$BREWDIR/opt/autoenv/activate.sh"
 
-alias docker=podman
-
 # clipboard
 alias clipraw=pbcopy
 # remove trailing new linees

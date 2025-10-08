@@ -1,12 +1,27 @@
 # Dotfiles
 
-``` sh
+This repo contains my dotfiles for several machines.
+The dotfiles are organised into multiple modules -- these are the top level folders such as shell, doom etc. 
+On each machine, I opt-in to the subset of modules required.
+Some modules are independent, some are mutually exclusive, some are dependent on each other.
+
+The dotfiles for each module are "applied" to the machine using symlinks (using GNU stow).
+The `./sync-dir.sh` script is used to "apply" modules, eg. `./sync-dir.sh shell`.
+The script should be run after any files are added/removed to the dotfiles repo.
+
+## Setup
+
+```sh
 git clone git@github.com:chloelee767/dotfiles.git
 cd dotfiles
 git submodule update --init
 ```
 
-Sync changes to repo: `./sync-dir.sh <DIR>` eg. `./sync-dir.sh shell`
+Install dependencies:
+- fzf
+- starship
+
+Run `./sync-dir.sh` for the appropriate modules.
 
 ## Mac
 
@@ -36,14 +51,12 @@ brew install --cask font-noto-sans font-noto-sans-display font-noto-serif
 
 Setup:
 ```sh
-./sync-dir shell
-./sync-dir general
-./sync-dir doom
-./sync-dir hammerspoon
-./sync-dir work
-./sync-dir kubernetes
+./sync-dir shell general doom hammerspoon work kubernetes
 ```
 
+## Overview of modules
+
+TODO
 
 ## Archived
 

@@ -1,4 +1,4 @@
-#!/bin/env sh
+#!/bin/env bash
 
 # enable color support of ls and also add handy aliases
 if [ -x "$(command -v dircolors)" ]; then
@@ -91,6 +91,24 @@ yz() {
         builtin cd -- "$cwd"
     fi
     rm -f -- "$tmp"
+}
+
+# cd to the root of the current git project.
+# This needs to be a function, not a script, because it needs to change the current shell's directory.
+up() {
+    # Find the top-level directory of the current git repository.
+    # The '2>/dev/null' part suppresses the error message from git
+    # if we are not currently inside a git repository.
+    local GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+
+    if [ -n "$GIT_ROOT" ]; then
+        # Change the current directory to the project root.
+        echo "Changing directory to git root: $GIT_ROOT"
+        cd "$GIT_ROOT"
+    else
+        # If the command failed, print an error message to standard error and exit.
+        echo "Not inside a git repository." >&2
+    fi
 }
 
 alias aider-scrape="${HOME}/.local/share/uv/tools/aider-chat/bin/python -m aider.scrape"

@@ -21,13 +21,16 @@ setopt NO_CASE_GLOB # case insensitive globbing
 # history
 HISTFILE="$HOME/.zsh_history"
 setopt EXTENDED_HISTORY # save timestamp and execution time
-SAVEHIST=10000 # how many lines to store in history file
-HISTSIZE=4000 # how many lines to store in memory
+SAVEHIST=200000 # how many lines to store in history file (fish sets 256k as default)
+# how many lines to store in memory.
+# RAM required: 50,000 entries * 100 bytes/entry = 5,000,000 bytes ≈ 5.0 MB. Note: if there are multiple terminal windows open, each will have its own history in memory)
+HISTSIZE=50000
 setopt SHARE_HISTORY # share history across multiple zsh sessions
 setopt APPEND_HISTORY # append to history, don't overwrite
 # setopt INC_APPEND_HISTORY # add commands immediately after entering, rather than shell exit
 setopt HIST_EXPIRE_DUPS_FIRST # expire duplicates first
-# setopt HIST_IGNORE_DUPS # do not store duplicates
+setopt HIST_IGNORE_DUPS # Don't record an entry that was just recorded again.
+setopt HIST_IGNORE_ALL_DUPS # Delete old recorded entry if new entry is a duplicate.
 # setopt HIST_FIND_NO_DUPS # do not find duplicates when searching
 setopt HIST_REDUCE_BLANKS # remove blank lines from history
 setopt HIST_VERIFY # show substituted commmand

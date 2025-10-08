@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# Sample usage:
+# k-cp-migration demo-svc migration/pg/0001_init.up.sql
+
+set -eou pipefail
+
+SERVICE_NAME="$1"
+FILE="$2"
+
+kubectl cp "$FILE" $(kpod):"/go/src/github.com/carousell/${SERVICE_NAME}/${FILE}"

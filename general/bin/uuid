@@ -2,21 +2,14 @@
 
 set -eou pipefail
 
-# Function to generate a single UUID
-generate_uuid() {
-  uuidgen | tr '[:upper:]' '[:lower:]' | tr -d '\n'
-}
-
 # Check if an argument is provided
 if [ $# -eq 0 ]; then
-  # Generate 1 UUID
-  # Don't echo so it's more convenient for piping to pbcopy
-  generate_uuid
+  count=1
 else
-  # Generate N UUIDs
   count=$1
-  for ((i=1; i<=count; i++)); do
-    generate_uuid
-    echo
-  done
 fi
+
+# Generate N UUIDs
+for ((i=1; i<=count; i++)); do
+  uuidgen | tr '[:upper:]' '[:lower:]'
+done

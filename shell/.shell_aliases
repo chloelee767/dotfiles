@@ -99,14 +99,11 @@ up() {
     # Find the top-level directory of the current git repository.
     # The '2>/dev/null' part suppresses the error message from git
     # if we are not currently inside a git repository.
-    local GIT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
+    local git_root="$(git rev-parse --show-toplevel 2>/dev/null)"
 
-    if [ -n "$GIT_ROOT" ]; then
-        # Change the current directory to the project root.
-        echo "Changing directory to git root: $GIT_ROOT"
-        cd "$GIT_ROOT"
+    if [ -n "$git_root" ]; then
+        cd "$git_root"
     else
-        # If the command failed, print an error message to standard error and exit.
         echo "Not inside a git repository." >&2
     fi
 }

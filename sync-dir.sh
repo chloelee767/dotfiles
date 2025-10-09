@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# Performs setup + creates symlinks for the specified modules.
+#
 # Usage:
 # ./sync-dir.sh <DIR1> [DIR2] [DIR3] ...
 # Example: ./sync-dir.sh shell general doom

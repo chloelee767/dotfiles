@@ -9,6 +9,16 @@ The dotfiles for each module are "applied" to the machine using symlinks (using 
 The `./sync-dir.sh` script is used to "apply" modules, eg. `./sync-dir.sh shell`.
 The script should be run after any files are added/removed to the dotfiles repo.
 
+## Setup
+
+```sh
+git clone git@github.com:chloelee767/dotfiles.git
+cd dotfiles
+git submodule update --init
+```
+
+Run `./sync-dir.sh` for the appropriate modules.
+
 ## Overview of modules
 
 ### `shell`
@@ -43,7 +53,7 @@ The script should be run after any files are added/removed to the dotfiles repo.
 
 - A collection of kubernetes scripts and related tooling config
 
-### `hammerspon`
+### `hammerspoon`
 
 - Configs for [Hammerspoon](https://www.hammerspoon.org/), a OSX automation and scripting library.
 
@@ -90,12 +100,3 @@ Setup:
 ./sync-dir shell general doom hammerspoon work kubernetes
 ```
 
-## Setup
-
-```sh
-git clone git@github.com:chloelee767/dotfiles.git
-cd dotfiles
-git submodule update --init
-```
-
-Run `./sync-dir.sh` for the appropriate modules.

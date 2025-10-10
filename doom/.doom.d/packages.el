@@ -25,6 +25,10 @@
   :recipe (:host github :repo "akicho8/string-inflection" :files ("*.el"))
   :pin "617df25e91351feffe6aff4d9e4724733449d608")
 
+(package! just-mode
+  :recipe (:host github :repo "leon-barrett/just-mode.el" :files ("*.el"))
+  :pin "310f437296173e4659c80490fcdb7ebafbac1665")
+
 ;; (package! claude-code
 ;;   :recipe (:host github
 ;;            :repo "stevemolitor/claude-code.el"

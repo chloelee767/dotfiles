@@ -3,7 +3,7 @@
 
 (package! copilot
   :recipe (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
-  :pin "bb517382be5d0dc673f9381e9c2a0956dfc9dc45")
+  :pin "6a2ad80489b8a0d021df95293eb7ac370aea140b")
 
 ;; (package! copilot-chat
 ;;   :recipe (:host github :repo "chep/copilot-chat.el" :files ("*.el"))

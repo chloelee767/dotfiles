@@ -324,6 +324,15 @@ relative to the project."
   (map! :leader
         :prefix "p" "t" #'magit-todos-list))
 
+;; TODO figure this out
+;; (defun chloe/magit-fetch-and-pull-other-branch (remote branch args)
+;;   (interactive
+;;    (let ((remote (magit-read-remote-or-url "Fetch from remote or url")))
+;;      (list remote
+;;            (magit-read-remote-branch "Fetch branch" remote)
+;;            (magit-fetch-arguments))))
+;;   (magit-git-fetch remote (cons (s-concat branch ":" branch) args)))
+
 ;; (load! "magit-forge-config.el" doom-user-dir t)
 
 ;;
@@ -507,3 +516,6 @@ relative to the project."
 ; add keybinds to summon gptel-send with menu
 ;; (map! :g "<f2>" #'gptel-menu)
 ;; (map! :leader :prefix "l" ";" #'gptel-menu)
+
+;; (after! claude-code
+;;   (setq claude-code-terminal-backend 'vterm))

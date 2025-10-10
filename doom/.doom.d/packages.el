@@ -24,3 +24,10 @@
 (package! string-inflection
   :recipe (:host github :repo "akicho8/string-inflection" :files ("*.el"))
   :pin "617df25e91351feffe6aff4d9e4724733449d608")
+
+;; (package! claude-code
+;;   :recipe (:host github
+;;            :repo "stevemolitor/claude-code.el"
+;;            :branch "main"
+;;            :files ("*.el" (:exclude "images/*")))
+;;   :pin "158b38413040ae2b971ee722ebb0412ac174d6d6")

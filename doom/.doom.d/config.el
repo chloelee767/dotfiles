@@ -17,7 +17,8 @@
       ;; Focus new window after splitting
       evil-split-window-below t
       evil-vsplit-window-right t
-      fill-column 80)
+      fill-column 80
+      doom-scratch-initial-major-mode 'text-mode)
 
 (global-visual-line-mode 1)
 (global-subword-mode 1)

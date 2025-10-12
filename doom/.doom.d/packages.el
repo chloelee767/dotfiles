@@ -35,3 +35,4 @@
 ;;            :branch "main"
 ;;            :files ("*.el" (:exclude "images/*")))
 ;;   :pin "158b38413040ae2b971ee722ebb0412ac174d6d6")
+;; try instead: https://github.com/manzaltu/claude-code-ide.el

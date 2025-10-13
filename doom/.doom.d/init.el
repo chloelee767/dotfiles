@@ -77,6 +77,9 @@
        ;;parinfer          ; turn lisp into python, sort of
        rotate-text       ; cycle region at point between text candidates
        snippets          ; my elves. They type so I don't have to
+       (whitespace
+        +trim
+        +guess)
        ;; word-wrap         ; soft wrapping with language-aware indent
 
        :emacs
@@ -105,7 +108,7 @@
        ;; debugger          ; FIXME stepping through code, to help you add bugs
        direnv
        docker
-       ;;editorconfig      ; let someone else argue about tabs vs spaces
+       editorconfig      ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
        eval                ; run code, run (also, repls)
        ;;(eval +overlay)     ; run code, run (also, repls)

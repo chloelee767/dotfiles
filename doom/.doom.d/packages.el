@@ -7,7 +7,7 @@
 ;; (package! builtin-package :disable t)
 
 (package! magit-todos
-  :pin "4c17b73355ad0f6537bec5776154ee7465a4c2f8")
+  :pin "7294a95580bddf7232f2d205efae312dc24c5f61")
 
 (package! groovy-mode)
 

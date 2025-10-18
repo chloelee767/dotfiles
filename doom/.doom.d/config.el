@@ -231,10 +231,7 @@ relative to the project."
                :desc "Yank file path from project" "Y" #'chloe/yank-buffer-path-relative-to-project
                :desc "Yank filename only" "C-y" #'chloe/yank-buffer-filename-only
                :desc "chmod" "x" #'chloe/chmod-current-file
-               :desc "make executable" "X" #'chloe/make-current-file-executable)
-
-      ;; more utils
-      (:prefix "o" :desc "Google calendar" "c" #'(cmd! (browse-url "https://calendar.google.com"))))
+               :desc "make executable" "X" #'chloe/make-current-file-executable))
 
 ;;
 ;;; Programming
@@ -517,5 +514,3 @@ relative to the project."
 ;; (map! :g "<f2>" #'gptel-menu)
 ;; (map! :leader :prefix "l" ";" #'gptel-menu)
 
-;; (after! claude-code
-;;   (setq claude-code-terminal-backend 'vterm))

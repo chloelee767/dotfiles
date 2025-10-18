@@ -100,3 +100,6 @@ Setup:
 ./sync-dir shell general doom hammerspoon work kubernetes
 ```
 
+#### `wsl`
+
+- WSL (ubuntu)

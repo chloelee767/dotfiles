@@ -1,4 +1,4 @@
-[manager]
+[mgr]
 prepend_keymap = [
     # swap q and Q
     { on = "q", run = 'quit --no-cwd-file'},

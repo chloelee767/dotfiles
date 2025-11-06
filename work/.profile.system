@@ -35,8 +35,8 @@ fi
 # export GODEBUG=netdns=cgo
 # fix warning from xcode 15 linker
 # https://github.com/golang/go/issues/63135
-export CGO_LDFLAGS="-Wl,-no_warn_duplicate_libraries"
-export CGO_ENABLED=off
+# export CGO_LDFLAGS="-Wl,-no_warn_duplicate_libraries"
+# export CGO_ENABLED=off
 
 # Android SDK
 PATH="$BREWDIR/Caskroom/android-sdk/4333796/platform-tools:$PATH"

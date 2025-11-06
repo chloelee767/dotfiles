@@ -514,3 +514,8 @@ relative to the project."
 ;; (map! :g "<f2>" #'gptel-menu)
 ;; (map! :leader :prefix "l" ";" #'gptel-menu)
 
+
+;;
+;;; claude-code-ide
+
+(map! :g "<f2>" #'claude-code-ide-menu)

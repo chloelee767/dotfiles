@@ -45,8 +45,8 @@
         :g "s-n" #'restart-emacs-start-new-emacs))
 (map! :leader
       :prefix ("y" . "yank")
-      :desc "Copy last kill to clipboard" "c" #'chloe/copy-last-kill-to-clipboard
-      :desc "Copy clipboard to emacs kill ring" "e" #'chloe/copy-clipboard-to-kill-ring
+      :desc "emacs -> clipboard" "c" #'chloe/copy-last-kill-to-clipboard
+      :desc "clipboard -> emacs" "e" #'chloe/copy-clipboard-to-kill-ring
       ; also bound to SPC i y
       :desc "yank pop" "p" #'+default/yank-pop)
 

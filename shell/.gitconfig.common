@@ -5,3 +5,4 @@
 [alias]
 	uncommit = reset HEAD~
 	unstage = reset HEAD --
+	backup = "!f() { git branch "$(git rev-parse --abbrev-ref HEAD)"-backup; }; f"

@@ -29,8 +29,6 @@
   :recipe (:host github :repo "leon-barrett/just-mode.el" :files ("*.el"))
   :pin "310f437296173e4659c80490fcdb7ebafbac1665")
 
-;; try instead: https://github.com/manzaltu/claude-code-ide.el
-
 (package! claude-code-ide
   :recipe (:host github :repo "manzaltu/claude-code-ide.el")
   :pin "32d853e20b9d245a6ee89c4a153a4e568250c62c")

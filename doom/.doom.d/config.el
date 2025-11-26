@@ -46,9 +46,7 @@
 (map! :leader
       :prefix ("y" . "yank")
       :desc "emacs -> clipboard" "c" #'chloe/copy-last-kill-to-clipboard
-      :desc "clipboard -> emacs" "e" #'chloe/copy-clipboard-to-kill-ring
-      ; also bound to SPC i y
-      :desc "yank pop" "p" #'+default/yank-pop)
+      :desc "clipboard -> emacs" "e" #'chloe/copy-clipboard-to-kill-ring)
 
 (map! :map 'vterm-mode-map
       :g "C-S-v" #'chloe/vterm-yank-clipboard
@@ -201,11 +199,9 @@ relative to the project."
 ;;; Useful files and directories
 ;;; note: a lot of custom functions work under the assumption that directory paths end with /
 
-(setq org-directory (if (featurep :system 'macos) "~/Library/CloudStorage/Dropbox/Org/" "~/Dropbox/Org/")
-      chloe/documents-directory "~/Documents/"
+(setq chloe/documents-directory "~/Documents/"
       chloe/gosrc-directory "~/go/src/"
-      chloe/carousell-gocode-directory (concat chloe/gosrc-directory "github.com/carousell/")
-      chloe/dropbox-directory "~/Dropbox/")
+      chloe/carousell-gocode-directory (concat chloe/gosrc-directory "github.com/carousell/"))
 
 ;;
 ;;; Shortcuts and utils
@@ -223,8 +219,7 @@ relative to the project."
                 :desc "Go src" "G" (cmd! (doom-project-browse chloe/gosrc-directory))
                 :desc "Dotfiles" "t" (cmd! (doom-project-browse "~/dotfiles/"))
                 :desc "Dotfiles (find in project)" "T" (cmd! (doom-project-find-file "~/dotfiles/"))
-                :desc "/" "/" (cmd! (doom-project-browse "/"))
-                :desc "Org folder" "o" (cmd! (doom-project-browse org-directory)))
+                :desc "/" "/" (cmd! (doom-project-browse "/")))
 
                ;; file utils
                :desc "Yank file path" "y" #'chloe/yank-buffer-path

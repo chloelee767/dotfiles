@@ -107,6 +107,7 @@ region."
     (gofmt)
     (save-buffer)))
 
+;; FIXME this is broken
 ;;;###autoload
 (defun chloe/string-inflection-yank ()
   (interactive)

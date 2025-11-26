@@ -39,7 +39,7 @@
       :g "C-S-v" #'clipboard-yank
       :g "C-S-n" #'restart-emacs-start-new-emacs ;; does not quit current emacs, st spawns new instance ;; FIXME macOS treats these as separate application types
       ;; :g "C-S-n" (lambda () (interactive) (start-process "open-emacs" nil "open" "-na" "Emacs.app")) ;; doesn't work either
-      (:when IS-MAC
+      (:when (featurep :system 'macos)
         :g "s-c" #'clipboard-kill-ring-save
         :g "s-v" #'clipboard-yank
         :g "s-n" #'restart-emacs-start-new-emacs))
@@ -52,7 +52,7 @@
 
 (map! :map 'vterm-mode-map
       :g "C-S-v" #'chloe/vterm-yank-clipboard
-      (:when IS-MAC
+      (:when (featurep :system 'macos)
         :g "s-v" #'chloe/vterm-yank-clipboard))
 
 (map! :leader
@@ -158,7 +158,7 @@ relative to the project."
  ;; doom-themes-enable-bold nil
  )
 
-(setq my-font-size (if IS-MAC 13.0 11.0))
+(setq my-font-size (if (featurep :system 'macos) 13.0 11.0))
 (setq doom-font
       (or
        (when (find-font (font-spec :family "Iosevka SS14"))
@@ -201,7 +201,7 @@ relative to the project."
 ;;; Useful files and directories
 ;;; note: a lot of custom functions work under the assumption that directory paths end with /
 
-(setq org-directory (if IS-MAC "~/Library/CloudStorage/Dropbox/Org/" "~/Dropbox/Org/")
+(setq org-directory (if (featurep :system 'macos) "~/Library/CloudStorage/Dropbox/Org/" "~/Dropbox/Org/")
       chloe/documents-directory "~/Documents/"
       chloe/gosrc-directory "~/go/src/"
       chloe/carousell-gocode-directory (concat chloe/gosrc-directory "github.com/carousell/")

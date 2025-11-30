@@ -1,7 +1,7 @@
 # Dotfiles
 
 This repo contains my dotfiles for several machines.
-The dotfiles are organised into multiple modules -- these are the top level folders such as shell, doom etc.
+The dotfiles are organised into multiple modules -- these are the top level folders such as `shell`, `doom` etc.
 On each machine, I opt-in to the subset of modules required.
 Some modules are independent, some are mutually exclusive, some are dependent on each other.
 
@@ -23,12 +23,12 @@ Run `./sync-dir.sh` for the appropriate modules.
 
 ### `shell`
 
-- Base zsh environment.
+- An opionated zsh setup with settings, prompts, plugins, etc.
+- Features include: auto-complete, syntax highlighting, shell history navigation
+- It tries to be reasonably performant while balancing maintainability (in terms of code complexity) and features.
+- Designed to be compatible with both mac and different flavours of linux. OS/machine/use-case specific changes are in modules like `work`, `wsl` etc.
+  - `.zshrc.system`/`.zshrc.local` and `.profile.system`/`.profile.local` files are used for this. Note that `.local` should be used for secrets and not commited to the repo.
 - This module is practically always enabled, many other modules assume it will be present.
-- It includes zsh settings, prompts, plugins, etc.
-- Sets up various "APIs" for other modules to use, such as:
-  - `.zshrc.system`, `.zshrc.local` system
-- Designed to be compatible with both mac and different flavours of linux
 
 **Dependencies to install:**
 - fzf
@@ -47,7 +47,7 @@ Run `./sync-dir.sh` for the appropriate modules.
 
 #### `neovim`
 
-- Configs for Neovim, my current fallback editor
+- Configs for Neovim, my current lightweight editor
 
 ### `kubernetes`
 
@@ -56,6 +56,7 @@ Run `./sync-dir.sh` for the appropriate modules.
 ### `hammerspoon`
 
 - Configs for [Hammerspoon](https://www.hammerspoon.org/), a OSX automation and scripting library.
+- Features: useful keyboard shortcuts
 
 ### Desktop environments
 

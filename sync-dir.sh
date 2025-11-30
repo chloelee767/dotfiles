@@ -29,5 +29,5 @@ for DIR in "$@"; do
         bash "$DIR/setup.sh"
     fi
 
-    stow -R -t ~ --ignore="^setup.sh$" -v "$DIR" 2>&1 | grep -v "BUG in find_stowed_path? Absolute/relative mismatch"
+    stow -R -t ~ --ignore="^setup.sh$" --ignore="README.md$" -v "$DIR" 2>&1 | grep -v "BUG in find_stowed_path? Absolute/relative mismatch"
 done

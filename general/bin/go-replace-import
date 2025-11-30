@@ -6,8 +6,6 @@
 #
 # You should specify a package alias if the old and new package names are different.
 
-# TODO add support for BSD sed
-
 set -eou pipefail
 
 OLD_PKG="$1"

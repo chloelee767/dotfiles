@@ -1,0 +1,12 @@
+# devctl
+export GITHUB_TOKEN="<your_github_token_here>"
+
+# ai
+export ANTHROPIC_API_KEY="<key>"
+export DEEPSEEK_API_KEY="<key>"
+export OPENAI_API_KEY="<key"
+export GEMINI_API_KEY="<key>"
+
+# android
+export CF_ACCESS_CLIENT_ID="<key>"
+export CF_ACCESS_CLIENT_SECRET="<key>"

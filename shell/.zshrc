@@ -27,7 +27,7 @@ SAVEHIST=200000 # how many lines to store in history file (fish sets 256k as def
 HISTSIZE=50000
 setopt SHARE_HISTORY # share history across multiple zsh sessions
 setopt APPEND_HISTORY # append to history, don't overwrite
-# setopt INC_APPEND_HISTORY # add commands immediately after entering, rather than shell exit
+setopt INC_APPEND_HISTORY # add commands immediately after entering, rather than shell exit
 setopt HIST_EXPIRE_DUPS_FIRST # expire duplicates first
 setopt HIST_IGNORE_DUPS # Don't record an entry that was just recorded again.
 setopt HIST_IGNORE_ALL_DUPS # Delete old recorded entry if new entry is a duplicate.

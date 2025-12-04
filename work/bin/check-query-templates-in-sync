@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Usage: check-query-templates-in-sync ~/Code/cs-query-template-store/cats/merchant_invoice
+
+cd "$1"
+for f in *_prod.sql; do
+    s="${f/_prod.sql/_stage.sql}"
+    if [ -f "$s" ]; then
+        echo "$f"
+        diff "$f" "$s"
+        printf "\n\n"
+    fi
+done

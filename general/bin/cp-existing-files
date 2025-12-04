@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# Selective File Copy Script
+#
+# Copies files from SOURCE_DIR ($1) to DEST_DIR ($2)
+# ONLY if the file already exists in DEST_DIR.
+# This prevents new files from being added to the destination.
+
+set -eou pipefail
+
+# --- 1. Argument Validation ---
+
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <SOURCE_DIR> <DEST_DIR>"
+    echo "Example: $0 folderX folderY"
+    exit 1
+fi
+
+SOURCE_DIR="$1"
+DEST_DIR="$2"
+
+# Ensure directories exist and are accessible
+if [ ! -d "$SOURCE_DIR" ]; then
+    echo "Error: Source directory '$SOURCE_DIR' not found or is not a directory."
+    exit 2
+fi
+
+if [ ! -d "$DEST_DIR" ]; then
+    echo "Error: Destination directory '$DEST_DIR' not found or is not a directory."
+    exit 3
+fi
+
+# Use the full path for the destination to avoid issues within the loop
+# The '/.' ensures we iterate over visible files and directories (excluding '.' and '..')
+echo "Starting selective copy from '$SOURCE_DIR' to '$DEST_DIR'..."
+echo "--------------------------------------------------------"
+
+# --- 2. Iteration and Copy Logic ---
+
+# Loop through all items (files and directories) in the source directory
+for item in "$SOURCE_DIR"/*; do
+    # Extract just the filename (base name)
+    filename=$(basename "$item")
+
+    # Check if the item in the source is a regular file
+    if [ -f "$item" ]; then
+        # Check if a file with the exact same name exists in the destination
+        if [ -f "$DEST_DIR/$filename" ]; then
+
+            # If the file exists in DEST_DIR, perform the copy
+            cp "$item" "$DEST_DIR/$filename"
+            echo "COPIED: $filename (Updated existing file)"
+        else
+            # File exists in source but not in destination, so skip it
+            echo "SKIPPED: $filename (Does not exist in destination)"
+        fi
+    else
+        echo "SKIPPED: $filename (Not a file)"
+    fi
+done
+
+echo "--------------------------------------------------------"
+echo "Selective copy complete."
+
+exit 0

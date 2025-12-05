@@ -2,6 +2,26 @@
 
 set -eou pipefail
 
+show_help() {
+    cat << 'EOF'
+Usage: recreate-pg-db DB_NAME
+  Drop and recreate a PostgreSQL database.
+
+Examples:
+  recreate-pg-db testdb    # Drop and recreate testdb
+EOF
+}
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    show_help
+    exit 0
+fi
+
+if [ $# -ne 1 ]; then
+    show_help
+    exit 1
+fi
+
 DB_NAME="$1"
 
 psql -c "DROP DATABASE $DB_NAME;" -U postgres && psql -c "CREATE DATABASE $DB_NAME;" -U postgres

@@ -1,9 +1,26 @@
 #!/usr/bin/env sh
 
-# Sample usage:
-# k-cp-migration demo-svc migration/pg/0001_init.up.sql
-
 set -eou pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: k-cp-migration SERVICE_NAME FILE
+  Copy migration file to pod running SERVICE_NAME.
+
+Examples:
+  k-cp-migration demo-svc migration/pg/0001_init.up.sql
+EOF
+}
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    show_help
+    exit 0
+fi
+
+if [ $# -ne 2 ]; then
+    show_help
+    exit 1
+fi
 
 SERVICE_NAME="$1"
 FILE="$2"

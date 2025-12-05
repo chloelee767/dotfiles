@@ -1,6 +1,24 @@
 #!/usr/bin/env bash
 
-# Usage: check-query-templates-in-sync ~/Code/cs-query-template-store/cats/merchant_invoice
+show_help() {
+    cat << 'EOF'
+Usage: check-query-templates-in-sync DIR
+  Diff *_prod.sql and *_stage.sql files in DIR to check sync.
+
+Examples:
+  check-query-templates-in-sync ~/Code/query-store/cats/invoice
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
+if [ $# -ne 1 ]; then
+    show_help
+    exit 1
+fi
 
 cd "$1"
 for f in *_prod.sql; do

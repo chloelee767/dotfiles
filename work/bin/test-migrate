@@ -1,9 +1,27 @@
 #!/usr/bin/env sh
 
-# Example:
-# test-migrate merchantcheckout up
-
 set -eou pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: test-migrate DB_NAME [MIGRATE_ARGS...]
+  Run migrations on local Postgres database.
+
+Examples:
+  test-migrate mydb up      # Run all migrations up
+  test-migrate mydb down 1  # Rollback 1 migration
+EOF
+}
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    show_help
+    exit 0
+fi
+
+if [ $# -lt 1 ]; then
+    show_help
+    exit 1
+fi
 
 DB_NAME=$1
 

@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
+show_help() {
+    cat << 'EOF'
+Usage: kexecall [-s SECONDS] [--dry-run] CMD
+  Execute CMD in all running pods (excludes datareplicator, log-svc-agent, istio-proxy).
+
+Options:
+  -s, --sleep SECONDS  Sleep between executions
+  --dry-run            Print pods/containers without executing
+
+Examples:
+  kexecall 'ls /app'              # Run ls in all pods
+  kexecall -s 2 'restart-service' # Run with 2s delay between pods
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
 DRY_RUN=false
 SLEEP_TIME=0
 while [[ $# -gt 1 ]]

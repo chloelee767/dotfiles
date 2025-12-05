@@ -1,18 +1,24 @@
 #!/usr/bin/env sh
 
-# Selective File Copy Script
-#
-# Copies files from SOURCE_DIR ($1) to DEST_DIR ($2)
-# ONLY if the file already exists in DEST_DIR.
-# This prevents new files from being added to the destination.
-
 set -eou pipefail
 
-# --- 1. Argument Validation ---
+show_help() {
+    cat << 'EOF'
+Usage: cp-existing-files SOURCE_DIR DEST_DIR
+  Copy files from SOURCE_DIR to DEST_DIR, only updating files that already exist in DEST_DIR.
+
+Examples:
+  cp-existing-files folderA folderB    # Update existing files in folderB
+EOF
+}
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    show_help
+    exit 0
+fi
 
 if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <SOURCE_DIR> <DEST_DIR>"
-    echo "Example: $0 folderX folderY"
+    show_help
     exit 1
 fi
 

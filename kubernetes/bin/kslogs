@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
+show_help() {
+    cat << 'EOF'
+Usage: kslogs [-c CONTEXT] [-n NAMESPACE] [-f FILTER] [QUERY]
+  View logs from pod matching QUERY, piping through /bin/bash logs.
+
+Options:
+  -c, --context CONTEXT      Kubectl context (default: current)
+  -n, --namespace NAMESPACE  Namespace (default: context default)
+  -f, --filter FILTER        Filter command (default: grep healthcheck filter)
+
+Examples:
+  kslogs myapp              # View logs for myapp pod
+  kslogs -f 'grep ERROR'    # Custom filter
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
 CONTEXT=""
 NAMESPACE=""
 FILTER='grep -iv -E "(healthcheck|health/check)"'

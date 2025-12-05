@@ -1,6 +1,26 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
+show_help() {
+    cat << 'EOF'
+Usage: kssh [-c CONTEXT] [-n NAMESPACE] [QUERY]
+  SSH-like access (bash shell) to pod matching QUERY.
+
+Options:
+  -c, --context CONTEXT     Kubectl context
+  -n, --namespace NAMESPACE Namespace
+
+Examples:
+  kssh myapp    # Open bash in myapp pod
+  kssh web      # Open bash in web pod
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    show_help
+    exit 0
+fi
+
 CONTEXT=""
 NAMESPACE=""
 

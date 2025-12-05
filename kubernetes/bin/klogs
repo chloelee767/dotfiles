@@ -1,15 +1,30 @@
 #!/usr/bin/env bash
 
-# Tail the logs of a pod.
-# If the --dry-run flag is passed, the command is printed and copied to the clipboard instead.
-#
-# Sample usage:
-# klogs
-# klogs checkout
-# klogs -f 'grep -i hello' checkout
-# klogs -a checkout > logs.txt
-
 set -eou pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: klogs [-c CONTEXT] [-n NAMESPACE] [-f FILTER] [-a] [--dry-run] [QUERY]
+  Tail pod logs matching QUERY.
+
+Options:
+  -a, --all              Get all logs (not just tail -f last 50)
+  -f, --filter FILTER    Filter logs (default: exclude healthchecks)
+  -c, --context CONTEXT  Kubectl context
+  -n, --namespace NS     Namespace
+  --dry-run              Print command instead of executing
+
+Examples:
+  klogs myapp                    # Tail last 50 lines of myapp logs
+  klogs -a myapp > logs.txt      # Get all logs to file
+  klogs -f 'grep ERROR' myapp    # Filter for errors
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    show_help
+    exit 0
+fi
 
 DRY_RUN=false
 ALL=false

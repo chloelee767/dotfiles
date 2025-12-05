@@ -1,6 +1,21 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
+show_help() {
+    cat << 'EOF'
+Usage: kssh [-c CONTEXT] [-n NAMESPACE] [QUERY]
+  SSH-like access (bash shell) to pod matching QUERY.
+
+Options:
+  -c, --context CONTEXT     Kubectl context
+  -n, --namespace NAMESPACE Namespace
+
+Examples:
+  kssh myapp    # Open bash in myapp pod
+  kssh web      # Open bash in web pod
+EOF
+}
+
 CONTEXT=""
 NAMESPACE=""
 
@@ -8,6 +23,10 @@ while [[ $# -gt 0 ]]
 do
     key="$1"
     case $key in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
         -c|--context)
             CONTEXT="$2"
             shift

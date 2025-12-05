@@ -1,6 +1,25 @@
 #!/usr/bin/env bash
 set -eou pipefail
 
+show_help() {
+    cat << 'EOF'
+Usage: kpf [-c CONTEXT] [-n NAMESPACE] [-p PORT] [-l LOCAL_PORT] [-ip] [QUERY]
+  Port-forward to pod matching QUERY.
+
+Options:
+  -p, --port PORT           Remote port name/number (default: grpc)
+  -l, --local-port PORT     Local port (default: same as remote)
+  -ip, --interactive-port   Select port interactively with fzf
+  -c, --context CONTEXT     Kubectl context
+  -n, --namespace NAMESPACE Namespace
+
+Examples:
+  kpf myapp                 # Forward grpc port from myapp pod
+  kpf -p 8080 myapp         # Forward port 8080
+  kpf -ip myapp             # Select port interactively
+EOF
+}
+
 PORT="grpc"
 LOCAL_PORT=""
 SELECT_PORT=false
@@ -11,6 +30,10 @@ while [[ $# -gt 0 ]]
 do
     key="$1"
     case $key in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
         -p|--port)
             PORT="$2"
             shift

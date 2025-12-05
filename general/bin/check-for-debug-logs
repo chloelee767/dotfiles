@@ -1,3 +1,26 @@
 #!/usr/bin/env bash
 
+show_help() {
+    cat << 'EOF'
+Usage: check-for-debug-logs
+  Check for debug log statements added in commits vs master.
+
+Examples:
+  check-for-debug-logs    # Find new log.* calls
+EOF
+}
+
+while [[ $# -gt 0 ]]
+do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
 git diff master | grep '^\+[[:space:]]*log.'

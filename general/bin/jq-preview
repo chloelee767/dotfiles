@@ -1,9 +1,36 @@
 #!/usr/bin/env sh
 
-# Usage: jq-preview file.json
 # From: https://jvns.ca/til/fzf-preview-git-commits/
 
 set -eou pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: jq-preview FILE
+  Interactive jq query builder with fzf preview.
+
+Examples:
+  jq-preview data.json    # Interactively build jq query
+EOF
+}
+
+while [ $# -gt 0 ]
+do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if [ $# -ne 1 ]; then
+    show_help
+    exit 1
+fi
 
 printf '' | fzf --print-query \
   --preview "jq -C {q} '$1' 2>&1" \

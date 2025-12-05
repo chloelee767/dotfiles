@@ -1,10 +1,23 @@
 #!/usr/bin/env bash
 
-# Execute a command in a pod
-# Exmaple usage:
-# kexec --cmd 'cat /etc/hosts'
-
 set -eou pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: kexec [-c CONTEXT] [-n NAMESPACE] --cmd CMD [QUERY]
+  Execute command in pod matching QUERY.
+
+Options:
+  --cmd, --bash-cmd CMD     Command to run in /bin/bash -c
+  --raw-cmd CMD             Raw command (no bash wrapper)
+  -c, --context CONTEXT     Kubectl context
+  -n, --namespace NAMESPACE Namespace
+
+Examples:
+  kexec --cmd 'cat /etc/hosts' myapp    # Run command in myapp pod
+  kexec --cmd 'ls -la' web              # List files in web pod
+EOF
+}
 
 CONTEXT=""
 NAMESPACE=""
@@ -15,6 +28,10 @@ while [[ $# -gt 0 ]]
 do
     key="$1"
     case $key in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
         -c|--context)
             CONTEXT="$2"
             shift
@@ -49,6 +66,7 @@ fi
 
 if [[ -z "$POD_CMD" ]]; then
     echo "Please provide the command to run in the pod"
+    show_help
     exit 1
 fi
 

@@ -2,6 +2,30 @@
 
 set -eou pipefail
 
+show_help() {
+    cat << 'EOF'
+Usage: uuid [COUNT]
+  Generate COUNT lowercase UUIDs. Defaults to 1.
+
+Examples:
+  uuid      # Generate 1 UUID
+  uuid 5    # Generate 5 UUIDs
+EOF
+}
+
+while [[ $# -gt 0 ]]
+do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
 # Check if an argument is provided
 if [ $# -eq 0 ]; then
   count=1

@@ -1,8 +1,35 @@
 #!/usr/bin/env bash
 
-# print lines X to Y (inclusive) of file
-
 set -euo pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: catlines START END FILE
+  Print lines START to END (inclusive) from FILE.
+
+Examples:
+  catlines 10 20 file.txt    # Print lines 10-20
+  catlines 1 5 log.txt       # Print first 5 lines
+EOF
+}
+
+while [[ $# -gt 0 ]]
+do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+if [ $# -ne 3 ]; then
+    show_help
+    exit 1
+fi
 
 X=$1
 Y=$2

@@ -1,9 +1,29 @@
 #!/usr/bin/env bash
 
-# Add the computer's hostname to the /etc/hosts file of the remote pod.
-# Needed for some services in order to use mirrord.
-
 set -eou pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: k-add-host [QUERY]
+  Add local hostname to /etc/hosts in remote pod (needed for mirrord).
+
+Examples:
+  k-add-host myapp    # Add hostname to myapp pod
+EOF
+}
+
+while [[ $# -gt 0 ]]
+do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
 host="$(hostname)"
 

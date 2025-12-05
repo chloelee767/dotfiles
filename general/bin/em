@@ -2,9 +2,30 @@
 
 set -eou pipefail
 
-# em - Script to open Emacs GUI in a specified directory or file
-# Usage: em [directory|file]
-#        If no argument is specified, opens Emacs in the current directory
+show_help() {
+    cat << 'EOF'
+Usage: em [PATH]
+  Opens Emacs GUI in directory or file. Defaults to current directory.
+
+Examples:
+  em                  # Open in current directory
+  em ~/projects       # Open in ~/projects
+  em file.txt         # Open file.txt
+EOF
+}
+
+while [[ $# -gt 0 ]]
+do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
 # Get the path to open
 if [ $# -eq 0 ]; then

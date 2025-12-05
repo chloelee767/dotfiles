@@ -21,11 +21,6 @@ Examples:
 EOF
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    show_help
-    exit 0
-fi
-
 DRY_RUN=false
 ALL=false
 FILTER='grep -iv -E "(healthcheck|health/check)"'
@@ -36,6 +31,10 @@ while [[ $# -gt 0 ]]
 do
     key="$1"
     case $key in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
         --dry-run)
             DRY_RUN=true
             shift

@@ -20,11 +20,6 @@ Examples:
 EOF
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    show_help
-    exit 0
-fi
-
 PORT="grpc"
 LOCAL_PORT=""
 SELECT_PORT=false
@@ -35,6 +30,10 @@ while [[ $# -gt 0 ]]
 do
     key="$1"
     case $key in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
         -p|--port)
             PORT="$2"
             shift

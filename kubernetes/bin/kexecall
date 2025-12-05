@@ -16,17 +16,16 @@ Examples:
 EOF
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-    show_help
-    exit 0
-fi
-
 DRY_RUN=false
 SLEEP_TIME=0
 while [[ $# -gt 1 ]]
 do
     key="$1"
     case $key in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
         -s|--sleep)
             SLEEP_TIME="$2"
             shift

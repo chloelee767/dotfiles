@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+# From: https://jvns.ca/til/fzf-preview-git-commits/
+
 set -eou pipefail
 
 show_help() {

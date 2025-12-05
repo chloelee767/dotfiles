@@ -65,6 +65,7 @@ if [[ -n "$BASH_CMD" ]]; then
 fi
 
 if [[ -z "$POD_CMD" ]]; then
+    echo "Please provide the command to run in the pod"
     show_help
     exit 1
 fi

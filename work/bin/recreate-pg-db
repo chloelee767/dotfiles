@@ -5,7 +5,7 @@ set -eou pipefail
 show_help() {
     cat << 'EOF'
 Usage: recreate-pg-db DB_NAME
-  Drop and recreate a PostgreSQL database.
+  Drop and recreate a local PostgreSQL database.
 
 Examples:
   recreate-pg-db testdb    # Drop and recreate testdb

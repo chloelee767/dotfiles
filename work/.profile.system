@@ -14,6 +14,9 @@ alias brew="/opt/homebrew/bin/brew"
 [ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}"
 export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
 
+
+export EDITOR="$BREWDIR/bin/nvim"
+
 # gnu commands
 PATH="$BREWDIR/opt/coreutils/libexec/gnubin:$PATH"
 PATH="$BREWDIR/opt/findutils/libexec/gnubin:$PATH"

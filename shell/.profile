@@ -1,4 +1,4 @@
-export EDITOR=/usr/bin/nvim
+# export EDITOR=/usr/bin/nvim
 # export TERMINAL=/usr/bin/kitty # used by i3
 
 # dir for ad-hoc binaries

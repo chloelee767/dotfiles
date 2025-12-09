@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# note: function definition with parentheses means it spawns a new subshell
+# we use a new subshell so that the set -eou pipefail only affects the function
+
+backup_datagrip() (
+    set -eou pipefail
+
+    echo "Backing up datagrip..."
+
+    cd ~/DataGripProjects/carousell/
+    git add .
+    git commit -m "automated backup"
+    git push
+
+    echo "Done backing up datagrip..."
+)
+
+backup_claude_code_projects() (
+    set -eou pipefail
+
+    echo "Backing up cc projects..."
+
+    cd ~/.claude/projects/
+    git add ./**/*.jsonl
+    git commit -m "automated backup"
+    git push
+
+    echo "Done backing up cc projects..."
+)
+
+backup_datagrip || echo "backup datagrip: exited non-zero"
+backup_claude_code_projects  || echo "backup cc projects: exited non-zero"

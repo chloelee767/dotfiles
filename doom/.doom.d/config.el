@@ -78,6 +78,12 @@
         +corfu-want-tab-prefer-navigating-snippets nil
         +corfu-want-tab-prefer-navigating-org-tables t))
 
+;; dabbrev & hippie expand
+(map! :g "M-/" #'hippie-expand)
+;; expand dabbrev to all visible buffers
+(after! cape
+  (setq cape-dabbrev-buffer-function #'cape-text-buffers))
+
 ;; don't reorder completions from the language server
 (setq-hook! 'lsp-mode-hook corfu-sort-function nil)
 

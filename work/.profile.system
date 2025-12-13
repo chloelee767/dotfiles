@@ -68,5 +68,3 @@ PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 
 # clipboard
 alias clipraw=pbcopy
-# remove trailing new linees
-alias clip="tr -d '\n' | pbcopy"

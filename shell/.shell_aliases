@@ -49,6 +49,10 @@ alias gb="git branch"
 alias git-update-master-merge="git fetch origin master:master && git merge master"
 alias git-update-master-rebase="git fetch origin master:master && git rebase master"
 
+# clipboard
+# each OS needs to set the correct `clipraw` alias
+alias clip="perl -pe 'chomp if eof' | clipraw"
+
 # kubernetes
 alias k="kubectl"
 alias kc="kubectx"

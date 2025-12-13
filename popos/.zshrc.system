@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+
+# these ubuntu packages have different binary names
+alias bat=batcat
+alias fd=fdfind
+alias clipraw=wl-copy

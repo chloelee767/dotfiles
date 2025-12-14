@@ -25,3 +25,9 @@ fi
 if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
+
+# fcitx5
+export XMODIFIERS=@im=fcitx
+unset GTK_IM_MODULE
+export QT_IM_MODULE=fcitx
+export QT_IM_MODULES="wayland;fcitx"

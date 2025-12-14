@@ -1,5 +1,7 @@
 ;;; tools/gh-copilot/config.el -*- lexical-binding: t; -*-
 
+;; TODO fail more gracefully if copilot binary is missing
+
 (defvar +gh-copilot-disable-modes '(shell-mode
                                     inferior-python-mode
                                     eshell-mode

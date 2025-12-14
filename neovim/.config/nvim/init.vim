@@ -1,3 +1,5 @@
+"TODO: idea -- handle vimplug not installed more gracefully?
+
 "Vim plug plugins: run :PlugInstall to install plugins
 call plug#begin()
 Plug 'tpope/vim-repeat'

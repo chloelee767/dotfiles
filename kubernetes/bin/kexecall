@@ -58,6 +58,8 @@ for P in $PODS; do
         echo "FAILED: >1 container"
     fi
 
+    printf "\n\n"
+
     if [[ $SLEEP_TIME -gt 0 ]]; then
         sleep $SLEEP_TIME
     fi

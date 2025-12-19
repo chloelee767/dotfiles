@@ -19,7 +19,7 @@ fpath=($HOME/zsh-site-functions $fpath)
 # shell tools
 export FZF_DEFAULT_OPTS="--select-1"
 # kubectx and kubens (personal fork)
-export KUBECTX_FZF_USE_QUERY=1
+export KUBECTX_FZF_FALLBACK=1
 export BAT_THEME="Coldark-Dark"
 export K9S_CONFIG_DIR="$HOME/.config/k9s"
 export GH_DASH_CONFIG="$HOME/.config/gh-dash/config.yml"

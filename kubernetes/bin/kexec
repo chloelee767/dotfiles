@@ -85,5 +85,5 @@ CONTAINER=$(kcontainer --pod $POD --context $CONTEXT --namespace $NAMESPACE)
 
 CMD="kubectl exec $POD --container $CONTAINER --context $CONTEXT -n $NAMESPACE -- $POD_CMD"
 
-set -x
+echo "Exec> $CMD" >&2
 bash -c "$CMD"

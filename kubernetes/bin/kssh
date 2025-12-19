@@ -60,3 +60,6 @@ CONTAINER=$(kcontainer --pod $POD --context $CONTEXT --namespace $NAMESPACE)
 
 set -x
 kubectl exec -it "$POD" --container "$CONTAINER" --context "$CONTEXT" -n "$NAMESPACE" -- /bin/bash
+set +x
+
+echo "Done> Context:" $CONTEXT "  Namespace:" $NAMESPACE "  Pod:" $POD "  Container:" $CONTAINER

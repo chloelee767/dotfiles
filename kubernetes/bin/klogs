@@ -95,6 +95,7 @@ if $DRY_RUN; then
     echo "$CMD"
     echo "$CMD" | pbcopy
 else
-    set -x
+    echo "Start> $CMD" >&2
+    trap 'echo && echo "Done> $CMD" >&2' EXIT
     bash -c "$CMD"
 fi

@@ -70,5 +70,6 @@ if [[ -n "$FILTER" ]]; then
     CMD="$CMD | $FILTER"
 fi
 
-set -x
+echo "Start> $CMD" >&2
+trap 'echo && echo "Done> $CMD" >&2' EXIT
 bash -c "$CMD"

@@ -16,18 +16,17 @@ backup_datagrip() (
     echo "Done backing up datagrip..."
 )
 
-backup_claude_code_projects() (
+backup_misc_files() (
     set -eou pipefail
 
-    echo "Backing up cc projects..."
+    echo "Backing up misc files..."
 
-    cd ~/.claude/projects/
-    git add ./**/*.jsonl
-    git commit -m "automated backup"
-    git push
+    cd ~/Code/crs-files-backup/
+    ./backup.sh
 
-    echo "Done backing up cc projects..."
+    echo "Done backing up misc files..."
 )
 
 backup_datagrip || echo "backup datagrip: exited non-zero"
-backup_claude_code_projects  || echo "backup cc projects: exited non-zero"
+printf "\n\n"
+backup_misc_files || echo "backup misc files: exited non-zero"

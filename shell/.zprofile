@@ -28,13 +28,11 @@ export GH_DASH_CONFIG="$HOME/.config/gh-dash/config.yml"
 PATH="$HOME/.emacs.d/bin:$PATH"
 
 # Go
-export GOPROXY="https://goproxy.carousellinternal.com,direct"
-export GONOSUMDB="github.com/carousell/*"
 export GOPATH="$HOME/go"
 export GOBIN="$GOPATH/bin"
 PATH="$GOBIN:$PATH"
 PATH="$HOME/.gotools:$PATH"
-[[ -s "/Users/chloelee/.gvm/scripts/gvm" ]] && source "/Users/chloelee/.gvm/scripts/gvm"
+[ -s "$HOME/.gvm/scripts/gvm" ] && source "$HOME/.gvm/scripts/gvm"
 
 # Rust
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"

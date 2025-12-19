@@ -33,6 +33,8 @@ if [ -f "/Applications/Emacs.app/Contents/MacOS/Emacs" ]; then
 fi
 
 # Go
+export GOPROXY="https://goproxy.carousellinternal.com,direct"
+export GONOSUMDB="github.com/carousell/*"
 # use system DNS resolver, ensures .local addresses are resolved on mac, which is needed for https://github.com/davidnarayan/go-flake
 # https://stackoverflow.com/questions/52131336/net-lookuphost-outputs-no-such-host-after-using-os-hostname#comment91224998_52131700
 # export GODEBUG=netdns=cgo

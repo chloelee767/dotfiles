@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+
+# Defaults
+APPEND_MODE=false
+TEE_MODE=false
+FILENAME=""
+
+# Usage Help
+usage() {
+    echo "Usage: command | $(basename "$0") [OPTIONS] filename"
+    echo "Safely writes stdin to a file. If file exists/non-empty, creates a numbered version."
+    echo ""
+    echo "Options:"
+    echo "  -t, --tee      Tee mode: Write to file AND print to stdout"
+    echo "  -a, --append   Append mode: Append to file (disables auto-numbering)"
+    echo "  -h, --help     Show this help message"
+    exit 1
+}
+
+# Parse Arguments
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -t|--tee) TEE_MODE=true ;;
+        -a|--append) APPEND_MODE=true ;;
+        -h|--help) usage ;;
+        -*) echo "Unknown option: $1"; usage ;;
+        *)
+            if [[ -z "$FILENAME" ]]; then
+                FILENAME="$1"
+            else
+                echo "Error: Multiple filenames provided."
+                usage
+            fi
+            ;;
+    esac
+    shift
+done
+
+# Validation
+if [[ -z "$FILENAME" ]]; then
+    echo "Error: No filename provided."
+    usage
+fi
+
+# Detect if input is being piped
+if [ -t 0 ]; then
+    echo "Error: No input data detected on stdin."
+    exit 1
+fi
+
+# ---------------------------------------------------------
+# LOGIC: Filename Resolution
+# ---------------------------------------------------------
+
+FINAL_FILENAME="$FILENAME"
+
+# Only rotate filename if NOT appending
+if [ "$APPEND_MODE" = false ]; then
+    if [[ -s "$FILENAME" ]]; then
+        # File exists and is greater than 0 bytes (-s). We need to rotate.
+
+        # 1. Extract extension and base name
+        if [[ "$FILENAME" == *.* ]]; then
+            extension="${FILENAME##*.}"
+            base="${FILENAME%.*}"
+            has_ext=true
+        else
+            base="$FILENAME"
+            has_ext=false
+        fi
+
+        # 2. Loop to find next available number
+        counter=1
+        while [[ -s "$FINAL_FILENAME" ]]; do
+            # Format counter with leading zero (01, 02, etc.)
+            printf -v num "%02d" $counter
+
+            if [ "$has_ext" = true ]; then
+                FINAL_FILENAME="${base}${num}.${extension}"
+            else
+                FINAL_FILENAME="${base}${num}"
+            fi
+            ((counter++))
+        done
+
+        # 3. Inform the user
+        echo "[safe-write] '$FILENAME' exists. Writing to '$FINAL_FILENAME' instead." >&2
+    fi
+fi
+
+# ---------------------------------------------------------
+# LOGIC: Writing
+# ---------------------------------------------------------
+
+if [ "$APPEND_MODE" = true ]; then
+    # Append Mode
+    if [ "$TEE_MODE" = true ]; then
+        cat - | tee -a "$FINAL_FILENAME"
+    else
+        cat - >> "$FINAL_FILENAME"
+    fi
+else
+    # Overwrite (Safe New File) Mode
+    if [ "$TEE_MODE" = true ]; then
+        cat - | tee "$FINAL_FILENAME"
+    else
+        cat - > "$FINAL_FILENAME"
+    fi
+fi

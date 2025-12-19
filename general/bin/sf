@@ -36,6 +36,11 @@ if [[ -z "$FILENAME" ]]; then
     usage
 fi
 
+if [[ $# -gt 1 ]]; then
+    echo "Error: Too many arguments provided."
+    usage
+fi
+
 # Detect if input is being piped
 if [ -t 0 ]; then
     echo "Error: No input data detected on stdin."

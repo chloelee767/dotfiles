@@ -11,30 +11,24 @@ usage() {
     echo "Safely writes stdin to a file. If file exists/non-empty, creates a numbered version."
     echo ""
     echo "Options:"
-    echo "  -t, --tee      Tee mode: Write to file AND print to stdout"
-    echo "  -a, --append   Append mode: Append to file (disables auto-numbering)"
-    echo "  -h, --help     Show this help message"
+    echo "  -t  Tee mode: Write to file AND print to stdout"
+    echo "  -a  Append mode: Append to file (disables auto-numbering)"
+    echo "  -h  Show this help message"
     exit 1
 }
 
-# Parse Arguments
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        -t|--tee) TEE_MODE=true ;;
-        -a|--append) APPEND_MODE=true ;;
-        -h|--help) usage ;;
-        -*) echo "Unknown option: $1"; usage ;;
-        *)
-            if [[ -z "$FILENAME" ]]; then
-                FILENAME="$1"
-            else
-                echo "Error: Multiple filenames provided."
-                usage
-            fi
-            ;;
+while getopts ":hta" opt; do
+    case ${opt} in
+        h) usage ;;
+        t) TEE_MODE=true ;;
+        a) APPEND_MODE=true ;;
+        \?) echo "Invalid option: -$OPTARG" >&2; usage ;;
     esac
-    shift
 done
+
+# Shift off the flags so $1 becomes the filename
+shift $((OPTIND -1))
+FILENAME="$1"
 
 # Validation
 if [[ -z "$FILENAME" ]]; then

@@ -56,9 +56,15 @@ zstyle ':completion:*' group-name ''
 [ -f ~/.zsh-plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh ] && source ~/.zsh-plugins/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
 [ -f ~/.zsh-plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh ] && source ~/.zsh-plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
 [ -f ~/.zsh-plugins/zsh-z/zsh-z.plugin.zsh ] && source ~/.zsh-plugins/zsh-z/zsh-z.plugin.zsh
-[ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh # arch
-[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] && source /usr/share/doc/fzf/examples/key-bindings.zsh # ubuntu
+# arch
+[ -f /usr/share/fzf/key-bindings.zsh ] && source /usr/share/fzf/key-bindings.zsh
+[ -f /usr/share/fzf/completion.zsh ] && source /usr/share/fzf/completion.zsh
+ # ubuntu
+[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] && source /usr/share/doc/fzf/examples/key-bindings.zsh
+[ -f /usr/share/doc/fzf/examples/completion.zsh ] && source /usr/share/doc/fzf/examples/completion.zsh
+# mac
 [ -f /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh ] && source /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh
+[ -f /opt/homebrew/Cellar/fzf/0.47.0/shell/completion.zsh ] && source /opt/homebrew/Cellar/fzf/0.47.0/shell/completion.zsh
 
 [ -f ~/.shell_aliases ] && source ~/.shell_aliases
 

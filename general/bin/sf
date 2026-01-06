@@ -75,9 +75,9 @@ if [ "$APPEND_MODE" = false ]; then
             printf -v num "%02d" $counter
 
             if [ "$has_ext" = true ]; then
-                FINAL_FILENAME="${base}${num}.${extension}"
+                FINAL_FILENAME="${base}-${num}.${extension}"
             else
-                FINAL_FILENAME="${base}${num}"
+                FINAL_FILENAME="${base}-${num}"
             fi
             ((counter++))
         done

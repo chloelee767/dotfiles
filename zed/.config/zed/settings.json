@@ -7,12 +7,22 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
-  "assistant": {
+  /* Duplicated key auto-commented: "agent": {
     "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-3-7-sonnet-latest"
+      "provider": "copilot_chat",
+      "model": "gpt-5-mini"
     },
-    "version": "2"
+    "model_parameters": []
+  }, */
+  "base_keymap": "VSCode",
+  "vim_mode": true,
+  "agent": {
+    "always_allow_tool_actions": true,
+    "default_profile": "write",
+    "default_model": {
+      "provider": "copilot_chat",
+      "model": "gpt-5.2"
+    },
   },
   "ui_font_size": 16,
   "buffer_font_size": 13,

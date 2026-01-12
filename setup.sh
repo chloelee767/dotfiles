@@ -2,3 +2,4 @@
 
 mkdir -p ~/bin
 mkdir -p ~/.config
+mkdir -p ~/templates

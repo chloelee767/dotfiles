@@ -1,10 +1,11 @@
-export BREWDIR="/opt/homebrew"
+# clipboard
+alias clipraw=pbcopy
 
 # homebrew
 # eval "$(/opt/homebrew/bin/brew shellenv)"
-
 # same as brew shellenv, except we add brew bin directory to the to the back of
 # PATH so that version managers like nvm take precedence
+export BREWDIR="/opt/homebrew"
 export HOMEBREW_PREFIX="/opt/homebrew"
 export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
 export HOMEBREW_REPOSITORY="/opt/homebrew"
@@ -43,9 +44,6 @@ export GONOSUMDB="github.com/carousell/*"
 # export CGO_LDFLAGS="-Wl,-no_warn_duplicate_libraries"
 # export CGO_ENABLED=off
 
-# Android SDK
-PATH="$BREWDIR/Caskroom/android-sdk/4333796/platform-tools:$PATH"
-
 # Postgres cli tools
 PATH="/Applications/Postgres.app/Contents/Versions/latest/bin:$PATH"
 
@@ -67,9 +65,6 @@ PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 # autoenv
 # export AUTOENV_ENABLE_LEAVE=yes
 # source "$BREWDIR/opt/autoenv/activate.sh"
-
-# clipboard
-alias clipraw=pbcopy
 
 # pnpm
 export PNPM_HOME="$HOME/Library/pnpm"

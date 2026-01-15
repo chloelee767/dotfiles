@@ -66,6 +66,14 @@ zstyle ':completion:*' group-name ''
 [ -f /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh ] && source /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh
 [ -f /opt/homebrew/Cellar/fzf/0.47.0/shell/completion.zsh ] && source /opt/homebrew/Cellar/fzf/0.47.0/shell/completion.zsh
 
+
+# Javascript
+export NVM_DIR="$HOME/.nvm"
+if [ -d "$NVM_DIR" ]; then
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+fi
+
 [ -f ~/.shell_aliases ] && source ~/.shell_aliases
 
 [ -f "$HOME/.zshrc.system" ] && source "$HOME/.zshrc.system"

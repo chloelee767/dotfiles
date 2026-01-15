@@ -37,13 +37,6 @@ PATH="$HOME/.gotools:$PATH"
 # Rust
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
-# Javascript
-export NVM_DIR="$HOME/.nvm"
-if [ -d "$NVM_DIR" ]; then
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-fi
-
 # Other modules
 [ -f "$HOME/.profile.system" ] && . "$HOME/.profile.system"
 [ -f "$HOME/.profile.local" ] && . "$HOME/.profile.local"

@@ -5,3 +5,5 @@ export XMODIFIERS=@im=fcitx
 unset GTK_IM_MODULE
 export QT_IM_MODULE=fcitx
 export QT_IM_MODULES="wayland;fcitx"
+
+[ -f  "$HOME/.deno/env" ] && . "$HOME/.deno/env"

@@ -31,4 +31,4 @@
 
 (package! claude-code-ide
   :recipe (:host github :repo "manzaltu/claude-code-ide.el")
-  :pin "32d853e20b9d245a6ee89c4a153a4e568250c62c")
+  :pin "760240d7f03ff16f90ede9d4f4243cd94f3fed73")

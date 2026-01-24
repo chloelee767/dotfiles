@@ -29,6 +29,10 @@
 (add-hook 'text-mode-hook #'turn-off-auto-fill)
 (remove-hook 'text-mode-hook #'auto-fill-mode)
 
+;; zen mode
+(setq +zen-text-scale 1.5
+      writeroom-extra-line-spacing 0.5)
+
 ;; unbind `evil-emacs-state'
 (map! :im "C-z" nil)
 (map! :map magit-mode-map :n "C-z" nil)
@@ -172,6 +176,7 @@ relative to the project."
        (when (find-font (font-spec :family "JetBrainsMono"))
          (font-spec :family "JetBrainsMono" :size my-font-size))
        doom-font))
+(setq doom-variable-pitch-font doom-font)
 
 (global-prettify-symbols-mode 1)
 

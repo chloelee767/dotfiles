@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""
+Script to substitute query parameters in SQL/JSON template files.
+
+Supported:
+- {query_param('variable_name')} - substituted with user-provided values
+To add support for:
+- {execution_date}
+- {metric_N}
+- ##NA
+"""
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+
+
+def parse_req_file(params_file: Path) -> tuple[dict[str, str], dict[str, str]]:
+    """Load query parameters from JSON file."""
+    with open(params_file) as f:
+        data = json.load(f)
+    query_params = data.get("query_params", {})
+    manual_replacements = data.get("manual_replacements", {})
+    return query_params, manual_replacements
+
+
+def substitute_query_params(template: str, query_params: dict[str, str]) -> str:
+    """
+    Replace {query_param('name')} patterns with corresponding values.
+
+    Raises ValueError if a referenced parameter is not found.
+    """
+    def replace_param(match):
+        param_name = match.group(1)
+        if param_name not in query_params: # TODO warn and skip instead?
+            raise ValueError(f"Query parameter '{param_name}' not found in params file")
+        return query_params[param_name]
+
+    pattern = r"\{query_param\('([^']+)'\)\}"
+    return re.sub(pattern, replace_param, template)
+
+def subtitute_manual_replacements(template: str, replacements: dict[str, str]) -> str:
+    for key, value in replacements.items():
+        template = template.replace(key, value)
+    return template
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Substitute query parameters in SQL/JSON template files"
+    )
+    parser.add_argument(
+        "-t", "--template",
+        required=True,
+        type=Path,
+        help="Path to template SQL/JSON file"
+    )
+    parser.add_argument(
+        "-p", "--params",
+        required=True,
+        type=Path,
+        help="Path to JSON file containing query parameters"
+    )
+
+    args = parser.parse_args()
+
+    if not args.template.exists():
+        print(f"Error: Template file not found: {args.template}", file=sys.stderr)
+        sys.exit(1)
+
+    if not args.params.exists():
+        print(f"Error: Params file not found: {args.params}", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        query_params, manual_replacements = parse_req_file(args.params)
+        template_content = args.template.read_text()
+        substituted = substitute_query_params(template_content, query_params)
+        substituted = subtitute_manual_replacements(substituted, manual_replacements)
+        print(substituted)
+    except json.JSONDecodeError as e:
+        print(f"Error parsing params file: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

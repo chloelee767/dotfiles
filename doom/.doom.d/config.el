@@ -31,7 +31,8 @@
 
 ;; zen mode
 (setq +zen-text-scale 1.5
-      writeroom-extra-line-spacing 0.5)
+      writeroom-extra-line-spacing 0.5
+      writeroom-fullscreen-effect 'maximized)
 
 ;; unbind `evil-emacs-state'
 (map! :im "C-z" nil)

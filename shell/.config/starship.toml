@@ -16,6 +16,7 @@ error_symbol = "[\\$](red)"
 style="bold fg:#34c6eb"
 truncate_to_repo = false
 fish_style_pwd_dir_length = 3
+truncation_length = 6
 format = "[$path]($style)[$read_only]($read_only_style) "
 
 [line_break]

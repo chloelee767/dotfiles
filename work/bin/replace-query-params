@@ -4,8 +4,8 @@ Script to substitute query parameters in SQL/JSON template files.
 
 Supported:
 - {query_param('variable_name')} - substituted with user-provided values
+- {execution_date} - substituted with execution_date from top-level params
 To add support for:
-- {execution_date}
 - {metric_N}
 - ##NA
 """
@@ -17,13 +17,14 @@ import sys
 from pathlib import Path
 
 
-def parse_req_file(params_file: Path) -> tuple[dict[str, str], dict[str, str]]:
+def parse_req_file(params_file: Path) -> tuple[dict[str, str], dict[str, str], str | None]:
     """Load query parameters from JSON file."""
     with open(params_file) as f:
         data = json.load(f)
     query_params = data.get("query_params", {})
     manual_replacements = data.get("manual_replacements", {})
-    return query_params, manual_replacements
+    execution_date = data.get("execution_date")
+    return query_params, manual_replacements, execution_date
 
 
 def substitute_query_params(template: str, query_params: dict[str, str]) -> str:
@@ -42,6 +43,14 @@ def substitute_query_params(template: str, query_params: dict[str, str]) -> str:
     return re.sub(pattern, replace_param, template)
 
 # NOTE: not part of standard template language, just for convenience
+def substitute_execution_date(template: str, execution_date: str | None) -> str:
+    """Replace {execution_date} pattern with the provided execution date."""
+    if execution_date is None:
+        if "{execution_date}" in template:
+            raise ValueError("Template contains {execution_date} but no execution_date provided in params file")
+        return template
+    return template.replace("{execution_date}", execution_date)
+
 def subtitute_manual_replacements(template: str, replacements: dict[str, str]) -> str:
     for key, value in replacements.items():
         template = template.replace(key, value)
@@ -74,7 +83,7 @@ def main():
         sys.exit(1)
 
     try:
-        query_params, manual_replacements = parse_req_file(args.params)
+        query_params, manual_replacements, execution_date = parse_req_file(args.params)
 
         if args.template:
             template_content = args.template.read_text()
@@ -82,6 +91,7 @@ def main():
             template_content = sys.stdin.read()
 
         substituted = substitute_query_params(template_content, query_params)
+        substituted = substitute_execution_date(substituted, execution_date)
         substituted = subtitute_manual_replacements(substituted, manual_replacements)
         print(substituted)
     except json.JSONDecodeError as e:

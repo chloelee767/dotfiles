@@ -41,6 +41,7 @@ def substitute_query_params(template: str, query_params: dict[str, str]) -> str:
     pattern = r"\{query_param\('([^']+)'\)\}"
     return re.sub(pattern, replace_param, template)
 
+# NOTE: not part of standard template language, just for convenience
 def subtitute_manual_replacements(template: str, replacements: dict[str, str]) -> str:
     for key, value in replacements.items():
         template = template.replace(key, value)
@@ -52,9 +53,8 @@ def main():
     )
     parser.add_argument(
         "-t", "--template",
-        required=True,
         type=Path,
-        help="Path to template SQL/JSON file"
+        help="Path to template SQL/JSON file (reads from stdin if not provided)"
     )
     parser.add_argument(
         "-p", "--params",
@@ -65,7 +65,7 @@ def main():
 
     args = parser.parse_args()
 
-    if not args.template.exists():
+    if args.template and not args.template.exists():
         print(f"Error: Template file not found: {args.template}", file=sys.stderr)
         sys.exit(1)
 
@@ -75,7 +75,12 @@ def main():
 
     try:
         query_params, manual_replacements = parse_req_file(args.params)
-        template_content = args.template.read_text()
+
+        if args.template:
+            template_content = args.template.read_text()
+        else:
+            template_content = sys.stdin.read()
+
         substituted = substitute_query_params(template_content, query_params)
         substituted = subtitute_manual_replacements(substituted, manual_replacements)
         print(substituted)

@@ -42,7 +42,6 @@ def substitute_query_params(template: str, query_params: dict[str, str]) -> str:
     pattern = r"\{query_param\('([^']+)'\)\}"
     return re.sub(pattern, replace_param, template)
 
-# NOTE: not part of standard template language, just for convenience
 def substitute_execution_date(template: str, execution_date: str | None) -> str:
     """Replace {execution_date} pattern with the provided execution date."""
     if execution_date is None:
@@ -51,6 +50,7 @@ def substitute_execution_date(template: str, execution_date: str | None) -> str:
         return template
     return template.replace("{execution_date}", execution_date)
 
+# NOTE: not part of standard template language, just for convenience
 def subtitute_manual_replacements(template: str, replacements: dict[str, str]) -> str:
     for key, value in replacements.items():
         template = template.replace(key, value)

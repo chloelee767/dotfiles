@@ -77,22 +77,28 @@ the line numbers are included."
   (interactive)
   (progn (chloe/copy-clipboard-to-kill-ring) (vterm-yank)))
 
+(defun chloe/thing-at-point-or-region ()
+  "Returns the thing at point or region. Also deselects the region, if any"
+  (let ((query (doom-thing-at-point-or-region)))
+    (deactivate-mark)
+    query))
+
 ;;;###autoload
 (defun chloe/search-symbol-at-point ()
   "Performs a search in the current buffer for thing at point or selected
 region."
   (interactive)
-  (consult-line (doom-thing-at-point-or-region)))
+  (consult-line (chloe/thing-at-point-or-region)))
 
 ;;;###autoload
 (defun chloe/project-search-symbol-at-point (&optional arg)
   (interactive "P")
-  (+vertico/project-search arg (doom-thing-at-point-or-region)))
+  (+vertico/project-search arg (chloe/thing-at-point-or-region)))
 
 ;;;###autoload
 (defun chloe/cwd-search-symbol-at-point (&optional arg)
   (interactive "P")
-  (+vertico/project-search-from-cwd arg (doom-thing-at-point-or-region)))
+  (+vertico/project-search-from-cwd arg (chloe/thing-at-point-or-region)))
 
 ;;;###autoload
 (defun chloe/go-cleanup-imports ()
@@ -111,7 +117,7 @@ region."
 ;;;###autoload
 (defun chloe/string-inflection-yank ()
   (interactive)
-  (if-let* ((thing (doom-thing-at-point-or-region))
+  (if-let* ((thing (chloe/thing-at-point-or-region))
             (options '(("snake case" . string-inflection-underscore-function)
                        ("kebab case" . string-inflection-kebab-case-function)
                        ("camel case" . string-inflection-camelcase-function)

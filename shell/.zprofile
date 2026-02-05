@@ -6,8 +6,9 @@
 # export TERMINAL=/usr/bin/kitty # used by i3
 
 # dir for ad-hoc binaries
-PATH=$PATH:$HOME/bin/
-PATH=$PATH:$HOME/.local/bin
+# put it first so it can override other installed binaries
+PATH="$HOME/bin/:$PATH"
+PATH="$HOME/.local/bin:$PATH"
 # dir for ad-hoc zsh completions
 fpath=($HOME/zsh-site-functions $fpath)
 

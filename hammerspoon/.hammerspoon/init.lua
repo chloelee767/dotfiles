@@ -28,7 +28,8 @@ spoon.MiroWindowsManager:bindHotkeys({
 -- end
 
 hs.hotkey.bind(hyper, "s", function() hs.application.open("Slack") end)
-hs.hotkey.bind(hyper, "t", function() hs.application.open("iTerm") end)
+-- hs.hotkey.bind(hyper, "t", function() hs.application.open("iTerm") end)
+hs.hotkey.bind(hyper, "t", function() hs.application.open("Ghostty") end)
 hs.hotkey.bind(hyper, "n", function() hs.application.open("TriliumNext Notes") end)
 hs.hotkey.bind(hyper, "w", function() hs.application.open("Google Chrome") end)
 hs.hotkey.bind(hyper, "e", function() hs.application.open("Emacs") end)

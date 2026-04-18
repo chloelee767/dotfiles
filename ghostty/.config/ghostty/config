@@ -1,1 +1,13 @@
 macos-option-as-alt = true
+
+# theme = Modus Vivendi Tinted
+# theme = Github Dark High Contrast
+theme = Ultra Dark
+
+font-family = JetBrains Mono
+# note: font thickening only supported on mac as of v1.3.1
+font-thicken = true
+font-thicken-strength = 100
+
+keybind = ctrl+page_up=previous_tab
+keybind = ctrl+page_down=next_tab

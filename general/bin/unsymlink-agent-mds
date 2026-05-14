@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: unsymlink-agent-mds [FILE...]
+  Remove agent instruction symlinks that point to another agent instruction file in the same directory.
+
+Examples:
+  unsymlink-agent-mds    # Remove matching AGENTS.md/CLAUDE.md/GEMINI.md symlinks
+  unsymlink-agent-mds AGENTS.md CLAUDE.md    # Only remove those symlink names
+EOF
+}
+
+FILES=("AGENTS.md" "CLAUDE.md" "GEMINI.md")
+
+while [[ $# -gt 0 ]]
+do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+TARGETS=("${FILES[@]}")
+
+if [[ $# -gt 0 ]]; then
+    TARGETS=()
+    for target in "$@"; do
+        case "$target" in
+            AGENTS.md|CLAUDE.md|GEMINI.md)
+                TARGETS+=("$target")
+                ;;
+            *)
+                printf 'Unknown file name: %s\n\n' "$target" >&2
+                show_help >&2
+                exit 1
+                ;;
+        esac
+    done
+fi
+
+find . -type d -print0 | while IFS= read -r -d '' dir; do
+    (
+        cd "$dir" || exit 1
+
+        for target in "${TARGETS[@]}"; do
+            if [[ -L "$target" ]]; then
+                link_target=$(readlink "$target")
+
+                case "$link_target" in
+                    AGENTS.md|CLAUDE.md|GEMINI.md)
+                        if [[ "$link_target" != "$target" && -e "$link_target" ]]; then
+                            echo "In $dir: Removing symlink $target -> $link_target"
+                            rm "$target"
+                        fi
+                        ;;
+                esac
+            fi
+        done
+    )
+done

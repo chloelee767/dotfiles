@@ -30,7 +30,7 @@ setopt APPEND_HISTORY # append to history, don't overwrite
 setopt INC_APPEND_HISTORY # add commands immediately after entering, rather than shell exit
 setopt HIST_EXPIRE_DUPS_FIRST # expire duplicates first
 setopt HIST_IGNORE_DUPS # Don't record an entry that was just recorded again.
-setopt HIST_IGNORE_ALL_DUPS # Delete old recorded entry if new entry is a duplicate.
+# setopt HIST_IGNORE_ALL_DUPS # Delete old recorded entry if new entry is a duplicate. disabling for now due to possible performance issues.
 # setopt HIST_FIND_NO_DUPS # do not find duplicates when searching
 setopt HIST_REDUCE_BLANKS # remove blank lines from history
 setopt HIST_VERIFY # show substituted commmand

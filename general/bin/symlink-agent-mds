@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: symlink-agent-mds
+  Symlink missing agent instruction files to an existing one in each directory.
+
+Examples:
+  symlink-agent-mds    # Create missing AGENTS.md/CLAUDE.md/GEMINI.md symlinks
+EOF
+}
+
+while [[ $# -gt 0 ]]
+do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+FILES=("AGENTS.md" "CLAUDE.md" "GEMINI.md")
+
+# For each directory, if any agent file exists, symlink the missing ones to it.
+# Use -print0 and read -d '' to safely handle folder names with spaces or newlines
+find . -type d -print0 | while IFS= read -r -d '' dir; do
+    # Run the logic in a subshell so we don't need to 'popd' manually
+    (
+        cd "$dir" || exit 1
+
+        exists_any=false
+        for f in "${FILES[@]}"; do
+            if [[ -e "$f" ]]; then
+                exists_any=true
+                break
+            fi
+        done
+
+        if [ "$exists_any" = true ]; then
+            for target in "${FILES[@]}"; do
+                if [[ ! -e "$target" ]]; then
+                    for source in "${FILES[@]}"; do
+                        if [[ "$source" != "$target" && -e "$source" ]]; then
+                            echo "In $dir: Symlinking $target -> $source"
+                            ln -s "$source" "$target"
+                            break
+                        fi
+                    done
+                fi
+            done
+        fi
+    )
+done

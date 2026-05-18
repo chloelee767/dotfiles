@@ -66,6 +66,38 @@ zstyle ':completion:*' group-name ''
 [ -f /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh ] && source /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh
 [ -f /opt/homebrew/Cellar/fzf/0.47.0/shell/completion.zsh ] && source /opt/homebrew/Cellar/fzf/0.47.0/shell/completion.zsh
 
+# Custom backward-kill: stops only at whitespace (bigger chunk)
+function backward-kill-big-word() {
+  local WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>|'
+  zle backward-kill-word
+}
+zle -N backward-kill-big-word
+
+function kill-big-word() {
+  local WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>|'
+  zle kill-word
+}
+zle -N kill-big-word
+
+function forward-big-word() {
+  local WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>|'
+  zle forward-word
+}
+zle -N forward-big-word
+
+function backward-big-word() {
+  local WORDCHARS='*?_-.[]~=/&;!#$%^(){}<>|'
+  zle backward-word
+}
+zle -N backward-big-word
+
+# shift combos (eg. ctrl shift w) requires terminal to support kitty keyboard protocol
+bindkey '^[[119;6u' backward-kill-big-word # ctrl+shift+w
+bindkey '^[D' kill-big-word # alt+shift+d
+bindkey '^[F' forward-big-word # alt+shift+f
+bindkey '^[B' backward-big-word # alt+shift+b
+# fallbacks
+bindkey '^[^W' backward-kill-big-word # ctrl+alt+w
 
 # Javascript
 export NVM_DIR="$HOME/.nvm"

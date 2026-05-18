@@ -9,8 +9,6 @@
 # put it first so it can override other installed binaries
 PATH="$HOME/bin/:$PATH"
 PATH="$HOME/.local/bin:$PATH"
-# dir for ad-hoc zsh completions
-fpath=($HOME/zsh-site-functions $fpath)
 
 # ssh
 # eval `ssh-agent`
@@ -33,8 +31,6 @@ export GOPATH="$HOME/go"
 export GOBIN="$GOPATH/bin"
 PATH="$GOBIN:$PATH"
 PATH="$HOME/.gotools:$PATH"
-[ -s "$HOME/.gvm/scripts/gvm" ] && source "$HOME/.gvm/scripts/gvm"
-
 # Rust
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 

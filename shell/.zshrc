@@ -99,6 +99,9 @@ bindkey '^[B' backward-big-word # alt+shift+b
 # fallbacks
 bindkey '^[^W' backward-kill-big-word # ctrl+alt+w
 
+# Go version manager
+[ -s "$HOME/.gvm/scripts/gvm" ] && source "$HOME/.gvm/scripts/gvm"
+
 # Javascript
 export NVM_DIR="$HOME/.nvm"
 if [ -d "$NVM_DIR" ]; then
@@ -121,6 +124,9 @@ if [ "$(command -v starship)" ]; then
 fi
 
 # eval "$(direnv hook zsh)"
+
+# dir for ad-hoc zsh completions (must come before compinit)
+fpath=($HOME/zsh-site-functions $fpath)
 
 # load completions
 autoload -U compinit

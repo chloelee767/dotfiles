@@ -1,2 +1,10 @@
+# clipboard
+alias clipraw=pbcopy
+
+alias ssh="TERM=vt100 ssh" # ghostty TERM variable is not present on many servers
+
+# Emacs
+[ -n "$EMACS" ] && alias emacs="$EMACS"
+
 eval "$(pyenv init - zsh)"
 eval "$(direnv hook zsh)"

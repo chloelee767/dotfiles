@@ -1,4 +1,1 @@
 export WINHOME="/mnt/c/Users/Chloe"
-
-# quirk of ubuntu bat package
-alias bat=batcat

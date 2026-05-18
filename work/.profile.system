@@ -1,6 +1,8 @@
 # clipboard
 alias clipraw=pbcopy
 
+alias ssh="TERM=vt100 ssh" # ghostty TERM variable is not present on many servers
+
 # homebrew
 # eval "$(/opt/homebrew/bin/brew shellenv)"
 # same as brew shellenv, except we add brew bin directory to the to the back of

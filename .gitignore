@@ -15,3 +15,5 @@ scripts/gcal-to-org-urls.sh
 .aider*
 !ai/*
 !.aiderignore
+
+__pycache__

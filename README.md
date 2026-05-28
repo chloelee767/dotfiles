@@ -135,3 +135,22 @@ Setup:
 #### `wsl`
 
 - WSL (ubuntu)
+
+## Development
+
+### Tests
+
+- Tests live under the top-level `tests/` folder so they do not get symlinked into `$HOME`.
+- Current layout groups tests by module and language, for example `tests/work/python/`.
+
+Run all tests:
+
+```sh
+just test
+```
+
+Run work Python tests only:
+
+```sh
+just test-work-python
+```

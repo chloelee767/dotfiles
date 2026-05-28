@@ -21,7 +21,7 @@ if [ -f "./setup.sh" ]; then
 fi
 
 for DIR in "$@"; do
-    echo "Syncing directory: $DIR"
+    echo "==> Syncing directory: $DIR"
 
     # Directory specific setup.sh
     if [ -f "$DIR/setup.sh" ]; then

@@ -58,7 +58,21 @@ def subtitute_manual_replacements(template: str, replacements: dict[str, str]) -
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Substitute query parameters in SQL/JSON template files"
+        description="Substitute query parameters in SQL/JSON template files",
+        epilog="""sample params file:
+  {
+    "query_params": {
+      "start_date": "2024-01-01",
+      "end_date": "2024-01-31"
+    },
+    "execution_date": "2024-01-31",
+    "manual_replacements": {
+      "old_table_name": "new_table_name"
+    }
+  }
+
+all fields are optional except the ones your template uses.""",
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "-t", "--template",

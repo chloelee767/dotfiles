@@ -42,12 +42,12 @@
       :g "C-c SPC" #'doom/leader
       :g "C-S-c" #'clipboard-kill-ring-save
       :g "C-S-v" #'clipboard-yank
-      :g "C-S-n" #'restart-emacs-start-new-emacs ;; does not quit current emacs, st spawns new instance ;; FIXME macOS treats these as separate application types
+      :g "C-S-n" #'start-new-emacs ;; FIXME macOS treats these as separate application types
       ;; :g "C-S-n" (lambda () (interactive) (start-process "open-emacs" nil "open" "-na" "Emacs.app")) ;; doesn't work either
       (:when (featurep :system 'macos)
         :g "s-c" #'clipboard-kill-ring-save
         :g "s-v" #'clipboard-yank
-        :g "s-n" #'restart-emacs-start-new-emacs))
+        :g "s-n" #'start-new-emacs))
 (map! :leader
       :prefix ("y" . "yank")
       :desc "emacs -> clipboard" "c" #'chloe/copy-last-kill-to-clipboard

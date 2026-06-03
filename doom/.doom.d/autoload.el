@@ -174,3 +174,10 @@ region."
   (interactive)
   (when-let (buf (+helpful--previous))
     (funcall helpful-switch-buffer-function buf)))
+
+;;;###autoload
+(defun start-new-emacs ()
+  "Start a new independent Emacs process."
+  (interactive)
+  (let ((emacs-binary (expand-file-name invocation-name invocation-directory)))
+    (start-process "new-emacs" nil emacs-binary)))

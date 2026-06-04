@@ -29,6 +29,6 @@
   :recipe (:host github :repo "leon-barrett/just-mode.el" :files ("*.el"))
   :pin "310f437296173e4659c80490fcdb7ebafbac1665")
 
-(package! claude-code-ide
-  :recipe (:host github :repo "manzaltu/claude-code-ide.el")
-  :pin "760240d7f03ff16f90ede9d4f4243cd94f3fed73")
+; (package! claude-code-ide
+;   :recipe (:host github :repo "manzaltu/claude-code-ide.el")
+;   :pin "760240d7f03ff16f90ede9d4f4243cd94f3fed73")

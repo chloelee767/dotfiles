@@ -14,23 +14,71 @@
     },
     "model_parameters": []
   }, */
+  "preview_tabs": {
+    "enable_preview_multibuffer_from_code_navigation": true
+  },
+  "cli_default_open_behavior": "new_window",
+  "buffer_line_height": "comfortable",
+  "agent_ui_font_size": 14.0,
+  "ui_font_family": ".ZedSans",
+  "terminal": {
+    "option_as_meta": true
+  },
+  "tabs": {
+    "git_status": false
+  },
+  "title_bar": {
+    "show_menus": false,
+    "show_user_picture": false,
+    "show_user_menu": true,
+    "show_project_items": true,
+    "show_branch_name": true,
+    "show_branch_status_icon": false
+  },
+  "which_key": {
+    "enabled": true
+  },
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    }
+  },
+  "project_panel": {
+    "bold_folder_labels": false,
+    "entry_spacing": "comfortable",
+    "dock": "left"
+  },
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "git_panel": {
+    "dock": "left"
+  },
   "base_keymap": "VSCode",
   "vim_mode": true,
   "agent": {
-    "always_allow_tool_actions": true,
+    "tool_permissions": {
+      "default": "allow"
+    },
+    "dock": "right",
     "default_profile": "write",
     "default_model": {
+      "effort": "high",
+      "enable_thinking": true,
       "provider": "copilot_chat",
-      "model": "gpt-5.2"
+      "model": "gpt-5.4-mini"
     },
   },
-  "ui_font_size": 16,
-  "buffer_font_size": 13,
+  "ui_font_size": 14.0,
+  "buffer_font_size": 12,
   "buffer_font_family": "JetBrainsMono Nerd Font Mono",
   "theme": {
     "mode": "system",
     "light": "One Light",
-    "dark": "One Dark"
+    "dark": "Ayu Dark"
   },
   "format_on_save": "off"
 }

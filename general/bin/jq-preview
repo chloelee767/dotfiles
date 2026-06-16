@@ -27,13 +27,26 @@ do
     esac
 done
 
-if [ $# -ne 1 ]; then
+input_file=''
+cleanup() {
+    if [ -n "$input_file" ] && [ -f "$input_file" ]; then
+        rm -f "$input_file"
+    fi
+}
+trap cleanup EXIT
+
+if [ $# -eq 1 ]; then
+    input_file=$1
+elif [ $# -eq 0 ] && [ ! -t 0 ]; then
+    input_file=$(mktemp)
+    cat > "$input_file"
+else
     show_help
     exit 1
 fi
 
 printf '' | fzf --print-query \
-  --preview "jq -C {q} '$1' 2>&1" \
+  --preview "jq -C {q} '$input_file' 2>&1" \
   --preview-window=up:80% \
   --query "." \
   --bind 'esc:print-query+abort' \

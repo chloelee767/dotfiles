@@ -95,7 +95,11 @@ if $DRY_RUN; then
     echo "$CMD"
     echo "$CMD" | pbcopy
 else
+    mkdir -p /tmp/logs
+    LOGFILE="$(mktemp /tmp/logs/${POD}-XXXXXX.log)"
+    printf "timestamp=$(date +"%Y-%m-%dT%H:%M:%S%z")  context=$CONTEXT  namespace=$NAMESPACE  pod=$POD  cmd=$CMD\n\n" > "$LOGFILE"
+    echo "Start> Saving logs to $LOGFILE" >&2
     echo "Start> $CMD" >&2
-    trap 'echo && echo "Done> $CMD" >&2' EXIT
-    bash -c "$CMD"
+    trap 'echo >&2 && echo "Done> $CMD" >&2 && echo "Done> Saved logs to $LOGFILE" >&2' EXIT
+    bash -c "$CMD | tee -a $LOGFILE"
 fi

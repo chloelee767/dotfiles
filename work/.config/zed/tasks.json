@@ -1,0 +1,8 @@
+[
+  {
+    "label": "Copy path with line number",
+    "command": "echo -n \"$ZED_FILE:$ZED_ROW\" | pbcopy",
+    "reveal": "never",
+    "hide": "always"
+  }
+]

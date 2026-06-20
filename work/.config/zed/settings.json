@@ -7,13 +7,27 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
-  /* Duplicated key auto-commented: "agent": {
-    "default_model": {
-      "provider": "copilot_chat",
-      "model": "gpt-5-mini"
+  "use_system_path_prompts": false,
+  "vim": {
+    "use_system_clipboard": "never"
+  },
+  "soft_wrap": "editor_width",
+  "relative_line_numbers": "enabled",
+  "languages": {
+    "Go": {
+      "format_on_save": "on",
+      "formatter": {
+        "external": {
+          "command": "goimports",
+          "arguments": ["-local", "github.com/carousell/"]
+        }
+      }
     },
-    "model_parameters": []
-  }, */
+    "YAML": {
+      "enable_language_server": false
+    }
+  },
+  "diff_view_style": "unified",
   "preview_tabs": {
     "enable_preview_multibuffer_from_code_navigation": true
   },
@@ -40,6 +54,11 @@
   },
   "agent_servers": {
     "claude-acp": {
+      "default_config_options": {
+        "model": "sonnet",
+        "mode": "default",
+        "effort": "high"
+      },
       "type": "registry"
     }
   },
@@ -55,21 +74,23 @@
     "dock": "left"
   },
   "git_panel": {
+    "sort_by_path": false,
+    "tree_view": true,
     "dock": "left"
   },
   "base_keymap": "VSCode",
   "vim_mode": true,
   "agent": {
+    "sidebar_side": "right",
     "tool_permissions": {
       "default": "allow"
     },
     "dock": "right",
     "default_profile": "write",
     "default_model": {
-      "effort": "high",
       "enable_thinking": true,
-      "provider": "copilot_chat",
-      "model": "gpt-5.4-mini"
+      "provider": "openrouter",
+      "model": "minimax/minimax-m3"
     },
   },
   "ui_font_size": 14.0,

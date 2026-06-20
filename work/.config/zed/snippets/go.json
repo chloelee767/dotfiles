@@ -1,0 +1,28 @@
+{
+  // Each snippet must have a name and body, but the prefix and description are optional.
+  // The prefix is used to trigger the snippet, but when omitted then the name is used.
+  // Use placeholders like $1, $2 or ${1:defaultValue} to define tab stops.
+  // The $0 determines the final cursor position.
+  // Placeholders with the same value are linked.
+  // If the snippet contains the $ symbol outside of a placeholder, it must be escaped with two slashes (e.g. \\$var).
+  "If Err": {
+    "prefix": "iferr",
+    "body": ["if ${1:err} != nil {\n$0\n}"],
+    "description": "if err != nil"
+  },
+  "Return": {
+    "prefix": "ret",
+    "body": ["return $0"],
+    "description": "return"
+  },
+  "For Each": {
+    "prefix": "fore",
+    "body": ["for ${1:i}, ${2:value} := range $3 {\n$0\n}"],
+    "description": "for i, value := range target"
+  },
+  "For Each Map": {
+    "prefix": "forem",
+    "body": ["for ${1:key}, ${2:value} := range $3 {\n$0\n}"],
+    "description": "for key, value := range target"
+  }
+}

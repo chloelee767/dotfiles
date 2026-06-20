@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -eou pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: k-cat-config [-c CONTEXT] [-n NAMESPACE] [QUERY]
+  Print the contents of /opt/config/<file>.yml from a pod to stdout.
+
+Options:
+  -c, --context CONTEXT     Kubectl context
+  -n, --namespace NAMESPACE Namespace
+
+Examples:
+  k-cat-config myapp         # Print config from myapp pod
+  k-cat-config -n staging    # Choose pod from staging namespace
+EOF
+}
+
+CONTEXT=""
+NAMESPACE=""
+
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -c|--context)
+            CONTEXT="$2"
+            shift; shift
+            ;;
+        -n|--namespace)
+            NAMESPACE="$2"
+            shift; shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+QUERY="$@"
+
+if [[ -z "$CONTEXT" ]]; then
+    CONTEXT="$(kubectl config current-context)"
+fi
+
+if [[ -z "$NAMESPACE" ]]; then
+    NAMESPACE="$(kcurrentnamespace $CONTEXT)"
+fi
+
+POD="$(kpod -c "$CONTEXT" -n "$NAMESPACE" $QUERY)"
+
+echo "Context: $CONTEXT  Namespace: $NAMESPACE  Pod: $POD" >&2
+
+CONFIG_DIR="/opt/config"
+FILES="$(kubectl exec "$POD" --context "$CONTEXT" -n "$NAMESPACE" -- sh -c "ls $CONFIG_DIR")"
+FILE_COUNT="$(echo "$FILES" | wc -l | tr -d ' ')"
+
+if [[ "$FILE_COUNT" -gt 1 ]]; then
+    echo "Error: $FILE_COUNT files found in $CONFIG_DIR on pod $POD:" >&2
+    echo "$FILES" | sed "s|^|  $CONFIG_DIR/|" >&2
+    exit 1
+fi
+
+FILE="$FILES"
+TMP_DIR="$(mktemp -d)"
+trap 'rm -rf "$TMP_DIR"' EXIT
+
+kubectl cp --context "$CONTEXT" -n "$NAMESPACE" "$POD:$CONFIG_DIR/$FILE" "$TMP_DIR/$FILE"
+cat "$TMP_DIR/$FILE"

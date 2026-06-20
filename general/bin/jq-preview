@@ -27,10 +27,10 @@ do
     esac
 done
 
-input_file=''
+tmp_input=''
 cleanup() {
-    if [ -n "$input_file" ] && [ -f "$input_file" ]; then
-        rm -f "$input_file"
+    if [ -n "$tmp_input" ] && [ -f "$tmp_input" ]; then
+        rm -f "$tmp_input"
     fi
 }
 trap cleanup EXIT
@@ -38,16 +38,34 @@ trap cleanup EXIT
 if [ $# -eq 1 ]; then
     input_file=$1
 elif [ $# -eq 0 ] && [ ! -t 0 ]; then
-    input_file=$(mktemp)
+    tmp_input=$(mktemp)
+    input_file=$tmp_input
     cat > "$input_file"
 else
     show_help
     exit 1
 fi
 
-printf '' | fzf --print-query \
+fzf_out=$(printf '' | fzf --print-query \
+  --expect=esc,ctrl-c,enter \
   --preview "jq -C {q} '$input_file' 2>&1" \
   --preview-window=up:80% \
-  --query "." \
-  --bind 'esc:print-query+abort' \
-  --bind 'ctrl-c:print-query+abort'
+  --query ".") || true
+
+query=$(printf '%s' "$fzf_out" | sed -n '1p')
+key=$(printf '%s' "$fzf_out" | sed -n '2p')
+
+if [ -z "$query" ]; then
+    exit 0
+fi
+
+echo "$query" >&2
+
+if [ "$key" = "enter" ]; then
+    jq "$query" "$input_file"
+else
+    tmp=$(mktemp /tmp/jq-output-XXXXXX.json)
+    jq "$query" "$input_file" > "$tmp"
+    echo "query output saved to $tmp" >&2
+    # echo "$tmp"
+fi

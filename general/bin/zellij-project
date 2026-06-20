@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+set -eou pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: zellij-project [--pwd] [DIR]
+  Attach to or create a zellij session named after a directory.
+
+  With no arguments, uses the git repo root (if inside one), else $PWD.
+  With --pwd, always uses $PWD even inside a git repo.
+  With DIR, uses that path.
+
+Options:
+  -h, --help    Show this help message
+  --pwd         Use $PWD instead of the git repo root
+
+Examples:
+  zellij-project              # Session for current git repo
+  zellij-project --pwd        # Session for $PWD
+  zellij-project ~/projects/foo   # Session for ~/projects/foo
+EOF
+}
+
+USE_PWD=false
+POSITIONAL=()
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help) show_help; exit 0 ;;
+        --pwd) USE_PWD=true; shift ;;
+        *) POSITIONAL+=("$1"); shift ;;
+    esac
+done
+
+if [[ ${#POSITIONAL[@]} -gt 0 ]]; then
+    DIR="$(realpath "${POSITIONAL[0]}")"
+elif ! $USE_PWD && git rev-parse --show-toplevel &>/dev/null 2>&1; then
+    DIR="$(git rev-parse --show-toplevel)"
+else
+    DIR="$PWD"
+fi
+
+NAME="${DIR/#$HOME/\-}"
+# zellij sesion name cannot contain slash
+NAME="$(echo "$NAME" | tr '/' '-')"
+NAME="${NAME:$((${#NAME} > 36 ? ${#NAME} - 36 : 0)):36}"
+
+zellij-to-session "$NAME"
+

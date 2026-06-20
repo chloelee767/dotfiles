@@ -72,6 +72,8 @@ alias goget="go get"
 alias gogetb="GOPROXY=direct go get" # go get for branches, needed because non-master branches are generally not in the proxy
 
 # misc
+alias zellij-new="zellij-to-session"
+alias zjn="zellij-to-session"
 alias ra="ranger"
 # alias ssh="TERM=vt100 ssh"
 # alias uuid="uuidgen | tr '[:upper:]' '[:lower:]' | tr -d '\n'"

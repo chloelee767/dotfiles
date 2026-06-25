@@ -3,12 +3,14 @@ set -eou pipefail
 
 show_help() {
     cat << 'EOF'
-Usage: kexecall [-s SECONDS] [--dry-run] CMD
+Usage: kexecall [-c CONTEXT] [-n NAMESPACE] [-s SECONDS] [--dry-run] CMD
   Execute CMD in all running pods (excludes datareplicator, log-svc-agent, istio-proxy).
 
 Options:
-  -s, --sleep SECONDS  Sleep between executions
-  --dry-run            Print pods/containers without executing
+  -c, --context CONTEXT    Kubectl context
+  -n, --namespace NS       Namespace
+  -s, --sleep SECONDS      Sleep between executions
+  --dry-run                Print pods/containers without executing
 
 Examples:
   kexecall 'ls /app'              # Run ls in all pods
@@ -18,6 +20,8 @@ EOF
 
 DRY_RUN=false
 SLEEP_TIME=0
+CONTEXT=""
+NAMESPACE=""
 while [[ $# -gt 1 ]]
 do
     key="$1"
@@ -25,6 +29,16 @@ do
         -h|--help)
             show_help
             exit 0
+            ;;
+        -c|--context)
+            CONTEXT="$2"
+            shift
+            shift
+            ;;
+        -n|--namespace)
+            NAMESPACE="$2"
+            shift
+            shift
             ;;
         -s|--sleep)
             SLEEP_TIME="$2"
@@ -40,12 +54,21 @@ done
 
 CMD="$1"
 
+if [[ -z "$CONTEXT" ]]; then
+    CONTEXT="$(kubectl config current-context)"
+fi
+
+if [[ -z "$NAMESPACE" ]]; then
+    NAMESPACE="$(kcurrentnamespace $CONTEXT)"
+fi
+
+echo "Context:" $CONTEXT "  Namespace:" $NAMESPACE
 echo "COMMAND:" "$CMD"
 sleep 1
 
-PODS="$(kubectl get pods | tail -n +2 | grep -i run | awk '{print $1}' | grep --invert-match -E "datareplicator" | sort)"
+PODS="$(kubectl get pods --context "$CONTEXT" -n "$NAMESPACE" | tail -n +2 | grep -i run | awk '{print $1}' | grep --invert-match -E "datareplicator" | sort)"
 for P in $PODS; do
-    CONTAINER=$(kubectl get pod $P -o jsonpath="{.spec.containers[*].name}" | tr -s '[[:space:]]' '\n' | grep --invert-match -E "log-svc-agent|istio-proxy")
+    CONTAINER=$(kubectl get pod $P --context "$CONTEXT" -n "$NAMESPACE" -o jsonpath="{.spec.containers[*].name}" | tr -s '[[:space:]]' '\n' | grep --invert-match -E "log-svc-agent|istio-proxy")
     NUM_C=$(echo $CONTAINER | wc -l)
     echo "pod:" "$P" "container:" "$CONTAINER"
     if $DRY_RUN; then
@@ -53,7 +76,7 @@ for P in $PODS; do
     fi
 
     if [[ $NUM_C -eq 1 ]]; then
-        kubectl exec "$P" --container "$CONTAINER" -- /bin/bash -c "$CMD"
+        kubectl exec "$P" --container "$CONTAINER" --context "$CONTEXT" -n "$NAMESPACE" -- /bin/bash -c "$CMD" || echo "FAILED: kubectl exec exited with $?"
     else
         echo "FAILED: >1 container"
     fi

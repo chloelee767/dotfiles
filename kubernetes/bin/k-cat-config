@@ -65,8 +65,6 @@ if [[ "$FILE_COUNT" -gt 1 ]]; then
 fi
 
 FILE="$FILES"
-TMP_DIR="$(mktemp -d)"
-trap 'rm -rf "$TMP_DIR"' EXIT
 
-kubectl cp --context "$CONTEXT" -n "$NAMESPACE" "$POD:$CONFIG_DIR/$FILE" "$TMP_DIR/$FILE"
-cat "$TMP_DIR/$FILE"
+# kubectl cp pipes via tar, which leaks tar warnings into stdout and corrupts the output
+kubectl exec "$POD" --context "$CONTEXT" -n "$NAMESPACE" -- cat "$CONFIG_DIR/$FILE"

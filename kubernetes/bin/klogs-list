@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+set -eou pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: klogs-list [-c CONTEXT] [-n NAMESPACE] [-p POD] [--field FIELD] [dir]
+  List log files produced by klogs, filtered and sorted by timestamp (newest first).
+
+Options:
+  -c, --context CONTEXT    Filter by kubectl context
+  -n, --namespace NS       Filter by namespace (partial match)
+  -p, --pod POD            Filter by pod name (partial match)
+  --field FIELD            Print only this field's value (timestamp, context, namespace, pod, file)
+                           Note: cmd is not supported -- it contains spaces which break field extraction
+  dir                      Log directory (default: /tmp/logs)
+
+Examples:
+  klogs-list                                  # List all logs
+  klogs-list -n feature-env-123               # Filter by namespace
+  klogs-list -p my-service                    # Filter by pod prefix
+  klogs-list -n staging -p myapp --field file # Print only file paths
+EOF
+}
+
+CONTEXT="" NAMESPACE="" POD="" DIR="/tmp/logs" FIELD=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -c|--context)   CONTEXT="$2";   shift 2 ;;
+        -n|--namespace) NAMESPACE="$2"; shift 2 ;;
+        -p|--pod)       POD="$2";       shift 2 ;;
+        --field)        FIELD="$2";     shift 2 ;;
+        *)              DIR="$1";       shift ;;
+    esac
+done
+
+extract_field() {
+    local line="$1" field="$2"
+    echo "$line" | awk -F"${field}=" '{print $2}' | awk '{print $1}'
+}
+
+for f in "$DIR"/*.log; do
+    [[ -f "$f" ]] || continue
+    first=$(head -1 "$f")
+    [[ -n "$CONTEXT"   && "$first" != *"context=$CONTEXT"*     ]] && continue
+    [[ -n "$NAMESPACE" && "$first" != *"namespace=$NAMESPACE"* ]] && continue
+    [[ -n "$POD"       && "$first" != *"pod=$POD"*             ]] && continue
+    echo "$first  file=$f"
+done | sort -t= -k2,2 -r | if [[ -n "$FIELD" ]]; then
+    while IFS= read -r line; do
+        extract_field "$line" "$FIELD"
+    done
+else
+    cat
+fi

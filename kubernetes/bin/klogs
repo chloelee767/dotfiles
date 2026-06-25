@@ -23,7 +23,7 @@ EOF
 
 DRY_RUN=false
 ALL=false
-FILTER='grep -iv -E "(healthcheck|health/check)"'
+FILTER='grep --line-buffered -iv -E "(healthcheck|health/check)"'
 CONTEXT=""
 NAMESPACE=""
 

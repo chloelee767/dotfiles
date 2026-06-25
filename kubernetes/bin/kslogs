@@ -19,7 +19,7 @@ EOF
 
 CONTEXT=""
 NAMESPACE=""
-FILTER='grep -iv -E "(healthcheck|health/check)"'
+FILTER='grep --line-buffered -iv -E "(healthcheck|health/check)"'
 
 while [[ $# -gt 0 ]]
 do

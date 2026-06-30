@@ -41,9 +41,9 @@ else
     DIR="$PWD"
 fi
 
-NAME="${DIR/#$HOME/\-}"
+NAME="${DIR/#$HOME/h}"
 # zellij sesion name cannot contain slash
-NAME="$(echo "$NAME" | tr '/' '-')"
+NAME="$(echo "$NAME" | tr '/' '_')"
 NAME="${NAME:$((${#NAME} > 36 ? ${#NAME} - 36 : 0)):36}"
 
 zellij-to-session "$NAME"

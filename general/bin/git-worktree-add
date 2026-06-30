@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# Exit immediately if a command exits with a non-zero status
+set -eou pipefail
+
+# Check if a suffix was provided
+if [ -z "$1" ]; then
+    echo "Error: Please provide a suffix."
+    echo "Usage: git worktree-add <suffix> [branch-or-commit]"
+    exit 1
+fi
+
+SUFFIX=$1
+SHIFTED_ARGS="${@:2}" # Captures any extra arguments like an optional branch name
+
+# Get the name of the main worktree (first entry in git worktree list)
+PROJ_NAME=$(basename "$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')")
+
+# Define the target path
+TARGET_DIR="$HOME/worktrees/$PROJ_NAME-$SUFFIX"
+
+echo "Creating worktree at: $TARGET_DIR"
+
+# Execute the git worktree command, passing along any extra arguments
+git worktree add "$TARGET_DIR" $SHIFTED_ARGS

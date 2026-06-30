@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# Exit immediately if a command exits with a non-zero status
+set -eou pipefail
+
+# Check if a suffix was provided
+if [ -z "$1" ]; then
+    echo "Error: Please provide the suffix of the worktree to remove."
+    echo "Usage: git worktree-remove <suffix>"
+    exit 1
+fi
+
+SUFFIX=$1
+
+# Get the name of the main worktree (first entry in git worktree list)
+PROJ_NAME=$(basename "$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')")
+
+# Define the target path to remove
+TARGET_DIR="$HOME/worktrees/$PROJ_NAME-$SUFFIX"
+
+# Check if the directory actually exists before trying to delete it
+if [ ! -d "$TARGET_DIR" ]; then
+    echo "Error: Worktree directory not found at $TARGET_DIR"
+    exit 1
+fi
+
+echo "Removing worktree at: $TARGET_DIR"
+
+# Safely remove the worktree via Git
+git worktree remove "$TARGET_DIR"

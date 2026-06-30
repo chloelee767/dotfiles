@@ -1,8 +1,9 @@
 [pull]
-	rebase = true
+  rebase = true
 [push]
-	autoSetupRemote = true
+  autoSetupRemote = true
 [alias]
-	uncommit = reset HEAD~
-	unstage = reset HEAD --
-	backup = "!f() { git branch "$(git rev-parse --abbrev-ref HEAD)"-backup; }; f"
+  uncommit = reset HEAD~
+  unstage = reset HEAD --
+  backup = "!f() { git branch "$(git rev-parse --abbrev-ref HEAD)"-backup; }; f"
+  pull-other = "!f() { branch=$1; remote=${2:-origin}; git fetch \"$remote\" \"$branch:$branch\"; }; f"

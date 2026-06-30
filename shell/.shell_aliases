@@ -22,13 +22,15 @@ alias .....="cd ../../../.."
 
 alias abspath="readlink -f"
 
-mkcd () {
+mkcd() {
     mkdir -p "$1"
     cd "$1"
 }
 
 # vim
 alias vim="nvim"
+alias lazyvim="NVIM_APPNAME=lazyvim nvim"
+alias lvim="lazyvim"
 
 # emacs
 alias magit="emacs -nw --eval '(magit-status)'"
@@ -112,6 +114,32 @@ up() {
     else
         echo "Not inside a git repository." >&2
     fi
+}
+
+# cd to a git worktree
+# This needs to be a function, not script, because they need to change the current shell's directory.
+git-worktree-cd() {
+    local target
+    target=$(command _git-worktree-cd-helper "$@")
+    if [ -n "$target" ]; then
+        cd "$target"
+    fi
+}
+
+git-worktree-cdm() {
+    cd "$(dirname "$(git rev-parse --git-common-dir)")"
+}
+
+worktree() {
+    local cmd="$1"
+    shift
+    case "$cmd" in
+    cd) git-worktree-cd "$@" ;;
+    cdm) git-worktree-cdm "$@" ;;
+    add) git-worktree-add "$@" ;;
+    remove) git-worktree-remove "$@" ;;
+    *) git worktree "$cmd" "$@" ;;
+    esac
 }
 
 alias aider-scrape="${HOME}/.local/share/uv/tools/aider-chat/bin/python -m aider.scrape"

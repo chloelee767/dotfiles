@@ -130,6 +130,19 @@ git-worktree-cdm() {
     cd "$(dirname "$(git rev-parse --git-common-dir)")"
 }
 
+# create a git worktree and cd into it
+# This needs to be a function, not a script, because it needs to change the current shell's directory.
+git-worktree-add-cd() {
+    if [ -z "$1" ]; then
+        echo "Error: Please provide a suffix." >&2
+        echo "Usage: worktree add-cd <suffix> [branch-or-commit]" >&2
+        return 1
+    fi
+
+    local target_dir
+    target_dir=$(git-worktree-add --print-path "$@") && cd "$target_dir"
+}
+
 worktree() {
     local cmd="$1"
     shift
@@ -137,6 +150,7 @@ worktree() {
     cd) git-worktree-cd "$@" ;;
     cdm) git-worktree-cdm "$@" ;;
     add) git-worktree-add "$@" ;;
+    add-cd) git-worktree-add-cd "$@" ;;
     remove) git-worktree-remove "$@" ;;
     *) git worktree "$cmd" "$@" ;;
     esac

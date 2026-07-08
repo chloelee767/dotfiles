@@ -3,24 +3,37 @@
 # Exit immediately if a command exits with a non-zero status
 set -eou pipefail
 
-# Check if a suffix was provided
-if [ -z "$1" ]; then
-    echo "Error: Please provide the suffix of the worktree to remove."
-    echo "Usage: git worktree-remove <suffix>"
-    exit 1
+# The main worktree is always the first entry in `git worktree list`.
+MAIN_DIR=$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')
+
+if [ -z "${1:-}" ]; then
+    # No suffix provided: let the user pick from the non-main worktrees via fzf.
+    CANDIDATES=$(git worktree list | awk -v main="$MAIN_DIR" '$1 != main')
+
+    if [ -z "$CANDIDATES" ]; then
+        echo "No worktrees to remove (only the main worktree exists)."
+        exit 0
+    fi
+
+    TARGET_DIR=$(printf '%s\n' "$CANDIDATES" | fzf --height 40% --reverse --header "Select a worktree to remove:" --no-select-1 | awk '{print $1}')
+
+    if [ -z "$TARGET_DIR" ]; then
+        exit 0
+    fi
+else
+    SUFFIX=$1
+    PROJ_NAME=$(basename "$MAIN_DIR")
+    TARGET_DIR="$HOME/worktrees/$PROJ_NAME-$SUFFIX"
+
+    # Check if the directory actually exists before trying to delete it
+    if [ ! -d "$TARGET_DIR" ]; then
+        echo "Error: Worktree directory not found at $TARGET_DIR"
+        exit 1
+    fi
 fi
 
-SUFFIX=$1
-
-# Get the name of the main worktree (first entry in git worktree list)
-PROJ_NAME=$(basename "$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')")
-
-# Define the target path to remove
-TARGET_DIR="$HOME/worktrees/$PROJ_NAME-$SUFFIX"
-
-# Check if the directory actually exists before trying to delete it
-if [ ! -d "$TARGET_DIR" ]; then
-    echo "Error: Worktree directory not found at $TARGET_DIR"
+if [ "$TARGET_DIR" = "$MAIN_DIR" ]; then
+    echo "Error: Refusing to remove the main worktree at $MAIN_DIR" >&2
     exit 1
 fi
 

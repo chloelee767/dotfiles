@@ -362,6 +362,9 @@ relative to the project."
 ;; aider
 (add-to-list 'auto-mode-alist '("\\.aiderignore\\'" . gitignore-mode))
 
+;; (after! markdown-mode
+;;   (setq flycheck-disabled-checkers '(markdown-markdownlint-cli markdown-markdownlint-cli2)))
+
 (map! :after coq-mode
       :map coq-mode-map
       :localleader

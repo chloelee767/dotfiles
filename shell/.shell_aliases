@@ -33,9 +33,12 @@ alias lazyvim="NVIM_APPNAME=lazyvim nvim"
 alias lvim="lazyvim"
 
 # emacs
-alias magit="emacs -nw --eval '(magit-status)'"
-alias mg="emacs -nw --eval '(magit-status)'"
-alias dired="emacs -nw --eval '(dired \".\")'"
+# use emacsclient for faster startup. shared buffer lists across all clients shouldn't
+# be an issue for these use cases
+# --alternate-editor='' starts emacs server automatically if it doesn't already exist
+alias magit="emacsclient -nw --alternate-editor='' --eval '(magit-status)'"
+alias mg=magit
+alias dired="emacsclient -nw --alternate-editor='' --eval '(dired \".\")'"
 
 # git
 alias g="git"

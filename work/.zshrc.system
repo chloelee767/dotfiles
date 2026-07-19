@@ -6,5 +6,8 @@ alias ssh="TERM=vt100 ssh" # ghostty TERM variable is not present on many server
 # Emacs
 [ -n "$EMACS" ] && alias emacs="$EMACS"
 
+# fzf: key bindings (Ctrl-R history, Ctrl-T files, Alt-C cd) + completion
+command -v fzf >/dev/null && source <(fzf --zsh)
+
 eval "$(pyenv init - zsh)"
 eval "$(direnv hook zsh)"

@@ -62,9 +62,7 @@ zstyle ':completion:*' group-name ''
  # ubuntu
 [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] && source /usr/share/doc/fzf/examples/key-bindings.zsh
 [ -f /usr/share/doc/fzf/examples/completion.zsh ] && source /usr/share/doc/fzf/examples/completion.zsh
-# mac
-[ -f /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh ] && source /opt/homebrew/Cellar/fzf/0.47.0/shell/key-bindings.zsh
-[ -f /opt/homebrew/Cellar/fzf/0.47.0/shell/completion.zsh ] && source /opt/homebrew/Cellar/fzf/0.47.0/shell/completion.zsh
+
 
 # Custom backward-kill: stops only at whitespace (bigger chunk)
 function backward-kill-big-word() {
@@ -122,8 +120,6 @@ fi
 if [ "$(command -v starship)" ]; then
     eval "$(starship init zsh)"
 fi
-
-# eval "$(direnv hook zsh)"
 
 # dir for ad-hoc zsh completions (must come before compinit)
 fpath=($HOME/zsh-site-functions $fpath)

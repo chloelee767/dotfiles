@@ -1,17 +1,4 @@
-# homebrew
-# eval "$(/opt/homebrew/bin/brew shellenv)"
-# same as brew shellenv, except we add brew bin directory to the to the back of
-# PATH so that version managers like nvm take precedence
-export BREWDIR="/opt/homebrew"
-export HOMEBREW_PREFIX="/opt/homebrew"
-export HOMEBREW_CELLAR="/opt/homebrew/Cellar"
-export HOMEBREW_REPOSITORY="/opt/homebrew"
-PATH="$PATH:/opt/homebrew/bin"
-# don't use /usr/local/bin/brew
-alias brew="/opt/homebrew/bin/brew"
-[ -z "${MANPATH-}" ] || export MANPATH=":${MANPATH#:}"
-export INFOPATH="/opt/homebrew/share/info:${INFOPATH:-}"
-
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 export EDITOR="$BREWDIR/bin/nvim"
 
@@ -57,10 +44,6 @@ PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"
 
 # Add goland and other jetbrains tools
 PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
-
-# autoenv
-# export AUTOENV_ENABLE_LEAVE=yes
-# source "$BREWDIR/opt/autoenv/activate.sh"
 
 # pnpm
 export PNPM_HOME="$HOME/Library/pnpm"

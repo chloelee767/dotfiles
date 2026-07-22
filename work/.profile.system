@@ -1,14 +1,14 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-export EDITOR="$BREWDIR/bin/nvim"
+export EDITOR="nvim"
 
 # gnu commands
-PATH="$BREWDIR/opt/coreutils/libexec/gnubin:$PATH"
-PATH="$BREWDIR/opt/findutils/libexec/gnubin:$PATH"
-PATH="$BREWDIR/opt/gnu-sed/libexec/gnubin:$PATH"
-PATH="$BREWDIR/opt/gnu-tar/libexec/gnubin:$PATH"
-PATH="$BREWDIR/opt/grep/libexec/gnubin:$PATH"
-PATH="$BREWDIR/opt/make/libexec/gnubin:$PATH"
+PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"
+PATH="$HOMEBREW_PREFIX/opt/findutils/libexec/gnubin:$PATH"
+PATH="$HOMEBREW_PREFIX/opt/gnu-sed/libexec/gnubin:$PATH"
+PATH="$HOMEBREW_PREFIX/opt/gnu-tar/libexec/gnubin:$PATH"
+PATH="$HOMEBREW_PREFIX/opt/grep/libexec/gnubin:$PATH"
+PATH="$HOMEBREW_PREFIX/opt/make/libexec/gnubin:$PATH"
 
 # Emacs
 # https://github.com/jimeh/emacs-builds
@@ -37,7 +37,7 @@ PATH="${PATH}:${HOME}/.istio/istio-1.14.0/bin"
 
 # gcloud
 export USE_GKE_GCLOUD_AUTH_PLUGIN=True
-PATH="$BREWDIR/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin:$PATH"
+PATH="$HOMEBREW_PREFIX/Caskroom/gcloud-cli/latest/google-cloud-sdk/bin:$PATH"
 
 # Add Visual Studio Code (code)
 PATH="$PATH:/Applications/Visual Studio Code.app/Contents/Resources/app/bin"

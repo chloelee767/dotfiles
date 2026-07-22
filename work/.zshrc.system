@@ -9,5 +9,8 @@ alias ssh="TERM=vt100 ssh" # ghostty TERM variable is not present on many server
 # fzf: key bindings (Ctrl-R history, Ctrl-T files, Alt-C cd) + completion
 command -v fzf >/dev/null && source <(fzf --zsh)
 
+# Sandbox Homebrew's temp space to prevent it from changing folders in /tmp to root ownership
+alias brew="mkdir -p /tmp/brew-sandbox && TMPDIR=/tmp/brew-sandbox \brew"
+
 eval "$(pyenv init - zsh)"
 eval "$(direnv hook zsh)"

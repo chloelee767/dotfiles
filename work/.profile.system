@@ -1,6 +1,6 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
-export EDITOR="nvim"
+export EDITOR="nvim-editor"
 
 # gnu commands
 PATH="$HOMEBREW_PREFIX/opt/coreutils/libexec/gnubin:$PATH"

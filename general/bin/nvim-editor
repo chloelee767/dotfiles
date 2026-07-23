@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+# EDITOR wrapper: inside zellij, edit in a floating pane; otherwise run nvim directly.
+# --block-until-exit keeps EDITOR blocking so callers like `git commit` wait for nvim to close.
+if [ -n "$ZELLIJ" ]; then
+  exec zellij run -f --close-on-exit --block-until-exit -- nvim "$@"
+else
+  exec nvim "$@"
+fi

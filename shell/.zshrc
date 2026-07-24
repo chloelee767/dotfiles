@@ -62,6 +62,19 @@ zstyle ':completion:*' group-name ''
  # ubuntu
 [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] && source /usr/share/doc/fzf/examples/key-bindings.zsh
 [ -f /usr/share/doc/fzf/examples/completion.zsh ] && source /usr/share/doc/fzf/examples/completion.zsh
+# fallback (homebrew etc. have no system key-bindings file): load fzf's zsh
+# integration so our CTRL-T override below has something to replace.
+command -v fzf >/dev/null && source <(fzf --zsh)
+
+# Custom fzf file/dir picker (CTRL-T). Functions live in a separate file so
+# fzf's become(...) subshell (a fresh `zsh -c`, no .zshrc) can re-source them;
+# $FZF_FUNCS holds the path. Must run after fzf's own integration loads so our
+# bindkey overrides fzf's built-in CTRL-T widget.
+export FZF_FUNCS=~/.config/zsh/fzf-dir-picker.zsh
+if [ -r "$FZF_FUNCS" ]; then
+  source "$FZF_FUNCS"
+  bindkey '^T' _fzf_ctrl_t_widget
+fi
 
 
 # Custom backward-kill: stops only at whitespace (bigger chunk)

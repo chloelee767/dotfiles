@@ -4,3 +4,4 @@ mkdir -p ~/.config/fsh/
 mkdir -p ~/.config/ranger/
 mkdir -p ~/.config/yazi/
 mkdir -p ~/.config/direnv/
+mkdir -p ~/.config/zsh/

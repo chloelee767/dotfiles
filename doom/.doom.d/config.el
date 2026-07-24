@@ -53,6 +53,11 @@
       :desc "emacs -> clipboard" "c" #'chloe/copy-last-kill-to-clipboard
       :desc "clipboard -> emacs" "e" #'chloe/copy-clipboard-to-kill-ring)
 
+(map! :leader
+      :prefix "w"
+      :desc "Kill other unpinned windows"  "C-o"   #'chloe/kill-other-unpinned-windows
+      :desc "Delete other windows"   "C-S-o" #'delete-other-windows)
+
 (map! :map 'vterm-mode-map
       :g "C-S-v" #'chloe/vterm-yank-clipboard
       (:when (featurep :system 'macos)
@@ -236,7 +241,8 @@ relative to the project."
                ;; file utils
                :desc "Yank file path" "y" #'chloe/yank-buffer-path
                :desc "Yank file path from project" "Y" #'chloe/yank-buffer-path-relative-to-project
-               :desc "Yank filename only" "C-y" #'chloe/yank-buffer-filename-only
+               :desc "Yank filename only" "M-y" #'chloe/yank-buffer-filename-only
+               :desc "Copy region with path" "C-y" #'chloe/copy-region-with-path
                :desc "chmod" "x" #'chloe/chmod-current-file
                :desc "make executable" "X" #'chloe/make-current-file-executable))
 
@@ -302,7 +308,30 @@ relative to the project."
         :prefix "gf" "F" #'magit-blob-visit-file)
   (map! :map magit-blob-mode-map
         :g "RET" #'magit-blob-visit-file
-        :g "<return>" #'magit-blob-visit-file))
+        :g "<return>" #'magit-blob-visit-file)
+
+  ;; In a diff, open the file in another window and KEEP the magit diff visible.
+  ;; RET stays as-is (opens in current window, replacing magit).
+  ;;
+  ;; Notes on the key forms:
+  ;; - `RET' is the ASCII control char C-m; shift cannot attach to it, so
+  ;;   "S-RET" is not a representable event and binding it is a no-op. Only the
+  ;;   function-key form "S-<return>" works, and only in GUI Emacs (a terminal
+  ;;   usually sends the same bytes for Return and Shift-Return).
+  ;; - Meta *can* attach to C-m, so "M-RET" works everywhere and is the
+  ;;   universal fallback.
+  ;; - evil-collection puts magit in `normal' and `motion' states, so bind all
+  ;;   three (n v m) rather than just :nv.
+  (map! :map magit-mode-map
+        :nvm "M-RET" #'magit-diff-visit-file-other-window
+        :nvm "M-<return>" #'magit-diff-visit-file-other-window
+        :nvm "S-<return>" #'magit-diff-visit-file-other-window)
+
+  ;; Jump back to the last magit diff/status buffer without re-running branch
+  ;; selection. Useful after RET replaced the magit window with a file.
+  (map! :leader
+        :prefix "g"
+        :desc "Previous (back to magit buffer)" "p" #'chloe/magit-pop-back))
 (use-package! magit
   :config
   ;; Move stage/unstage file to s/u, I open magit if I need to manage hunks
@@ -362,8 +391,19 @@ relative to the project."
 ;; aider
 (add-to-list 'auto-mode-alist '("\\.aiderignore\\'" . gitignore-mode))
 
-;; (after! markdown-mode
-;;   (setq flycheck-disabled-checkers '(markdown-markdownlint-cli markdown-markdownlint-cli2)))
+;; Setting `flycheck-disabled-checkers' via `after! markdown-mode' doesn't
+;; stick: doom+'s checkers/syntax module does
+;; (setq-default flycheck-disabled-checkers '(org-lint)) inside flycheck's
+;; own `:config' block, which loads lazily (on first real flycheck-mode
+;; activation) -- after this file, clobbering the setting. Use a
+;; flycheck-mode-hook instead, which runs on every activation, after
+;; flycheck's own config has already run.
+(after! markdown-mode
+  (add-hook 'flycheck-mode-hook
+            (defun +markdown-disable-markdownlint-h ()
+              (when (derived-mode-p 'markdown-mode)
+                (setq-local flycheck-disabled-checkers
+                            '(markdown-markdownlint-cli markdown-markdownlint-cli2))))))
 
 (map! :after coq-mode
       :map coq-mode-map

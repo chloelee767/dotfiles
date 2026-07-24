@@ -24,6 +24,16 @@ that it includes the line numbers if a region is active."
     (error "Couldn't get filename of current buffer")))
 
 ;;;###autoload
+(defun chloe/kill-other-unpinned-windows ()
+  "Delete all windows except the current one and any pinned (dedicated) windows.
+Use vanilla `toggle-window-dedicated' to pin/unpin a window."
+  (interactive)
+  (dolist (win (window-list))
+    (unless (or (eq win (selected-window))
+                (window-dedicated-p win))
+      (ignore-errors (delete-window win)))))
+
+;;;###autoload
 (defun chloe/yank-buffer-path (&optional arg)
   "`+default/yank-buffer-path' except that it includes the line numbers if a
 region is active."
@@ -181,3 +191,42 @@ region."
   (interactive)
   (let ((emacs-binary (expand-file-name invocation-name invocation-directory)))
     (start-process "new-emacs" nil emacs-binary)))
+
+(defun chloe--region-or-line-bounds ()
+  "Return (BEG . END) covering the full lines spanned by the active region,
+or the current line if no region is active."
+  (let ((beg (if (doom-region-active-p) (doom-region-beginning) (point)))
+        (end (if (doom-region-active-p) (doom-region-end) (point))))
+    (cons (save-excursion (goto-char beg) (line-beginning-position))
+          (save-excursion (goto-char end) (line-beginning-position 2)))))
+
+;;;###autoload
+(defun chloe/copy-region-with-path ()
+  "Copy the full lines spanned by the current region (or the current line, if
+no region is active) to the kill ring, formatted as the absolute file path
+with line numbers followed by the text in a code fence."
+  (interactive)
+  (if-let* ((path buffer-file-name))
+      (pcase-let* ((`(,beg . ,end) (chloe--region-or-line-bounds))
+                   (start-line (line-number-at-pos beg))
+                   (end-line (line-number-at-pos (- end 1)))
+                   (lines (if (= start-line end-line)
+                              (number-to-string start-line)
+                            (format "%d-%d" start-line end-line)))
+                   (text (buffer-substring-no-properties beg end))
+                   (result (format "%s:%s\n```\n%s```\n" path lines text)))
+        (kill-new result)
+        (message "Copied region with path: %s:%s" path lines))
+    (error "Buffer is not visiting a file")))
+
+;;;###autoload
+(defun chloe/magit-pop-back ()
+  "Re-display the most recent live magit buffer in the current window."
+  (interactive)
+  (let ((buf (seq-find (lambda (b)
+                         (with-current-buffer b
+                           (derived-mode-p 'magit-mode)))
+                       (buffer-list))))
+    (if buf
+        (switch-to-buffer buf)
+      (user-error "No live magit buffer found"))))

@@ -1,2 +1,1 @@
-# default port is 8080, which collides with many dev tools
 port = 49300

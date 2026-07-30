@@ -15,6 +15,7 @@ The script should be run after any files are added/removed to the dotfiles repo.
 git clone git@github.com:chloelee767/dotfiles.git
 cd dotfiles
 git submodule update --init
+just bootstrap-repo # setup gitattributes, hooks etc
 ```
 
 Run `./sync-dir.sh` for the appropriate modules.

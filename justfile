@@ -6,3 +6,7 @@ test:
 
 test-work-python:
     python3 -m unittest discover tests/work/python
+
+bootstrap-repo:
+    git config filter.agentsview-secrets.clean './scripts/strip-agentsview-secrets'
+    git config filter.agentsview-secrets.smudge cat

@@ -20,6 +20,15 @@
 - `stow` ignores `setup.sh` and `README.md`, so those files are not linked into `$HOME`.
 - When you add, remove, or move files inside a module, re-run `./sync-dir.sh` for the affected modules so the symlinks match the repo.
 
+## Driving fzf Widgets Headlessly
+
+- You can use the `headless-terminal` skill (`ht`) to test interactive shell widgets (eg. the CTRL-T picker in `shell/.config/zsh/fzf-dir-picker.zsh`).
+- **Gotcha:** fzf with `--height` below 100% renders a blank, unresponsive screen under `ht`. Partial-height mode draws inline into a scroll region that `ht`'s VT engine does not render -- the process stays alive but never paints or accepts keys.
+  - Repro: `printf 'a\nb\n' | fzf --height 40%` is blank; `--height 100%` works.
+  - Fix: export `FZF_TMUX_HEIGHT=100%` in the `ht` session before triggering the widget. The picker functions already read that var, so no code changes are needed.
+- Waits: `become(...)` re-execs fzf, so use `--wait-text` on the next prompt (eg. `Files>`, `Pick dir`) rather than `--wait-idle`, and allow a generous `--timeout` since the dir picker scans `$HOME`.
+- A `become`-chained picker can orphan itself if its terminal dies -- check for stale `fzf --height` processes (`ps -ax | grep '[f]zf --height'`) if things behave oddly.
+
 ## Tests
 
 - Tests live under top-level `tests/`.

@@ -13,7 +13,7 @@
   ;;       :order 'newest))
   )
 
-;; (defun chloe/forge-new-prs ()
+;; (defun my/forge-new-prs ()
 ;;   (forge-insert-pullreqs
 ;;    (forge--topics-spec :type 'pullreq :active nil :state 'open :status 'inbox :order 'newest)
 ;;    "Open PRs"))

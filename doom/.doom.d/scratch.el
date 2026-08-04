@@ -2,7 +2,7 @@
 
 
 ;; FIXME the variable is being set, but the keyword isn't being highlighted
-(defun chloe/go-add-deprecated-keyword ()
+(defun my/go-add-deprecated-keyword ()
   (make-local-variable 'hl-todo-keyword-faces)
   (if (and hl-todo-mode (eq major-mode #'go-mode))
       (add-to-list 'hl-todo-keyword-faces
@@ -10,11 +10,11 @@
                   t
                   (lambda (a b) (string-equal (car a) (car b))))))
 
-(add-hook 'go-mode-hook #'chloe/go-add-deprecated-keyword)
-(add-hook 'hl-todo-mode-hook #'chloe/go-add-deprecated-keyword)
+(add-hook 'go-mode-hook #'my/go-add-deprecated-keyword)
+(add-hook 'hl-todo-mode-hook #'my/go-add-deprecated-keyword)
 
 
-(defun chloe/vertico-embark-export-write ()
+(defun my/vertico-embark-export-write ()
   "Export the current vertico results to a writable buffer if possible.
 
 Supports exporting consult-grep to wgrep, file to wdeired, and consult-location to occur-edit"
@@ -45,7 +45,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
     (let ((fetcher consult-xref--fetcher)
           (input (minibuffer-contents)))
       (set-buffer
-       (chloe/xref--show-xref-buffer
+       (my/xref--show-xref-buffer
         (lambda ()
           (let ((candidates (funcall fetcher)))
             (if (null (cdr candidates))
@@ -74,7 +74,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
           (auto-jump . ,xref-auto-jump-to-first-xref)
           (display-action)))))))
 
-(defun chloe/xref--show-xref-buffer (fetcher alist)
+(defun my/xref--show-xref-buffer (fetcher alist)
   (cl-assert (functionp fetcher))
   (let* ((xrefs
           (or
@@ -86,21 +86,21 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
     (with-current-buffer (get-buffer-create xref-buffer-name)
       (xref--ensure-default-directory dd (current-buffer))
       (xref--xref-buffer-mode)
-      (chloe/xref--show-common-initialize xref-alist fetcher alist)
+      (my/xref--show-common-initialize xref-alist fetcher alist)
       (setq mode-line-process (list xref-mode-line-matches))
       (pop-to-buffer (current-buffer))
       (setq buf (current-buffer)))
     (xref--auto-jump-first buf (assoc-default 'auto-jump alist))
     buf))
 
-(defun chloe/xref--show-common-initialize (xref-alist fetcher alist)
+(defun my/xref--show-common-initialize (xref-alist fetcher alist)
   (setq buffer-undo-list nil)
   (let ((inhibit-read-only t)
         (buffer-undo-list t)
         (inhibit-modification-hooks t))
     (erase-buffer)
     (setq overlay-arrow-position nil)
-    (chloe/xref--insert-xrefs xref-alist)
+    (my/xref--insert-xrefs xref-alist)
     (add-hook 'post-command-hook #'xref--apply-truncation nil t)
     (goto-char (point-min))
     (setq xref--original-window (assoc-default 'window alist)
@@ -108,7 +108,7 @@ Supports exporting consult-grep to wgrep, file to wdeired, and consult-location 
     (setq xref--fetcher fetcher)))
 
 
-(defun chloe/xref--insert-xrefs (xref-alist)
+(defun my/xref--insert-xrefs (xref-alist)
   "Insert XREF-ALIST in the current buffer.
 XREF-ALIST is of the form ((GROUP . (XREF ...)) ...), where
 GROUP is a string for decoration purposes and XREF is an

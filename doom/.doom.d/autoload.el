@@ -1,6 +1,6 @@
 ;;; ../dotfiles/doom/.doom.d/autoload.el -*- lexical-binding: t; -*-
 
-(defun chloe/get-selected-lines-str ()
+(defun my/get-selected-lines-str ()
   (if (doom-region-active-p)
       (let ((beg (line-number-at-pos (doom-region-beginning)))
             (end (line-number-at-pos (- (doom-region-end) 1))))
@@ -10,7 +10,7 @@
   "Calls fn, a function which yanks the current path to the clipboard, except
 that it includes the line numbers if a region is active."
   (funcall fn)
-  (when-let* ((lines (chloe/get-selected-lines-str))
+  (when-let* ((lines (my/get-selected-lines-str))
               (path (pop kill-ring))
               (final-path (if lines (s-concat path ":" lines) path)))
     (kill-new final-path)
@@ -24,7 +24,7 @@ that it includes the line numbers if a region is active."
     (error "Couldn't get filename of current buffer")))
 
 ;;;###autoload
-(defun chloe/kill-other-unpinned-windows ()
+(defun my/kill-other-unpinned-windows ()
   "Delete all windows except the current one and any pinned (dedicated) windows.
 Use vanilla `toggle-window-dedicated' to pin/unpin a window."
   (interactive)
@@ -34,39 +34,39 @@ Use vanilla `toggle-window-dedicated' to pin/unpin a window."
       (ignore-errors (delete-window win)))))
 
 ;;;###autoload
-(defun chloe/yank-buffer-path (&optional arg)
+(defun my/yank-buffer-path (&optional arg)
   "`+default/yank-buffer-path' except that it includes the line numbers if a
 region is active."
   (interactive "P")
   (chloe--yank-path (lambda () (+default/yank-buffer-path arg))))
 
 ;;;###autoload
-(defun chloe/yank-buffer-path-relative-to-project (&optional arg)
+(defun my/yank-buffer-path-relative-to-project (&optional arg)
   "`+default/yank-buffer-path-relative-to-project' except that it includes the
 line numbers if a region is active."
   (interactive "P")
   (chloe--yank-path (lambda () (+default/yank-buffer-path-relative-to-project arg))))
 
 ;;;###autoload
-(defun chloe/yank-buffer-filename-only ()
+(defun my/yank-buffer-filename-only ()
   "Copy the current buffer's filename to the kill ring. If a region is active,
 the line numbers are included."
   (interactive)
   (chloe--yank-path #'chloe--yank-buffer-filename-only))
 
 ;;;###autoload
-(defun chloe/chmod-current-file ()
+(defun my/chmod-current-file ()
   "Change the file mode bits of the current file, similar to chmod. Interactively prompts for the file modes (eg. \"+x\")."
   (interactive)
   (chmod (buffer-file-name) (read-file-modes nil (buffer-file-name))))
 
 ;;;###autoload
-(defun chloe/make-current-file-executable ()
+(defun my/make-current-file-executable ()
   (interactive)
   (chmod (buffer-file-name) (file-modes-symbolic-to-number "+x" (file-modes (buffer-file-name)))))
 
 ;;;###autoload
-(defun chloe/copy-last-kill-to-clipboard ()
+(defun my/copy-last-kill-to-clipboard ()
   "Copy the last killed text to the system clipboard."
   (interactive)
   (with-temp-buffer
@@ -74,7 +74,7 @@ the line numbers are included."
     (clipboard-kill-region (point-min) (point-max))))
 
 ;;;###autoload
-(defun chloe/copy-clipboard-to-kill-ring ()
+(defun my/copy-clipboard-to-kill-ring ()
   "Copy clipboard contents to emacs kill ring."
   (interactive)
   (with-temp-buffer
@@ -82,36 +82,36 @@ the line numbers are included."
     (kill-region (point-min) (point-max))))
 
 ;;;###autoload
-(defun chloe/vterm-yank-clipboard ()
+(defun my/vterm-yank-clipboard ()
   "Paste clipboard contents into vterm"
   (interactive)
-  (progn (chloe/copy-clipboard-to-kill-ring) (vterm-yank)))
+  (progn (my/copy-clipboard-to-kill-ring) (vterm-yank)))
 
-(defun chloe/thing-at-point-or-region ()
+(defun my/thing-at-point-or-region ()
   "Returns the thing at point or region. Also deselects the region, if any"
   (let ((query (doom-thing-at-point-or-region)))
     (deactivate-mark)
     query))
 
 ;;;###autoload
-(defun chloe/search-symbol-at-point ()
+(defun my/search-symbol-at-point ()
   "Performs a search in the current buffer for thing at point or selected
 region."
   (interactive)
-  (consult-line (chloe/thing-at-point-or-region)))
+  (consult-line (my/thing-at-point-or-region)))
 
 ;;;###autoload
-(defun chloe/project-search-symbol-at-point (&optional arg)
+(defun my/project-search-symbol-at-point (&optional arg)
   (interactive "P")
-  (+vertico/project-search arg (chloe/thing-at-point-or-region)))
+  (+vertico/project-search arg (my/thing-at-point-or-region)))
 
 ;;;###autoload
-(defun chloe/cwd-search-symbol-at-point (&optional arg)
+(defun my/cwd-search-symbol-at-point (&optional arg)
   (interactive "P")
-  (+vertico/project-search-from-cwd arg (chloe/thing-at-point-or-region)))
+  (+vertico/project-search-from-cwd arg (my/thing-at-point-or-region)))
 
 ;;;###autoload
-(defun chloe/go-cleanup-imports ()
+(defun my/go-cleanup-imports ()
   (interactive)
   (save-excursion
     (go-goto-imports)
@@ -125,9 +125,9 @@ region."
 
 ;; FIXME this is broken
 ;;;###autoload
-(defun chloe/string-inflection-yank ()
+(defun my/string-inflection-yank ()
   (interactive)
-  (if-let* ((thing (chloe/thing-at-point-or-region))
+  (if-let* ((thing (my/thing-at-point-or-region))
             (options '(("snake case" . string-inflection-underscore-function)
                        ("kebab case" . string-inflection-kebab-case-function)
                        ("camel case" . string-inflection-camelcase-function)
@@ -201,7 +201,7 @@ or the current line if no region is active."
           (save-excursion (goto-char end) (line-beginning-position 2)))))
 
 ;;;###autoload
-(defun chloe/copy-region-with-path ()
+(defun my/copy-region-with-path ()
   "Copy the full lines spanned by the current region (or the current line, if
 no region is active) to the kill ring, formatted as the absolute file path
 with line numbers followed by the text in a code fence."
@@ -220,7 +220,7 @@ with line numbers followed by the text in a code fence."
     (error "Buffer is not visiting a file")))
 
 ;;;###autoload
-(defun chloe/magit-pop-back ()
+(defun my/magit-pop-back ()
   "Re-display the most recent live magit buffer in the current window."
   (interactive)
   (let ((buf (seq-find (lambda (b)

@@ -50,27 +50,27 @@
         :g "s-n" #'start-new-emacs))
 (map! :leader
       :prefix ("y" . "yank")
-      :desc "emacs -> clipboard" "c" #'chloe/copy-last-kill-to-clipboard
-      :desc "clipboard -> emacs" "e" #'chloe/copy-clipboard-to-kill-ring)
+      :desc "emacs -> clipboard" "c" #'my/copy-last-kill-to-clipboard
+      :desc "clipboard -> emacs" "e" #'my/copy-clipboard-to-kill-ring)
 
 (map! :leader
       :prefix "w"
-      :desc "Kill other unpinned windows"  "C-o"   #'chloe/kill-other-unpinned-windows
+      :desc "Kill other unpinned windows"  "C-o"   #'my/kill-other-unpinned-windows
       :desc "Delete other windows"   "C-S-o" #'delete-other-windows)
 
 (map! :map 'vterm-mode-map
-      :g "C-S-v" #'chloe/vterm-yank-clipboard
+      :g "C-S-v" #'my/vterm-yank-clipboard
       (:when (featurep :system 'macos)
-        :g "s-v" #'chloe/vterm-yank-clipboard))
+        :g "s-v" #'my/vterm-yank-clipboard))
 
 (map! :leader
       (:prefix "s"
-       :desc "Search buffer for thing at point" "S" #'chloe/search-symbol-at-point
+       :desc "Search buffer for thing at point" "S" #'my/search-symbol-at-point
 
         ;; project/directory search symbol at point using <leader>-s-P / <leader>-s-D, similar to <leader>-s-S
-       :desc "Search project for thing at point" "P" #'chloe/project-search-symbol-at-point
+       :desc "Search project for thing at point" "P" #'my/project-search-symbol-at-point
        :desc "Search other project" "C-p" #'+default/search-other-project
-       :desc "Search directory for thing at point" "D" #'chloe/cwd-search-symbol-at-point
+       :desc "Search directory for thing at point" "D" #'my/cwd-search-symbol-at-point
        :desc "Search other directory" "C-d" #'+default/search-other-cwd))
 
 ;; disable tmm=menubar
@@ -102,7 +102,7 @@
 ;; the first time.
 (use-package! consult
   :config
-  (defun chloe/consult-file-buffer-pair (buffer)
+  (defun my/consult-file-buffer-pair (buffer)
     "Custom version of `consult--buffer-pair' that uses the full path of the file
 relative to the project."
     (let ((filename (buffer-file-name buffer))
@@ -115,7 +115,7 @@ relative to the project."
            buffer)
         (consult--buffer-pair buffer))))
 
-  (defvar chloe/consult--source-file-buffer
+  (defvar my/consult--source-file-buffer
     `(:name     "File Buffer"
       :narrow   ?f
       :category buffer
@@ -125,13 +125,13 @@ relative to the project."
       :default  t
       :items
       ,(lambda () (consult--buffer-query :sort 'visibility
-                                    :as #'chloe/consult-file-buffer-pair
+                                    :as #'my/consult-file-buffer-pair
                                     :predicate
                                     (lambda (buf)
                                       (buffer-file-name buf)))))
     "Source for `consult-buffer' consisting of buffers associated with a file")
 
-  (defvar chloe/consult--source-non-file-buffer
+  (defvar my/consult--source-non-file-buffer
     `(:name     "Non-File Buffer"
       :narrow   ?n
       :category buffer
@@ -147,8 +147,8 @@ relative to the project."
     "Source for `consult-buffer' consisting of non-file buffers")
 
   (map! :leader
-        :g "," (cmd! (consult-buffer '(chloe/consult--source-file-buffer)))
-        :g "<" (cmd! (consult-buffer '(chloe/consult--source-file-buffer chloe/consult--source-non-file-buffer)))))
+        :g "," (cmd! (consult-buffer '(my/consult--source-file-buffer)))
+        :g "<" (cmd! (consult-buffer '(my/consult--source-file-buffer my/consult--source-non-file-buffer)))))
 
 ;; in `consult-buffer', don't annotate the file name again next to a file buffer
 (after! marginalia
@@ -216,9 +216,9 @@ relative to the project."
 ;;; Useful files and directories
 ;;; note: a lot of custom functions work under the assumption that directory paths end with /
 
-(setq chloe/documents-directory "~/Documents/"
-      chloe/gosrc-directory "~/go/src/"
-      chloe/carousell-gocode-directory (concat chloe/gosrc-directory "github.com/carousell/"))
+(setq my/documents-directory "~/Documents/"
+      my/gosrc-directory "~/go/src/"
+      my/carousell-gocode-directory (concat my/gosrc-directory "github.com/carousell/"))
 
 ;;
 ;;; Shortcuts and utils
@@ -230,21 +230,21 @@ relative to the project."
                ;; shortcuts to useful folders
                (:prefix ("f" . "favourites")
                 :desc "Home" "h" (cmd! (doom-project-browse "~/"))
-                :desc "Documents" "d" (cmd! (doom-project-browse chloe/documents-directory))
+                :desc "Documents" "d" (cmd! (doom-project-browse my/documents-directory))
                 :desc "Code" "c" (cmd! (doom-project-browse "~/Code/"))
-                :desc "Go (Carousell)" "g" (cmd! (doom-project-browse chloe/carousell-gocode-directory))
-                :desc "Go src" "G" (cmd! (doom-project-browse chloe/gosrc-directory))
+                :desc "Go (Carousell)" "g" (cmd! (doom-project-browse my/carousell-gocode-directory))
+                :desc "Go src" "G" (cmd! (doom-project-browse my/gosrc-directory))
                 :desc "Dotfiles" "t" (cmd! (doom-project-browse "~/dotfiles/"))
                 :desc "Dotfiles (find in project)" "T" (cmd! (doom-project-find-file "~/dotfiles/"))
                 :desc "/" "/" (cmd! (doom-project-browse "/")))
 
                ;; file utils
-               :desc "Yank file path" "y" #'chloe/yank-buffer-path
-               :desc "Yank file path from project" "Y" #'chloe/yank-buffer-path-relative-to-project
-               :desc "Yank filename only" "M-y" #'chloe/yank-buffer-filename-only
-               :desc "Copy region with path" "C-y" #'chloe/copy-region-with-path
-               :desc "chmod" "x" #'chloe/chmod-current-file
-               :desc "make executable" "X" #'chloe/make-current-file-executable))
+               :desc "Yank file path" "y" #'my/yank-buffer-path
+               :desc "Yank file path from project" "Y" #'my/yank-buffer-path-relative-to-project
+               :desc "Yank filename only" "M-y" #'my/yank-buffer-filename-only
+               :desc "Copy region with path" "C-y" #'my/copy-region-with-path
+               :desc "chmod" "x" #'my/chmod-current-file
+               :desc "make executable" "X" #'my/make-current-file-executable))
 
 ;;
 ;;; Programming
@@ -264,7 +264,7 @@ relative to the project."
 
 (which-function-mode 1)
 
-(defun chloe/which-func-current-truncated (len)
+(defun my/which-func-current-truncated (len)
   (s-truncate len
               (string-replace "%" "%%"
                               (or (gethash (selected-window) which-func-table)
@@ -273,7 +273,7 @@ relative to the project."
  which-func-unknown ""
  ;; same as which-func-format, except that the function name is truncated beyond a certain point
  which-func-format `("["
-                     (:propertize (:eval (chloe/which-func-current-truncated 40)) local-map
+                     (:propertize (:eval (my/which-func-current-truncated 40)) local-map
                                   ,which-func-keymap
                                   face which-func
                                   mouse-face mode-line-highlight
@@ -331,7 +331,7 @@ relative to the project."
   ;; selection. Useful after RET replaced the magit window with a file.
   (map! :leader
         :prefix "g"
-        :desc "Previous (back to magit buffer)" "p" #'chloe/magit-pop-back))
+        :desc "Previous (back to magit buffer)" "p" #'my/magit-pop-back))
 (use-package! magit
   :config
   ;; Move stage/unstage file to s/u, I open magit if I need to manage hunks
@@ -358,7 +358,7 @@ relative to the project."
         :prefix "p" "t" #'magit-todos-list))
 
 ;; TODO figure this out
-;; (defun chloe/magit-fetch-and-pull-other-branch (remote branch args)
+;; (defun my/magit-fetch-and-pull-other-branch (remote branch args)
 ;;   (interactive
 ;;    (let ((remote (magit-read-remote-or-url "Fetch from remote or url")))
 ;;      (list remote
@@ -434,7 +434,7 @@ relative to the project."
 
   (map! :map go-mode-map
         :localleader
-        (:prefix "ri" "c" #'chloe/go-cleanup-imports)))
+        (:prefix "ri" "c" #'my/go-cleanup-imports)))
 
 ;; this doesn't seem to be used
 ;; (use-package! lsp-mode

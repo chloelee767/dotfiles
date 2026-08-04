@@ -146,8 +146,21 @@ relative to the project."
                                       (not (buffer-file-name buf))))))
     "Source for `consult-buffer' consisting of non-file buffers")
 
+  (defvar my/consult--source-terminal-buffer
+    `(:name     "Terminal Buffer"
+      :narrow   ?t
+      :category buffer
+      :face     consult-buffer
+      :history  buffer-name-history
+      :state    ,#'consult--buffer-state
+      :items
+      ,(lambda () (consult--buffer-query :sort 'visibility
+                                    :as #'consult--buffer-pair
+                                    :mode 'ghostel-mode)))
+    "Source for `consult-buffer' consisting of terminal buffers")
+
   (map! :leader
-        :g "," (cmd! (consult-buffer '(my/consult--source-file-buffer)))
+        :g "," (cmd! (consult-buffer '(my/consult--source-file-buffer my/consult--source-terminal-buffer)))
         :g "<" (cmd! (consult-buffer '(my/consult--source-file-buffer my/consult--source-non-file-buffer)))))
 
 ;; in `consult-buffer', don't annotate the file name again next to a file buffer

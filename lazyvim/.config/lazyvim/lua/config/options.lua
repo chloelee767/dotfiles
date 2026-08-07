@@ -4,3 +4,7 @@
 
 vim.opt.wrap = true
 vim.opt.linebreak = true
+
+-- LazyVim defaults to unnamedplus, syncing every yank/delete with the system
+-- clipboard.
+vim.opt.clipboard = ""

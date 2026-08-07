@@ -1,0 +1,3 @@
+#/usr/bin/env sh
+
+docker ps | awk 'NR>1 {print $1}' | xargs -n 1 -P 10 docker rm -f

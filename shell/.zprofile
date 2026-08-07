@@ -5,11 +5,6 @@
 # export EDITOR=/usr/bin/nvim
 # export TERMINAL=/usr/bin/kitty # used by i3
 
-# dir for ad-hoc binaries
-# put it first so it can override other installed binaries
-PATH="$HOME/bin/:$PATH"
-PATH="$HOME/.local/bin:$PATH"
-
 # ssh
 # eval `ssh-agent`
 # [ -f ~/.ssh/id_ed25519 ] && ssh-add ~/.ssh/id_ed25519
@@ -37,3 +32,8 @@ PATH="$HOME/.gotools:$PATH"
 # Other modules
 [ -f "$HOME/.profile.system" ] && . "$HOME/.profile.system"
 [ -f "$HOME/.profile.local" ] && . "$HOME/.profile.local"
+
+# dir for ad-hoc binaries
+# put it first so it can override other installed binaries
+PATH="$HOME/bin/:$PATH"
+PATH="$HOME/.local/bin:$PATH"

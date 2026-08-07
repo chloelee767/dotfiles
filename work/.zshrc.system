@@ -11,5 +11,4 @@ alias brew="mkdir -p /tmp/brew-sandbox && TMPDIR=/tmp/brew-sandbox \brew"
 
 alias markdown-editor="/Applications/Markdown\ Editor.app/Contents/MacOS/markdown-editor-cli"
 
-eval "$(pyenv init - zsh)"
 eval "$(direnv hook zsh)"

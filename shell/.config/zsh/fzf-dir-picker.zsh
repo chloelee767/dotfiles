@@ -64,7 +64,11 @@ _fzf_file_from_dir() {
   # command inside a single-quoted echo, and a single-quoted awk program would
   # collide with those. \$0 keeps $0 for awk (not the shell); FZF_LAST_DIR comes
   # from ENVIRON so no -v (which would mangle backslashes in the path).
-  local fd_flags="--type f --type d --exclude .git"
+  # --type l lists symlinks (neither f nor d to fd, so a dir of only symlinks --
+  # e.g. ~/templates -- would otherwise come up empty); --follow recurses into
+  # symlinked dirs and renders them with a trailing "/" like real ones. Keeping
+  # both means broken links still show rather than being silently dropped.
+  local fd_flags="--type f --type d --type l --follow --exclude .git"
   local awk_prog='awk "{print ENVIRON[\"FZF_LAST_DIR\"]\"/\"\$0\"\t\"\$0}"'
   local list_cmd="cd \"\$FZF_LAST_DIR\" && fd $fd_flags . | $awk_prog"
   # --hidden reveals dotfiles; --no-ignore reveals .gitignore'd files
@@ -194,7 +198,10 @@ _fzf_dir_candidates() {
         resolved="${split##*$'\t'}"
         # Re-apply the typed prefix to each child's basename, so the query stays
         # a literal prefix of the candidate (see _fzf_dir_prefix_split).
-        fd --type d --max-depth 1 ${=hidden_flag} . "$resolved" 2>/dev/null \
+        # --follow makes fd classify a symlink-to-dir as a dir, so symlinked
+        # dirs are offered as destinations. --max-depth 1 caps the walk, so
+        # there is no recursion (and no cycle risk) regardless.
+        fd --type d --follow --max-depth 1 ${=hidden_flag} . "$resolved" 2>/dev/null \
           | while IFS= read -r p; do print -r -- "${typed}${p:t}"; done
       fi
     fi

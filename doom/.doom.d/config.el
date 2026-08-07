@@ -214,6 +214,59 @@ relative to the project."
 (setq size-indication-mode nil)
 (remove-hook 'doom-modeline-mode-hook #'size-indication-mode)
 
+;; minimal modeline for ghostel buffers: just the buffer name and input mode
+(after! doom-modeline
+  (defvar my/ghostel-input-mode-labels
+    '((semi-char . "semi-char")
+      (char      . "char")
+      (line      . "line")
+      (copy      . "copy")
+      (emacs     . "emacs"))
+    "Labels for each `ghostel--input-mode' value shown in the modeline.")
+
+  (doom-modeline-def-segment my/ghostel-buffer-name
+    (propertize (format " %s" (buffer-name))
+                'face (doom-modeline-face 'doom-modeline-buffer-file)))
+
+  (doom-modeline-def-segment my/ghostel-input-mode
+    (when-let* ((label (alist-get (buffer-local-value 'ghostel--input-mode
+                                                      (current-buffer))
+                                  my/ghostel-input-mode-labels)))
+      (propertize (format " %s " label)
+                  'face (doom-modeline-face 'doom-modeline-info))))
+
+  (doom-modeline-def-modeline 'my/ghostel
+    '(my/ghostel-buffer-name)
+    '(my/ghostel-input-mode))
+
+  ;; The `:term ghostel' module deliberately hides the modeline in ghostel
+  ;; buffers via `mode-line-invisible-mode', which sets `mode-line-format' to
+  ;; nil. It is appended to `ghostel-mode-hook' after this one, so unless it is
+  ;; removed it clobbers the modeline set below.
+  (remove-hook 'ghostel-mode-hook #'mode-line-invisible-mode)
+
+  ;; Appended so it runs after any other `ghostel-mode-hook' entry that touches
+  ;; `mode-line-format'.
+  (add-hook 'ghostel-mode-hook
+            (defun my/ghostel-set-modeline ()
+              (when (bound-and-true-p mode-line-invisible-mode)
+                (mode-line-invisible-mode -1))
+              (doom-modeline-set-modeline 'my/ghostel))
+            'append))
+
+;; which-key popup for the current ghostel input mode's keymap.
+;; `which-key-show-major-mode' only reads `ghostel-mode-map', which misses the
+;; per-input-mode maps -- and in char mode the C-c prefix is sent to the
+;; terminal, so the usual "press C-c and wait" trick can't show them either.
+(defvar my/ghostel-input-mode-keymaps
+  '((semi-char . ghostel-semi-char-mode-map)
+    (char      . ghostel-char-mode-map)
+    (line      . ghostel-line-mode-map)
+    (copy      . ghostel-readonly-mode-map)
+    (emacs     . ghostel-readonly-mode-map))
+  "Keymap for each `ghostel--input-mode' value.
+Copy and Emacs mode share `ghostel-readonly-mode-map'.")
+
 ;; spelling
 (after! spell-fu
   (setq spell-fu-word-delimit-camel-case t))

@@ -155,3 +155,10 @@ Run work Python tests only:
 ```sh
 just test-work-python
 ```
+
+### AI
+
+headless-terminal:
+
+- npx skills add montanaflynn/headless-terminal --skill headless-terminal
+- <https://github.com/montanaflynn/headless-terminal>

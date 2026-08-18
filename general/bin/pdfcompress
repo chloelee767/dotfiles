@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+set -eou pipefail
+
+show_help() {
+    cat << 'EOF'
+Usage: pdfcompress -i <input.pdf> -o <output.pdf> [-q <quality>]
+
+Shrink a PDF's file size using Ghostscript's pdfwrite device.
+
+Options:
+  -i FILE     Input PDF (required)
+  -o FILE     Output PDF (required)
+  -q QUALITY  Ghostscript -dPDFSETTINGS preset: screen, ebook, printer, prepress,
+              or "default" (alias for ebook). Defaults to ebook.
+  -h          Show this help
+
+Examples:
+  pdfcompress -i input.pdf -o output.pdf
+  pdfcompress -i input.pdf -o output.pdf -q default
+EOF
+}
+
+INPUT=""
+OUTPUT=""
+QUALITY="ebook"
+
+while getopts "i:o:q:h" opt; do
+    case "$opt" in
+        i) INPUT="$OPTARG" ;;
+        o) OUTPUT="$OPTARG" ;;
+        q) QUALITY="$OPTARG" ;;
+        h) show_help; exit 0 ;;
+        *) show_help; exit 1 ;;
+    esac
+done
+
+if [ "$QUALITY" = "default" ]; then
+    QUALITY="ebook"
+fi
+
+if [ -z "$INPUT" ] || [ -z "$OUTPUT" ]; then
+    echo "Error: -i and -o are required." >&2
+    show_help
+    exit 1
+fi
+
+# `gs` is aliased (eg. to `git status`), so look up the actual executable on
+# PATH rather than hardcoding its location.
+GS_BIN=$(type -ap gs | head -n1)
+if [ -z "$GS_BIN" ]; then
+    echo "Error: no 'gs' executable found on PATH." >&2
+    exit 1
+fi
+
+"$GS_BIN" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS="/$QUALITY" \
+    -dNOPAUSE -dQUIET -dBATCH -sOutputFile="$OUTPUT" "$INPUT"

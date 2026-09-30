@@ -84,8 +84,11 @@ type Config struct {
 	Interval time.Duration
 	Timeout  time.Duration
 	FailFast bool
-	Out      io.Writer
-	Err      io.Writer
+	// HideSkipped omits skipped jobs from the transition log; the verdict
+	// still counts them.
+	HideSkipped bool
+	Out         io.Writer
+	Err         io.Writer
 	// Now and Sleep default to the real clock; tests replace them.
 	Now   func() time.Time
 	Sleep func(time.Duration)
@@ -164,6 +167,9 @@ func (w *watcher) printTransitions(runs []Run, polledAt time.Time) {
 				continue
 			}
 			state := job.State()
+			if w.cfg.HideSkipped && state == "skipped" {
+				continue
+			}
 			if w.seenJobs[job.ID] == state {
 				continue
 			}

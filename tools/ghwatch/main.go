@@ -36,6 +36,7 @@ Target (at most one; default: the current git branch):
 Filters (regex on job name; scope both output and verdict):
   --job <regex>       include matching jobs; repeatable, OR'd
   --exclude <regex>   drop matching jobs; repeatable
+  --hide-skipped      don't print skipped jobs (still counted in the verdict)
 
 Timing:
   --interval <dur>    poll interval (default 15s)
@@ -61,7 +62,7 @@ func run() int {
 		runRef, branch, sha, prRef, repo string
 		workflows, jobs, excludes        stringsFlag
 		interval, timeout                time.Duration
-		noFailFast                       bool
+		noFailFast, hideSkipped          bool
 	)
 	fs.StringVar(&runRef, "run", "", "")
 	fs.StringVar(&branch, "branch", "", "")
@@ -74,6 +75,7 @@ func run() int {
 	fs.DurationVar(&interval, "interval", 15*time.Second, "")
 	fs.DurationVar(&timeout, "timeout", 30*time.Minute, "")
 	fs.BoolVar(&noFailFast, "no-fail-fast", false, "")
+	fs.BoolVar(&hideSkipped, "hide-skipped", false, "")
 	if err := fs.Parse(os.Args[1:]); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
 			return watch.ExitSuccess
@@ -183,14 +185,15 @@ func run() int {
 	}
 
 	return watch.Watch(ctx, watch.Config{
-		Source:   src,
-		Repo:     repo,
-		Filter:   filter,
-		Interval: interval,
-		Timeout:  timeout,
-		FailFast: !noFailFast,
-		Out:      os.Stdout,
-		Err:      os.Stderr,
+		Source:      src,
+		Repo:        repo,
+		Filter:      filter,
+		Interval:    interval,
+		Timeout:     timeout,
+		FailFast:    !noFailFast,
+		HideSkipped: hideSkipped,
+		Out:         os.Stdout,
+		Err:         os.Stderr,
 	})
 }
 

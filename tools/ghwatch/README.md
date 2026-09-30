@@ -41,6 +41,7 @@ Behaviour worth knowing:
 - **It stops when every run completes**, not when every *visible* job is done. Matrix jobs may not exist yet early in a run.
 - **Fail fast by default**: it exits as soon as a matched job fails. `--no-fail-fast` waits for the rest.
 - `--job` / `--exclude` scope both the output and the verdict.
+- `--hide-skipped` drops skipped jobs from the log, which is useful for workflows with many conditional jobs. The verdict still counts them.
 
 Exit codes: `0` success, `1` failed / cancelled / no jobs ran, `2` timed out, `3` usage or lookup error.
 

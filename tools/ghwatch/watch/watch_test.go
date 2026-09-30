@@ -381,3 +381,33 @@ func TestWatch_FetchErrorIsRetried(t *testing.T) {
 SUCCESS -- 1 job(s) passed
 `)
 }
+
+func TestWatch_HideSkippedOmitsSkippedLinesButKeepsThemInVerdict(t *testing.T) {
+	src := &scriptedSource{snapshots: [][]Run{
+		{{ID: 1, Workflow: "CI", Status: "completed", Conclusion: "success", URL: "u1", Jobs: []Job{
+			{ID: 10, Name: "build", Status: "completed", Conclusion: "success"},
+			{ID: 11, Name: "deploy", Status: "completed", Conclusion: "skipped"},
+		}}},
+	}}
+	var out bytes.Buffer
+	clock := &fakeClock{t: time.Unix(0, 0)}
+
+	code := Watch(context.Background(), Config{
+		Source:      src,
+		Repo:        "o/r",
+		Interval:    20 * time.Second,
+		Timeout:     time.Hour,
+		HideSkipped: true,
+		Out:         &out,
+		Err:         &bytes.Buffer{},
+		Now:         clock.Now,
+		Sleep:       clock.Sleep,
+	})
+
+	assertCode(t, code, ExitSuccess)
+	assertOutput(t, out.String(), `run 1  CI  u1
+  0:00  success      build
+---
+SUCCESS -- 1 job(s) passed, 1 skipped
+`)
+}

@@ -137,6 +137,15 @@ Setup:
 
 - WSL (ubuntu)
 
+## Tools
+
+The `tools/` folder contains various small tools.
+
+**ghwatch**
+- CLI tool for watching Github Action CI runs. Designed to be less noisy than the defaut `gh run watch`.
+- Read `tools/ghwatch/README.md` for more details
+- Install: `cd tools/ghwatch && go install .`
+
 ## Development
 
 ### Tests

@@ -146,6 +146,11 @@ The `tools/` folder contains various small tools.
 - Read `tools/ghwatch/README.md` for more details
 - Install: `cd tools/ghwatch && go install .`
 
+**wtprune**
+- Interactive TUI for pruning old git worktrees of one repo or a folder (eg. `~/worktrees`), optionally deleting branches that would lose nothing (merged, contained elsewhere, just a pointer at a remote, or squash-merged). At-risk worktrees go to the Trash with a copy of their git state, and every action is logged for recovery.
+- Read `tools/wtprune/README.md` for more details
+- Install: `cd tools/wtprune && go install .`
+
 ## Development
 
 ### Tests

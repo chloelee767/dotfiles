@@ -42,7 +42,7 @@ Exit codes: `0` ok (incl. quitting without changes), `1` some actions failed or 
 | Key | Action |
 |---|---|
 | `up`/`down`, `j`/`k`, `pgup`/`pgdn`, `g`/`G` | move |
-| `space` | toggle the row |
+| `space` | toggle the row and move to the next one |
 | `a` | select all shown rows (incl. AT RISK -- they still need a typed `yes`) |
 | `n` | select none, and clear every branch flag (all rows, also those hidden by the filter) |
 | `c` | select only the SAFE rows shown |

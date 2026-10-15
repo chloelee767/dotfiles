@@ -30,6 +30,7 @@ var (
 	space     = tea.KeyMsg{Type: tea.KeySpace, Runes: []rune{' '}}
 	enter     = tea.KeyMsg{Type: tea.KeyEnter}
 	esc       = tea.KeyMsg{Type: tea.KeyEsc}
+	up        = tea.KeyMsg{Type: tea.KeyUp}
 	down      = tea.KeyMsg{Type: tea.KeyDown}
 	backspace = tea.KeyMsg{Type: tea.KeyBackspace}
 	ctrlC     = tea.KeyMsg{Type: tea.KeyCtrlC}
@@ -59,17 +60,29 @@ func assertIDs(t *testing.T, what string, got, want []string) {
 	}
 }
 
-func TestSpaceTogglesCursorRow(t *testing.T) {
+func TestSpaceTogglesCursorRowAndMovesDown(t *testing.T) {
 	m := tui.New(tui.Config{Rows: []*scan.Worktree{wt("a"), wt("b")}})
 
 	send(m, space)
 	assertIDs(t, "after space", m.Selection().Worktrees, []string{"/wt/a"})
 
-	send(m, down, space)
-	assertIDs(t, "after down space", m.Selection().Worktrees, []string{"/wt/a", "/wt/b"})
+	send(m, space)
+	assertIDs(t, "after second space", m.Selection().Worktrees, []string{"/wt/a", "/wt/b"})
 
 	send(m, space)
-	assertIDs(t, "after space again", m.Selection().Worktrees, []string{"/wt/a"})
+	assertIDs(t, "after space on last row", m.Selection().Worktrees, []string{"/wt/a"})
+
+	send(m, up, space)
+	assertIDs(t, "after up space", m.Selection().Worktrees, nil)
+}
+
+func TestSpaceMovesDownPastBlockedRow(t *testing.T) {
+	locked := wt("locked")
+	locked.State = scan.StateLocked
+	m := tui.New(tui.Config{Rows: []*scan.Worktree{locked, wt("ok")}})
+
+	send(m, space, space)
+	assertIDs(t, "after space twice", m.Selection().Worktrees, []string{"/wt/ok"})
 }
 
 func TestBlockedRowsCannotBeSelected(t *testing.T) {
@@ -282,13 +295,13 @@ func TestBulkBranchesSkipPushedTier(t *testing.T) {
 	unselected.Branch = scan.Branch{Name: "unselected", Tier: scan.TierMerged, ContainedIn: "main"}
 	m := tui.New(tui.Config{Rows: []*scan.Worktree{merged, pointer, pushed, unselected}})
 
-	send(m, space, down, space, down, space, key("B"))
+	send(m, space, space, space, key("B"))
 	assertIDs(t, "branches after B", m.Selection().Branches, []string{"/wt/merged", "/wt/pointer"})
 
 	send(m, key("B"))
 	assertIDs(t, "branches after B again", m.Selection().Branches, nil)
 
-	send(m, key("b"))
+	send(m, up, key("b"))
 	assertIDs(t, "branches after b on pushed", m.Selection().Branches, []string{"/wt/pushed"})
 }
 

@@ -168,6 +168,7 @@ func (m *Model) listKey(msg tea.KeyMsg) tea.Cmd {
 		m.cursor = len(m.visible) - 1
 	case " ":
 		m.toggleRow()
+		m.cursor++
 	case "a":
 		for _, w := range m.visibleRows() {
 			if w.Selectable() {

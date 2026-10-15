@@ -105,7 +105,7 @@ func TestListPageKeysMoveTheCursor(t *testing.T) {
 		t.Fatalf("selection after pgdown = %v, want one row past the first page", sel)
 	}
 
-	send(m, pgUp, space)
+	send(m, up, pgUp, space)
 	assertIDs(t, "selection after pgup", m.Selection().Worktrees, []string{"/wt/r00", sel[0]})
 }
 

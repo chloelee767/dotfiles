@@ -588,7 +588,7 @@ func (m *Model) helpLines() []string {
 	lines := []string{
 		h("keys"),
 		"   up/down, j/k  move     pgup/pgdn  page     g/G  top/bottom",
-		"   space  toggle the row          a  select all shown (incl. AT RISK)",
+		"   space  toggle the row, move down   a  select all shown (incl. AT RISK)",
 		"   n      select none (all rows, also those hidden by the filter)",
 		"   c      select only the SAFE rows shown",
 		"   b      toggle deleting the row's branch, any tier (also selects the row)",

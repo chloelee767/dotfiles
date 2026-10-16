@@ -30,6 +30,7 @@
 # Keys:
 #   file picker:  ctrl+t     switch to the directory picker
 #                 alt+h      toggle showing hidden + gitignored files
+#                 alt+/      toggle dirs only (sticks across ctrl+t jumps)
 #   dir picker:   ctrl+t     back to the file picker (in the last dir)
 #                 tab        drill into the highlighted dir (replaces the query;
 #                            type "/" after to actually descend, see below)
@@ -37,9 +38,12 @@
 #                 alt+enter  accept the typed path verbatim (e.g. "../")
 
 # File picker for $1 (a directory). Lists files + dirs, excluding .git.
-# alt+h toggles hidden + gitignored via a per-invocation state file + reload.
-# ctrl+t jumps to the dir picker, remembering this dir so the dir picker's
-# ctrl+t can come back here.
+# alt+h toggles hidden + gitignored and alt+/ toggles dirs-only, each via a
+# state file + reload. ctrl+t jumps to the dir picker, remembering this dir so
+# the dir picker's ctrl+t can come back here.
+#
+# The hidden state is per-invocation (resets after a ctrl+t jump); the dirs-only
+# state lives in a file the widget owns, so it survives the whole become chain.
 _fzf_file_from_dir() {
   local dir="${1:A}"                    # absolute (resolve ~, .., symlinks)
   export FZF_LAST_DIR="$dir"            # so the dir picker's ctrl+t can return here
@@ -48,61 +52,70 @@ _fzf_file_from_dir() {
   print -r -- 0 > "$statefile"          # 0 = default, 1 = show hidden + gitignored
   export FZF_FILE_STATE="$statefile"
 
-  # Paths shown relative to $dir (short list, even deep in the tree). Run fd from
-  # $dir so it emits relative paths, then awk builds "ABS<tab>REL" per line
-  # (prefixing $dir, read from ENVIRON so backslashes/spaces survive). fzf shows
-  # the REL field and, on accept, outputs ABS when we've switched away from the
-  # original dir (valid from the shell cwd) or REL when we're still in it.
-  #
-  # We deliberately avoid fd's --format {} placeholder: fzf treats {} in a
-  # reload() command template as ITS OWN placeholder (the selected items), so
-  # the two collide. Building the fields in awk keeps {} out of the command
-  # entirely, so the same command works verbatim for the initial list and the
-  # reload -- no fzf escaping needed.
-  #
-  # The awk program uses DOUBLE quotes (not single): the alt-h reload embeds this
-  # command inside a single-quoted echo, and a single-quoted awk program would
-  # collide with those. \$0 keeps $0 for awk (not the shell); FZF_LAST_DIR comes
-  # from ENVIRON so no -v (which would mangle backslashes in the path).
-  # --type l lists symlinks (neither f nor d to fd, so a dir of only symlinks --
-  # e.g. ~/templates -- would otherwise come up empty); --follow recurses into
-  # symlinked dirs and renders them with a trailing "/" like real ones. Keeping
-  # both means broken links still show rather than being silently dropped.
-  local fd_flags="--type f --type d --type l --follow --exclude .git"
-  local awk_prog='awk "{print ENVIRON[\"FZF_LAST_DIR\"]\"/\"\$0\"\t\"\$0}"'
-  local list_cmd="cd \"\$FZF_LAST_DIR\" && fd $fd_flags . | $awk_prog"
-  # --hidden reveals dotfiles; --no-ignore reveals .gitignore'd files
-  local list_cmd_hidden="cd \"\$FZF_LAST_DIR\" && fd $fd_flags --hidden --no-ignore . | $awk_prog"
-
   # Original dir (where ctrl+t launched)? Then insert relative + hide dir name.
-  local accept_nth header prompt_label
+  local accept_nth header
+  local keys="ctrl+t: switch dir | alt+h: toggle hidden | alt+/: toggle dirs only"
   if [ "$dir" = "${FZF_ORIG_DIR:A}" ]; then
     accept_nth=2                        # output REL field
-    header="ctrl+t: switch dir | alt+h: toggle hidden"
-    prompt_label="Files"
+    header="$keys"
+    export FZF_FILE_PROMPT_LABEL="Files"
   else
     accept_nth=1                        # output ABS field
-    header="${dir}"$'\n'"ctrl+t: switch dir | alt+h: toggle hidden"
-    prompt_label="Files in ${dir:t}"
+    header="${dir}"$'\n'"$keys"
+    export FZF_FILE_PROMPT_LABEL="Files in ${dir:t}"
   fi
 
-  FZF_DEFAULT_COMMAND="$list_cmd" \
+  # The toggles end in change-prompt:... (colon form, must be last) rather than
+  # change-prompt(...), so a ")" in a dir name can't cut the prompt short.
+  FZF_DEFAULT_COMMAND="source \$FZF_FUNCS && _fzf_file_candidates" \
     fzf --multi --scheme=path --delimiter='\t' --with-nth=2 --accept-nth="$accept_nth" \
         --height "${FZF_TMUX_HEIGHT:-40%}" --min-height "20+" --layout=reverse \
-        --prompt="${prompt_label}> " \
+        --prompt="$(_fzf_file_prompt)" \
         --header="$header" \
         --bind "ctrl-t:become(source \$FZF_FUNCS && _fzf_dir_switch)" \
-        --bind "alt-h:transform:
-          if [ \"\$(cat \$FZF_FILE_STATE)\" = 1 ]; then
-            echo 0 > \$FZF_FILE_STATE
-            echo 'change-prompt(${prompt_label}> )+reload($list_cmd)'
-          else
-            echo 1 > \$FZF_FILE_STATE
-            echo 'change-prompt(${prompt_label} [+hidden]> )+reload($list_cmd_hidden)'
-          fi
-        "
+        --bind "alt-h:transform:source \$FZF_FUNCS && _fzf_file_toggle \"\$FZF_FILE_STATE\"" \
+        --bind "alt-/:transform:source \$FZF_FUNCS && _fzf_file_toggle \"\$FZF_DIRS_ONLY_STATE\""
 
   rm -f "$statefile"; unset FZF_FILE_STATE
+}
+
+_fzf_state_on() { [ -r "$1" ] && [ "$(cat "$1")" = 1 ]; }
+
+# Candidate list for the file picker: "ABS<tab>REL" per line, honouring both
+# toggles. Runs fd from $FZF_LAST_DIR so it emits relative paths; fzf shows REL
+# and, on accept, outputs ABS when we've switched away from the original dir
+# (valid from the shell cwd) or REL when we're still in it.
+#
+# --type l lists symlinks (neither f nor d to fd, so a dir of only symlinks --
+# e.g. ~/templates -- would otherwise come up empty); --follow recurses into
+# symlinked dirs and renders them with a trailing "/" like real ones. Keeping
+# both means broken links still show rather than being silently dropped. In
+# dirs-only mode --follow alone is enough: it classifies a symlink-to-dir as d.
+_fzf_file_candidates() {
+  local -a flags=(--follow --exclude .git)
+  if _fzf_state_on "$FZF_DIRS_ONLY_STATE"; then
+    flags+=(--type d)
+  else
+    flags+=(--type f --type d --type l)
+  fi
+  # --hidden reveals dotfiles; --no-ignore reveals .gitignore'd files
+  _fzf_state_on "$FZF_FILE_STATE" && flags+=(--hidden --no-ignore)
+
+  cd "$FZF_LAST_DIR" && fd "${flags[@]}" . \
+    | awk '{print ENVIRON["FZF_LAST_DIR"] "/" $0 "\t" $0}'
+}
+
+_fzf_file_prompt() {
+  local prompt="$FZF_FILE_PROMPT_LABEL"
+  _fzf_state_on "$FZF_DIRS_ONLY_STATE" && prompt+=" [dirs]"
+  _fzf_state_on "$FZF_FILE_STATE" && prompt+=" [+hidden]"
+  print -r -- "${prompt}> "
+}
+
+# Flip a 0/1 state file and print the fzf actions to apply it (transform target).
+_fzf_file_toggle() {
+  if _fzf_state_on "$1"; then print -r -- 0 >| "$1"; else print -r -- 1 >| "$1"; fi
+  print -r -- "reload(source \$FZF_FUNCS && _fzf_file_candidates)+change-prompt:$(_fzf_file_prompt)"
 }
 
 # Resolve a dir string (expand ~, make absolute) and, if it's a real dir,
@@ -258,7 +271,7 @@ _fzf_dir_switch() {
   # $TMPDIR, which the OS reaps, so this is an accepted tradeoff rather than a
   # real leak; restructuring every become target to also rm this file was
   # judged not worth the added coupling. Same shape as the file picker's
-  # $FZF_FILE_STATE cleanup below, which has the identical limitation on its
+  # $FZF_FILE_STATE cleanup above, which has the identical limitation on its
   # one become bind (ctrl-t).
   rm -f "$statefile"; unset FZF_DIR_STATE
 }
@@ -276,11 +289,17 @@ _fzf_ctrl_t_widget() {
   # inserts absolute paths. Survives the whole become chain (exported).
   export FZF_ORIG_DIR="${PWD:A}"
 
+  # Dirs-only toggle state, owned here (not per picker) so it persists across
+  # the become chain. Cleanup works because $(...) below waits for the chain.
+  export FZF_DIRS_ONLY_STATE; FZF_DIRS_ONLY_STATE=$(mktemp)
+  print -r -- 0 > "$FZF_DIRS_ONLY_STATE"
+
   # $(...) is a subshell that inherits this shell's functions, so no re-source
   # needed here (unlike the become subshells). fzf needs the real terminal.
   local selection item
   selection=$(_fzf_file_from_dir "$PWD" < /dev/tty)
-  unset FZF_ORIG_DIR
+  rm -f "$FZF_DIRS_ONLY_STATE"
+  unset FZF_ORIG_DIR FZF_DIRS_ONLY_STATE
 
   # Insert each selected item, shell-quoted and space-separated, at the cursor.
   local out=""

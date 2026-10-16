@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 // ProcessLister returns every process with a known cwd.
@@ -17,6 +18,9 @@ type ProcessLister func(ctx context.Context) ([]Process, error)
 func ListProcesses(ctx context.Context) ([]Process, error) {
 	var stdout, stderr bytes.Buffer
 	cmd := exec.CommandContext(ctx, "lsof", "-d", "cwd", "-Fpcn")
+	// Like git: a terminal Ctrl-C must not kill the listing of an in-flight
+	// Execute re-scan, which would silently skip its in-use check.
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()

@@ -33,6 +33,9 @@ type Repo struct {
 	// defaultBranches are full refs: each refs/remotes/*/HEAD target, then
 	// the local protected branches that exist (main, master, ...).
 	defaultBranches []string
+	refsAt          func() (map[string][]string, error) // commit -> refs pointing at it; see lazyRefsAt
+	reftable        bool                                // refs and reflogs are not plain files
+	headCommits     map[string]Commit                   // the worktrees' HEAD commits, by sha, as of the scan
 }
 
 // Change is one tracked/untracked/conflicted status entry.

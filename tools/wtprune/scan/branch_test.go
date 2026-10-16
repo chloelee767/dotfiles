@@ -392,3 +392,57 @@ func TestBranch_SquashMergedYAMLStillDetected(t *testing.T) {
 		t.Errorf("branch = %+v, want squash-merged", b)
 	}
 }
+
+// reviewBranch makes review-818, a pointer to someone else's origin/feat-x,
+// as in TestBranch_PointerToRemoteBranch, and returns its tip.
+func reviewBranch(t *testing.T) (repo, tip string) {
+	t.Helper()
+	root, repo := newRepo(t)
+	addOrigin(t, root, repo)
+	run(t, repo, "git", "switch", "-q", "-c", "feat-x")
+	run(t, repo, "git", "commit", "-q", "--allow-empty", "-m", "someone's PR")
+	run(t, repo, "git", "push", "-q", "origin", "feat-x")
+	run(t, repo, "git", "switch", "-q", "main")
+	run(t, repo, "git", "branch", "-q", "-D", "feat-x")
+	run(t, repo, "git", "worktree", "add", "-q", filepath.Join(root, "review"), "-b", "review-818", "origin/feat-x")
+	return repo, run(t, repo, "git", "rev-parse", "review-818")
+}
+
+func appendFile(t *testing.T, path, content string) {
+	t.Helper()
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+	if _, err := f.WriteString(content); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// git ends the identity at its '>', so a tab in the name is not where the
+// message starts.
+func TestBranch_ReflogNameWithTabStillParsesMessage(t *testing.T) {
+	repo, tip := reviewBranch(t)
+	appendFile(t, filepath.Join(repo, ".git", "logs", "refs", "heads", "review-818"),
+		tip+" "+tip+" Ta\tb <t@example.com> 1700000000 +0000\tcommit: own work\n")
+
+	b := row(t, scanRepo(t, repo), "review").Branch
+
+	if b.Tier != scan.TierPushed {
+		t.Errorf("branch = %+v, want pushed: the reflog shows a commit made here", b)
+	}
+}
+
+// git ignores a last reflog line without its newline (eg. mid-write).
+func TestBranch_UnterminatedReflogLineIsIgnored(t *testing.T) {
+	repo, tip := reviewBranch(t)
+	appendFile(t, filepath.Join(repo, ".git", "logs", "refs", "heads", "review-818"),
+		tip+" "+tip+" T <t@example.com> 1700000000 +0000\tcommit: half written")
+
+	b := row(t, scanRepo(t, repo), "review").Branch
+
+	if b.Tier != scan.TierPointer {
+		t.Errorf("branch = %+v, want pointer: git ignores the unterminated line", b)
+	}
+}

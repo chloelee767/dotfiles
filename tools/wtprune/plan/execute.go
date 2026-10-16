@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync"
 	"time"
 
 	"wtprune/git"
@@ -26,7 +27,13 @@ type Options struct {
 	Cwd       string             // for the re-scan's "current" check (default os.Getwd)
 	Processes scan.ProcessLister // for the re-scan's in-use check, listed again per worktree (default lsof)
 	Now       func() time.Time   // default time.Now
+	Workers   int                // worktrees handled at once (default DefaultWorkers)
 }
+
+// DefaultWorkers is how many worktrees Execute handles at once. Removal is
+// mostly file deletion, which a single `git worktree remove` does on one
+// thread.
+const DefaultWorkers = 4
 
 // GitDirName is where a trashed worktree keeps a copy of its admin dir
 // (HEAD, reflog, index, in-progress state), inside the trashed dir.
@@ -85,17 +92,43 @@ func (s Summary) String() string {
 
 type executor struct {
 	opts      Options
-	out       io.Writer
-	log       *os.File
-	plan      *Plan
 	branchFor map[string]*BranchAction // by WorktreeID
-	abandoned map[*BranchAction]bool   // won't be deleted, so it still anchors commits for the others' checks
-	sum       Summary
+
+	mu  sync.Mutex // guards out, log, sum and Execute's progress counters
+	out io.Writer
+	log *os.File
+	sum Summary
+
+	repos   map[string]*repoState // by CommonDir; the map itself is read-only during the run
+	trashMu sync.Mutex            // picking a free Trash name and moving there must not interleave
 }
 
-// Execute runs the plan sequentially, one output line per action, then a
-// summary. Each worktree is re-scanned first and skipped if anything changed.
-// Cancelling ctx lets the current action finish, then stops.
+// repoState is one repo's planned branches. Its lock serialises the repo's
+// branch checks and deletions and guards abandoned.
+type repoState struct {
+	mu        sync.Mutex
+	branches  []*BranchAction
+	abandoned map[*BranchAction]bool // won't be deleted, so it still anchors commits for the others' checks
+}
+
+// mayBeDeleted names the planned branches, other than except, that are not
+// abandoned: this run may still delete them. Call with mu held. A branch
+// only leaves this set by being abandoned, after which it is never deleted,
+// so a check that excludes the whole set relies only on refs that survive.
+func (r *repoState) mayBeDeleted(except *BranchAction) []string {
+	var names []string
+	for _, b := range r.branches {
+		if b != except && !r.abandoned[b] {
+			names = append(names, b.Name)
+		}
+	}
+	return names
+}
+
+// Execute runs the plan, a few worktrees at a time (Options.Workers), one
+// output line per action, then a summary. Each worktree is re-scanned first
+// and skipped if anything changed. Cancelling ctx lets the in-flight
+// actions finish, then stops.
 func Execute(ctx context.Context, p *Plan, out io.Writer, opts Options) Summary {
 	if opts.TrashDir == "" {
 		opts.TrashDir = DefaultTrashDir()
@@ -109,10 +142,26 @@ func Execute(ctx context.Context, p *Plan, out io.Writer, opts Options) Summary 
 	if opts.Now == nil {
 		opts.Now = time.Now
 	}
-	ex := &executor{opts: opts, out: out, plan: p, branchFor: map[string]*BranchAction{}, abandoned: map[*BranchAction]bool{}}
+	if opts.Workers <= 0 {
+		opts.Workers = DefaultWorkers
+	}
+	ex := &executor{opts: opts, out: out, branchFor: map[string]*BranchAction{}, repos: map[string]*repoState{}}
 	ex.sum.LogPath = opts.LogPath
+	items := p.Items()
+	repo := func(common string) *repoState {
+		if ex.repos[common] == nil {
+			ex.repos[common] = &repoState{abandoned: map[*BranchAction]bool{}}
+		}
+		return ex.repos[common]
+	}
+	for _, it := range items {
+		repo(it.W.Repo.CommonDir)
+	}
 	for i := range p.Branches {
-		ex.branchFor[p.Branches[i].WorktreeID] = &p.Branches[i]
+		b := &p.Branches[i]
+		ex.branchFor[b.WorktreeID] = b
+		r := repo(b.Repo.CommonDir)
+		r.branches = append(r.branches, b)
 	}
 
 	log, err := openLog(opts.LogPath)
@@ -124,16 +173,58 @@ func Execute(ctx context.Context, p *Plan, out io.Writer, opts Options) Summary 
 	defer log.Close()
 	ex.log = log
 
+	workers := min(opts.Workers, len(items))
+	header := fmt.Sprintf("removing %d %s", len(items), text.Plural(len(items), "worktree", "worktrees"))
+	if n := len(p.Branches); n > 0 {
+		header += fmt.Sprintf(" and %d %s", n, text.Plural(n, "branch", "branches"))
+	}
+	if workers > 1 {
+		header += fmt.Sprintf(", %d at a time", workers)
+	}
+	fmt.Fprintln(ex.out, header+"...")
+
 	// Actions must not be killed halfway: only check ctx between them.
 	actx := context.WithoutCancel(ctx)
-	items := p.Items()
-	for i, it := range items {
-		if ctx.Err() != nil {
-			ex.sum.NotAttempted = len(items) - i
-			break
+	started, inFlight, finished := 0, 0, false
+	take := func() (Item, bool) {
+		ex.mu.Lock()
+		defer ex.mu.Unlock()
+		if ctx.Err() != nil || started == len(items) {
+			return Item{}, false
 		}
-		ex.worktree(actx, it)
+		started++
+		inFlight++
+		return items[started-1], true
 	}
+	stopNotice := context.AfterFunc(ctx, func() {
+		ex.mu.Lock()
+		defer ex.mu.Unlock()
+		switch {
+		case finished:
+		case inFlight == 0:
+			fmt.Fprintln(ex.out, "interrupted: stopping")
+		default:
+			fmt.Fprintf(ex.out, "interrupted: finishing %d in-flight %s; Ctrl-C again to abort\n", inFlight, text.Plural(inFlight, "worktree", "worktrees"))
+		}
+	})
+	defer stopNotice()
+	var wg sync.WaitGroup
+	for range workers {
+		wg.Go(func() {
+			for it, ok := take(); ok; it, ok = take() {
+				ex.worktree(actx, it)
+				ex.mu.Lock()
+				inFlight--
+				ex.mu.Unlock()
+			}
+		})
+	}
+	wg.Wait()
+
+	ex.mu.Lock()
+	defer ex.mu.Unlock()
+	finished = true
+	ex.sum.NotAttempted = len(items) - started
 	fmt.Fprintln(ex.out, "---")
 	fmt.Fprintln(ex.out, ex.sum.String())
 	return ex.sum
@@ -143,7 +234,7 @@ func (ex *executor) worktree(ctx context.Context, it Item) {
 	w := it.W
 	fresh, warnings, err := scan.Rescan(ctx, w, scan.Options{Cwd: ex.opts.Cwd, Processes: ex.opts.Processes, Now: ex.opts.Now})
 	for _, warning := range warnings {
-		fmt.Fprintf(ex.out, "warning: %s\n", text.Printable(warning))
+		ex.printf("warning: %s\n", text.Printable(warning))
 	}
 	if err != nil {
 		ex.abandonBranch(w)
@@ -152,41 +243,31 @@ func (ex *executor) worktree(ctx context.Context, it Item) {
 	}
 	if reason := changedSinceScan(w, fresh); reason != "" {
 		ex.abandonBranch(w)
-		ex.sum.Skipped++
-		fmt.Fprintf(ex.out, "skipped   %s: %s\n", show(w.Path), text.Printable(reason))
+		ex.done(func() { ex.sum.Skipped++ }, "skipped   %s: %s\n", show(w.Path), text.Printable(reason))
 		ex.record(logEntry{Action: "skipped", Error: reason}, w)
 		return
 	}
-	var lost []string
-	if fresh.DetachedLost > 0 || fresh.InProgress != "" {
-		if lost, err = scan.LostCommits(ctx, fresh); err != nil {
-			ex.abandonBranch(w)
-			ex.fail(w, "listing commits removal would lose (nothing removed)", err)
-			return
-		}
+	lost, more, heldBy, err := ex.lostOnRemoval(ctx, fresh)
+	if err != nil {
+		ex.abandonBranch(w)
+		ex.fail(w, "listing commits removal would lose (nothing removed)", err)
+		return
+	}
+	if more > 0 {
+		ex.abandonBranch(w)
+		reason := heldOnlyBy(more, heldBy) + "; remove it next run"
+		ex.done(func() { ex.sum.Skipped++ }, "skipped   %s: %s\n", show(w.Path), text.Printable(reason))
+		ex.record(logEntry{Action: "skipped", Error: reason}, w)
+		return
 	}
 
 	common := w.Repo.CommonDir
 	switch {
 	case it.Trash:
-		dest, err := ex.trashPath(w)
-		if err != nil {
+		dest, gitdir, failure := ex.trash(w, fresh, lost)
+		if failure != nil {
 			ex.abandonBranch(w)
-			ex.fail(w, "move to Trash (nothing removed)", err)
-			return
-		}
-		gitdir := filepath.Join(dest, GitDirName)
-		ex.record(logEntry{Action: "trashing", Trash: dest, GitDir: gitdir, Lost: lost}, fresh)
-		if err := moveToTrash(w.Path, fresh.AdminDir, dest); err != nil {
-			ex.abandonBranch(w)
-			ex.fail(w, "move to Trash (nothing removed)", err)
-			return
-		}
-		// git reuses a freed admin dir id when a worktree with the same name
-		// is added again: the trashed .git file must not point at it.
-		if err := os.Rename(filepath.Join(dest, ".git"), filepath.Join(dest, DisarmedGitFile)); err != nil {
-			ex.abandonBranch(w)
-			ex.fail(w, "moved to "+show(dest)+" but not deregistered (could not disarm its .git file)", err)
+			ex.fail(w, failure.what, failure.err)
 			return
 		}
 		if _, err := git.Run(ctx, common, "worktree", "remove", w.Path); err != nil {
@@ -194,8 +275,7 @@ func (ex *executor) worktree(ctx context.Context, it Item) {
 			ex.fail(w, "moved to "+show(dest)+" but deregistering failed", err)
 			return
 		}
-		ex.sum.Trashed++
-		fmt.Fprintf(ex.out, "trashed   %s -> %s\n", show(w.Path), show(dest))
+		ex.done(func() { ex.sum.Trashed++ }, "trashed   %s -> %s\n", show(w.Path), show(dest))
 		ex.record(logEntry{Action: "trashed", Trash: dest, GitDir: gitdir, Lost: lost}, fresh)
 	case it.Force:
 		if _, err := git.Run(ctx, common, "worktree", "remove", "--force", w.Path); err != nil {
@@ -203,8 +283,7 @@ func (ex *executor) worktree(ctx context.Context, it Item) {
 			ex.fail(w, "", err)
 			return
 		}
-		ex.sum.Removed++
-		fmt.Fprintf(ex.out, "removed   %s (forced)\n", show(w.Path))
+		ex.done(func() { ex.sum.Removed++ }, "removed   %s (forced)\n", show(w.Path))
 		ex.record(logEntry{Action: "removed-forced", Lost: lost}, fresh)
 	default:
 		if err := removeSafely(ctx, common, w.Path); err != nil {
@@ -212,14 +291,52 @@ func (ex *executor) worktree(ctx context.Context, it Item) {
 			ex.fail(w, "", err)
 			return
 		}
-		ex.sum.Removed++
-		fmt.Fprintf(ex.out, "removed   %s\n", show(w.Path))
+		ex.done(func() { ex.sum.Removed++ }, "removed   %s\n", show(w.Path))
 		ex.record(logEntry{Action: "removed", Lost: lost}, fresh)
 	}
 
 	if b := ex.branchFor[w.ID]; b != nil {
 		ex.branch(ctx, b, fresh)
 	}
+}
+
+// stepError is a failed step and what to call it in the FAILED line.
+type stepError struct {
+	what string
+	err  error
+}
+
+// trash moves the worktree to a fresh Trash dir and disarms its .git file,
+// leaving only the deregistering to the caller. Holding trashMu keeps two
+// workers from picking the same free name.
+func (ex *executor) trash(w, fresh *scan.Worktree, lost []string) (dest, gitdir string, _ *stepError) {
+	ex.trashMu.Lock()
+	defer ex.trashMu.Unlock()
+	dest, err := ex.trashPath(w)
+	if err != nil {
+		return "", "", &stepError{"move to Trash (nothing removed)", err}
+	}
+	gitdir = filepath.Join(dest, GitDirName)
+	ex.record(logEntry{Action: "trashing", Trash: dest, GitDir: gitdir, Lost: lost}, fresh)
+	if err := moveToTrash(w.Path, fresh.AdminDir, dest); err != nil {
+		return "", "", &stepError{"move to Trash (nothing removed)", err}
+	}
+	// git reuses a freed admin dir id when a worktree with the same name
+	// is added again: the trashed .git file must not point at it.
+	if err := os.Rename(filepath.Join(dest, ".git"), filepath.Join(dest, DisarmedGitFile)); err != nil {
+		return "", "", &stepError{"moved to " + show(dest) + " but not deregistered (could not disarm its .git file)", err}
+	}
+	return dest, gitdir, nil
+}
+
+// lostOnRemoval is lostWith for the repo's planned branches that this run
+// may still delete.
+func (ex *executor) lostOnRemoval(ctx context.Context, fresh *scan.Worktree) (lost []string, more int, heldBy []string, err error) {
+	r := ex.repos[fresh.Repo.CommonDir]
+	r.mu.Lock()
+	doomed := r.mayBeDeleted(nil)
+	r.mu.Unlock()
+	return lostWith(ctx, fresh, doomed)
 }
 
 // moveToTrash renames the worktree to dest and puts a copy of its admin
@@ -335,20 +452,26 @@ func changedSinceScan(old, fresh *scan.Worktree) string {
 // branch deletes a planned branch after re-checking that every commit on
 // its scan-time tip is still contained in a ref that will survive (or, for
 // a squash-merged branch, that the squash commit is still in its branch).
+//
+// It holds the repo's lock throughout: the check excludes the repo's other
+// planned branches that are not abandoned at that moment, and a branch is
+// only ever abandoned under the same lock and never deleted afterwards, so
+// each check relies only on refs nobody here deletes later.
 func (ex *executor) branch(ctx context.Context, b *BranchAction, w *scan.Worktree) {
 	common := b.Repo.CommonDir
+	r := ex.repos[common]
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	where := fmt.Sprintf("branch %s in %s", text.Printable(b.Name), text.Printable(b.Repo.Name))
 	reflogOnly := shas(w.ReflogOnly)
 	skip := func(reason string) {
-		ex.abandoned[b] = true
-		ex.sum.Skipped++
-		fmt.Fprintf(ex.out, "skipped   %s: %s\n", where, text.Printable(reason))
+		r.abandoned[b] = true
+		ex.done(func() { ex.sum.Skipped++ }, "skipped   %s: %s\n", where, text.Printable(reason))
 		ex.recordBranch("skipped-branch", b, reason, reflogOnly)
 	}
 	failed := func(err error) {
-		ex.abandoned[b] = true
-		ex.sum.Failed++
-		fmt.Fprintf(ex.out, "FAILED    %s: %s\n", where, text.Printable(err.Error()))
+		r.abandoned[b] = true
+		ex.done(func() { ex.sum.Failed++ }, "FAILED    %s: %s\n", where, text.Printable(err.Error()))
 		ex.recordBranch("failed-branch", b, err.Error(), reflogOnly)
 	}
 
@@ -368,14 +491,8 @@ func (ex *executor) branch(ctx context.Context, b *BranchAction, w *scan.Worktre
 			return
 		}
 	} else {
-		exclude := []string{b.Name}
-		for i := range ex.plan.Branches {
-			other := &ex.plan.Branches[i]
-			if other != b && other.Repo.CommonDir == common && !ex.abandoned[other] {
-				exclude = append(exclude, other.Name)
-			}
-		}
-		n, err := git.CountUnreachable(ctx, common, b.Tip, exclude)
+		exclude := append([]string{b.Name}, r.mayBeDeleted(b)...)
+		n, err := scan.CountUnreachableNow(ctx, b.Repo, b.Tip, exclude)
 		if err != nil {
 			failed(err)
 			return
@@ -389,25 +506,41 @@ func (ex *executor) branch(ctx context.Context, b *BranchAction, w *scan.Worktre
 		failed(err)
 		return
 	}
-	ex.sum.BranchesDeleted++
-	fmt.Fprintf(ex.out, "deleted   %s (was %s)\n", where, text.Short(b.Tip))
+	ex.done(func() { ex.sum.BranchesDeleted++ }, "deleted   %s (was %s)\n", where, text.Short(b.Tip))
 	ex.recordBranch("deleted-branch", b, "", reflogOnly)
 }
 
 func (ex *executor) abandonBranch(w *scan.Worktree) {
 	if b := ex.branchFor[w.ID]; b != nil {
-		ex.abandoned[b] = true
+		r := ex.repos[b.Repo.CommonDir]
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		r.abandoned[b] = true
 	}
 }
 
 func (ex *executor) fail(w *scan.Worktree, what string, err error) {
-	ex.sum.Failed++
 	msg := err.Error()
 	if what != "" {
 		msg = what + ": " + msg
 	}
-	fmt.Fprintf(ex.out, "FAILED    %s: %s\n", show(w.Path), text.Printable(msg))
+	ex.done(func() { ex.sum.Failed++ }, "FAILED    %s: %s\n", show(w.Path), text.Printable(msg))
 	ex.record(logEntry{Action: "failed", Error: msg}, w)
+}
+
+// done counts an outcome and prints its line in one step, so the summary
+// and the output never disagree.
+func (ex *executor) done(count func(), format string, args ...any) {
+	ex.mu.Lock()
+	defer ex.mu.Unlock()
+	count()
+	fmt.Fprintf(ex.out, format, args...)
+}
+
+func (ex *executor) printf(format string, args ...any) {
+	ex.mu.Lock()
+	defer ex.mu.Unlock()
+	fmt.Fprintf(ex.out, format, args...)
 }
 
 // show renders a path for terminal output.
@@ -476,6 +609,8 @@ func (ex *executor) recordBranch(action string, b *BranchAction, errMsg string, 
 func (ex *executor) write(e logEntry) {
 	e.Time = ex.opts.Now().Format(time.RFC3339)
 	line, _ := json.Marshal(e)
+	ex.mu.Lock()
+	defer ex.mu.Unlock()
 	if _, err := ex.log.Write(append(line, '\n')); err != nil {
 		fmt.Fprintf(ex.out, "warning: action log write failed: %v\n", err)
 	}

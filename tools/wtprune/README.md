@@ -35,6 +35,8 @@ wtprune --dir ~/worktrees --list           # print the table only; never changes
 
 Run `wtprune --help` for every flag. `--list` is implied when stdin or stdout is not a terminal.
 
+While scanning, a terminal stderr shows the phase: `finding worktrees under ~/worktrees...`, `loading repos 5/23...`, then `scanning 12/58...`, cut to the terminal width. Repos are loaded and worktrees inspected 8 at a time.
+
 Exit codes: `0` ok (incl. quitting without changes), `1` some actions failed or were not attempted (interrupted), `2` usage or discovery error, `130` Ctrl-C during the scan.
 
 ## Keys
@@ -84,16 +86,17 @@ BRANCH ACTION: `delete` = flagged, `--` = deletable but not flagged, `keep` = no
 ## Safety
 
 - **Review first**: `enter` shows the plan: at-risk worktrees with every file and LOST commit, safe ones, the branches to DELETE, the selected worktrees' branches it will KEEP and why, and anything dropped. Confirming takes `y`, or a typed `yes` + `enter` when anything at risk or a `pushed` branch is in the plan.
-- **Batch check**: a branch whose commits are only in other branches of the same plan (eg. two branches at one unique commit) is kept: `only other ref is also being deleted (would lose N)`.
+- **Batch check**: a branch whose commits are only in other branches of the same plan (eg. two branches at one unique commit) is kept: `only other ref is also being deleted (would lose N)`. Likewise a detached (or mid-operation) worktree whose HEAD is only in branches the plan deletes, eg. at a commit of a squash-merged branch, is left out: `holds N commits only squash-feat has (being deleted)`; unflag that branch (`b`) or remove the worktree on a later run. Execution re-checks both.
 - **Re-scan before acting**: each worktree is re-inspected right before removal. If anything changed since the scan (HEAD, changed or ignored files, in-progress op, new process), it is skipped.
+- **Parallel removal**: up to 4 worktrees are re-scanned and removed at once (`removing 12 worktrees and 11 branches, 4 at a time...`), each printing its own lines as it finishes. Branch checks and deletions still run one at a time per repo, so the batch check above still holds.
 - **Trash**: at-risk worktrees and ones with ignored files or non-allowlisted ignored dirs are moved to `~/.Trash/wtprune-<name>-<time>` before deregistering. The trashed dir also gets `.wtprune-gitdir/`, a copy of the worktree's git admin dir (HEAD, reflog, index, rebase state). Its `.git` file is renamed to `.git.wtprune-orig`, so git commands run inside the trash dir fail instead of reaching a new worktree that git gave the same internal id. `--no-trash` force-removes them instead. Safe worktrees use plain `git worktree remove`, which refuses if they became dirty.
-- **Branches** are deleted only after their worktree was removed, and only if a final check shows their commits are still in a ref that survives (squash-merged: the squash commit is still in its branch).
+- **Branches** are deleted only after their worktree was removed, and only if a final check, reading the refs afresh, shows their commits are still in a ref that survives (squash-merged: the squash commit is still in its branch).
 - **Log**: every action is appended as JSON to `~/.local/state/wtprune/log` (or `$XDG_STATE_HOME/wtprune/log`): path, HEAD sha, branch, changed and ignored paths, Trash location, LOST and reflog-only shas. A `trashing` line is written before the move, so a kill midway still leaves a record.
-- **Ctrl-C** during execution finishes the current action, then stops (exit 1). A second Ctrl-C kills it.
+- **Ctrl-C** during execution prints `interrupted: finishing N in-flight worktrees; Ctrl-C again to abort`, finishes them, starts nothing new, then stops (exit 1; the rest count as not attempted). A second Ctrl-C kills it.
 
 ## Recovering
 
-After a run that trashed anything, wtprune prints `restore: see "Recovering" ...`.
+After a run that trashed anything, wtprune prints `restore: see "Recovering" ...` under the summary, which names the log.
 
 1. Find the entry: `grep <worktree-name> ~/.local/state/wtprune/log | tail`. It has `head`, `branch`, `trash`, `lost` and `reflog_only`.
 2. Get the commits back (works until `git gc` prunes them, ~2 weeks by default): `git -C <repo> branch rescue <sha>` for the `head`, a `lost` sha, or a deleted branch's `head`.

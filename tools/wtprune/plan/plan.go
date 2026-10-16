@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"wtprune/git"
+	"wtprune/internal/text"
 	"wtprune/scan"
 )
 
@@ -141,8 +142,16 @@ func Build(rows []*scan.Worktree, sel Selection, noTrash bool) *Plan {
 	}
 	p.Branches, p.Dropped = dropBatchLosses(branches, p.Dropped)
 
+	doomed := map[string][]string{} // by CommonDir
+	for _, b := range p.Branches {
+		doomed[b.Repo.CommonDir] = append(doomed[b.Repo.CommonDir], b.Name)
+	}
 	for _, w := range rows {
 		if !planned[w.ID] {
+			continue
+		}
+		if reason := lostToBranchDeletions(w, doomed[w.Repo.CommonDir]); reason != "" {
+			p.Dropped = append(p.Dropped, Dropped{Kind: "worktree", Name: w.Path, Reason: reason})
 			continue
 		}
 		deleting := slices.ContainsFunc(p.Branches, func(b BranchAction) bool { return b.WorktreeID == w.ID })
@@ -177,7 +186,7 @@ func dropBatchLosses(branches []BranchAction, dropped []Dropped) ([]BranchAction
 			continue // alone in its repo: the scan already checked it
 		}
 		reason := ""
-		n, err := git.CountUnreachable(context.Background(), b.Repo.CommonDir, b.Tip, exclude)
+		n, err := scan.CountUnreachableNow(context.Background(), b.Repo, b.Tip, exclude)
 		switch {
 		case err != nil:
 			reason = "could not check the other planned deletions: " + err.Error()
@@ -190,6 +199,79 @@ func dropBatchLosses(branches []BranchAction, dropped []Dropped) ([]BranchAction
 		}
 	}
 	return keep, dropped
+}
+
+// lostToBranchDeletions explains why removing w must wait until the
+// planned branch deletions are done, or returns "". A failed check keeps w
+// in the plan: Execute checks again and does not remove it if that fails.
+func lostToBranchDeletions(w *scan.Worktree, doomed []string) string {
+	if _, more, heldBy, err := lostWith(context.Background(), w, doomed); err == nil && more > 0 {
+		return heldOnlyBy(more, heldBy) + "; unflag " + text.Plural(len(heldBy), "it", "them") + " (b), or remove this worktree next run"
+	}
+	return ""
+}
+
+// heldOnlyBy says that n commits of a worktree are only in the branches
+// heldBy, which are being deleted.
+func heldOnlyBy(n int, heldBy []string) string {
+	commits := fmt.Sprintf("%d %s", n, text.Plural(n, "commit", "commits"))
+	if len(heldBy) == 0 {
+		return "holds " + commits + " that otherwise only branches being deleted have"
+	}
+	return fmt.Sprintf("holds %s only %s %s (being deleted)", commits, strings.Join(heldBy, ", "), text.Plural(len(heldBy), "has", "have"))
+}
+
+// lostWith lists the commits that removing the worktree would leave
+// unreachable (its detached HEAD, any in-progress operation's heads), and
+// counts how many more it would once the branches in doomed are deleted:
+// the scan counted those as safe in a branch, eg. a detached HEAD at a
+// commit of a squash-merged branch that is being deleted. heldBy names the
+// doomed branches holding those.
+func lostWith(ctx context.Context, w *scan.Worktree, doomed []string) (lost []string, more int, heldBy []string, err error) {
+	if !w.Detached && w.InProgress == "" {
+		return nil, 0, nil, nil
+	}
+	// Only when the scan saw something lost: recomputing it here instead
+	// would count a commit as lost, not as "more", if a doomed branch
+	// holding it were deleted in between, and so let the removal through.
+	if w.DetachedLost > 0 || w.InProgress != "" {
+		if lost, err = scan.LostCommits(ctx, w, nil); err != nil {
+			return nil, 0, nil, err
+		}
+	}
+	if w.InProgress == "" && len(lost) > w.DetachedLost {
+		// A ref holding some of them went away since w was inspected.
+		return lost, len(lost) - w.DetachedLost, nil, nil
+	}
+	if len(doomed) == 0 {
+		return lost, 0, nil, nil
+	}
+	withoutDoomed, err := scan.LostCommits(ctx, w, doomed)
+	if err != nil {
+		return nil, 0, nil, err
+	}
+	extra := slices.DeleteFunc(withoutDoomed, func(c string) bool { return slices.Contains(lost, c) })
+	if len(extra) == 0 {
+		return lost, 0, nil, nil
+	}
+	return lost, len(extra), branchesContaining(ctx, w.Repo.CommonDir, extra, doomed), nil
+}
+
+// branchesContaining names the branches (of names) that contain any of
+// commits. Errors just name none.
+func branchesContaining(ctx context.Context, dir string, commits, names []string) []string {
+	args := []string{"for-each-ref", "--format=%(refname:lstrip=2)"}
+	for _, c := range commits {
+		args = append(args, "--contains", c)
+	}
+	for _, name := range names {
+		args = append(args, "refs/heads/"+name)
+	}
+	out, err := git.Run(ctx, dir, args...)
+	if err != nil {
+		return nil
+	}
+	return strings.Fields(out)
 }
 
 // Items is every removal in execution order: at risk first, then safe.

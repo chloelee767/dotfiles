@@ -22,6 +22,27 @@ type registration struct {
 // loadRepo lists a repo's worktrees and the refs that make a branch
 // protected. commonDir need not be canonical.
 func loadRepo(ctx context.Context, commonDir string) (*Repo, error) {
+	repo, err := loadWorktrees(ctx, commonDir)
+	if err != nil {
+		return nil, err
+	}
+	// Kept apart from the full ref listing that refsAt reads lazily: that one
+	// is ~3x slower with thousands of tags, and loading it eagerly here, ahead
+	// of the inspections, measured slower overall.
+	if err := repo.loadDefaultBranches(ctx); err != nil {
+		return nil, err
+	}
+	var heads []string
+	for _, reg := range repo.registered {
+		heads = append(heads, reg.entry.Head)
+	}
+	repo.headCommits = logCommits(ctx, repo.CommonDir, heads...)
+	return repo, nil
+}
+
+// loadWorktrees lists a repo's worktrees; protected and defaultBranches are
+// left empty.
+func loadWorktrees(ctx context.Context, commonDir string) (*Repo, error) {
 	common := Canonical(commonDir)
 	out, err := git.Run(ctx, common, "worktree", "list", "--porcelain", "-z")
 	if err != nil {
@@ -29,7 +50,10 @@ func loadRepo(ctx context.Context, commonDir string) (*Repo, error) {
 	}
 	entries := git.ParseWorktreeList(out)
 
-	repo := &Repo{CommonDir: common, protected: map[string]bool{}}
+	repo := &Repo{
+		CommonDir: common, protected: map[string]bool{}, refsAt: lazyRefsAt(ctx, common),
+		reftable: exists(filepath.Join(common, "reftable")),
+	}
 	admins := adminDirsByPath(common)
 	for i, e := range entries {
 		reg := registration{path: e.Path, canonical: Canonical(e.Path), entry: e}
@@ -41,13 +65,17 @@ func loadRepo(ctx context.Context, commonDir string) (*Repo, error) {
 		repo.registered = append(repo.registered, reg)
 	}
 	repo.Name = repoName(repo.MainPath, common)
+	return repo, nil
+}
 
+// loadDefaultBranches reads the refs that make a branch protected.
+func (r *Repo) loadDefaultBranches(ctx context.Context) error {
 	for _, b := range alwaysProtected {
-		repo.protected[b] = true
+		r.protected[b] = true
 	}
-	refs, err := git.Run(ctx, common, "for-each-ref", "--format=%(refname)%00%(symref)", "refs/remotes", "refs/heads")
+	refs, err := git.Run(ctx, r.CommonDir, "for-each-ref", "--format=%(refname)%00%(symref)", "refs/remotes", "refs/heads")
 	if err != nil {
-		return nil, err
+		return err
 	}
 	lines := strings.Split(strings.TrimSpace(refs), "\n")
 	exists := map[string]bool{}
@@ -66,17 +94,17 @@ func loadRepo(ctx context.Context, commonDir string) (*Repo, error) {
 		if !ok || target == "" || !strings.HasPrefix(target, remotePrefix) {
 			continue
 		}
-		repo.protected[strings.TrimPrefix(target, remotePrefix)] = true
+		r.protected[strings.TrimPrefix(target, remotePrefix)] = true
 		if exists[target] {
-			repo.defaultBranches = append(repo.defaultBranches, target)
+			r.defaultBranches = append(r.defaultBranches, target)
 		}
 	}
 	for _, ref := range heads {
-		if repo.protected[strings.TrimPrefix(ref, "refs/heads/")] {
-			repo.defaultBranches = append(repo.defaultBranches, ref)
+		if r.protected[strings.TrimPrefix(ref, "refs/heads/")] {
+			r.defaultBranches = append(r.defaultBranches, ref)
 		}
 	}
-	return repo, nil
+	return nil
 }
 
 // adminDirsByPath maps each linked worktree's registered path to its admin

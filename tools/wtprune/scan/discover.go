@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"sync"
 
 	"wtprune/git"
 )
@@ -19,13 +20,18 @@ type Skipped struct {
 	NonGit     int      // top-level dirs with no git checkout within --depth
 }
 
-// discoverRepo returns the linked worktrees of the repo containing path.
-func discoverRepo(ctx context.Context, path string) ([]*Worktree, []*Repo, error) {
+// commonDirOf returns the common dir of the repo containing path.
+func commonDirOf(ctx context.Context, path string) (string, error) {
 	common, err := git.Run(ctx, path, "rev-parse", "--path-format=absolute", "--git-common-dir")
 	if err != nil {
-		return nil, nil, fmt.Errorf("%s is not inside a git repository (use --dir to scan a folder of worktrees): %w", path, err)
+		return "", fmt.Errorf("%s is not inside a git repository (use --dir to scan a folder of worktrees): %w", path, err)
 	}
-	repo, err := loadRepo(ctx, strings.TrimSpace(common))
+	return strings.TrimSpace(common), nil
+}
+
+// discoverRepo returns the linked worktrees of the repo with this common dir.
+func discoverRepo(ctx context.Context, common string) ([]*Worktree, []*Repo, error) {
+	repo, err := loadRepo(ctx, common)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -76,17 +82,19 @@ func registeredRow(repo *Repo, reg registration) *Worktree {
 }
 
 type candidate struct {
-	dir   string // canonical
-	admin string // <common>/worktrees/<id>, as written in the .git file
+	dir    string // canonical
+	admin  string // <common>/worktrees/<id>, as written in the .git file
+	common string // empty when admin is gone
 }
 
 // discoverDir walks root up to depth looking for linked worktrees, across
 // repos. It stops descending at any dir containing .git.
-func discoverDir(ctx context.Context, root string, depth int) ([]*Worktree, []*Repo, Skipped, error) {
+func discoverDir(ctx context.Context, root string, depth int, progress func(Progress)) ([]*Worktree, []*Repo, Skipped, error) {
 	root = Canonical(root)
 	if info, err := os.Stat(root); err != nil || !info.IsDir() {
 		return nil, nil, Skipped{}, fmt.Errorf("--dir %s: not a directory", root)
 	}
+	progress(Progress{Phase: PhaseFinding})
 	var skipped Skipped
 	var candidates []candidate
 
@@ -130,11 +138,28 @@ func discoverDir(ctx context.Context, root string, depth int) ([]*Worktree, []*R
 	}
 	visit(root, 0)
 
-	repos := map[string]*Repo{}
+	commons := map[string]string{} // pathKey -> common dir as first found
+	var keys []string
+	for i, c := range candidates {
+		if !exists(c.admin) {
+			continue
+		}
+		common, err := readRelFile(c.admin, "commondir")
+		if err != nil {
+			common = filepath.Dir(filepath.Dir(c.admin))
+		}
+		candidates[i].common = common
+		if key := pathKey(Canonical(common)); commons[key] == "" {
+			commons[key] = common
+			keys = append(keys, key)
+		}
+	}
+	loaded := loadRepos(ctx, keys, commons, progress)
+
 	var order []*Repo
 	var rows []*Worktree
 	for _, c := range candidates {
-		if !exists(c.admin) {
+		if c.common == "" {
 			common := filepath.Dir(filepath.Dir(c.admin))
 			rows = append(rows, &Worktree{
 				ID:    c.dir,
@@ -145,22 +170,16 @@ func discoverDir(ctx context.Context, root string, depth int) ([]*Worktree, []*R
 			})
 			continue
 		}
-		common, err := readRelFile(c.admin, "commondir")
-		if err != nil {
-			common = filepath.Dir(filepath.Dir(c.admin))
+		l := loaded[pathKey(Canonical(c.common))]
+		if l.err != nil {
+			rows = append(rows, &Worktree{
+				ID: c.dir, Path: c.dir, Repo: &Repo{Name: repoName("", Canonical(c.common)), CommonDir: Canonical(c.common)},
+				State: StateError, Hint: l.err.Error(),
+			})
+			continue
 		}
-		key := pathKey(Canonical(common))
-		repo, ok := repos[key]
-		if !ok {
-			repo, err = loadRepo(ctx, common)
-			if err != nil {
-				rows = append(rows, &Worktree{
-					ID: c.dir, Path: c.dir, Repo: &Repo{Name: repoName("", Canonical(common)), CommonDir: Canonical(common)},
-					State: StateError, Hint: err.Error(),
-				})
-				continue
-			}
-			repos[key] = repo
+		repo := l.repo
+		if !slices.Contains(order, repo) {
 			order = append(order, repo)
 		}
 		reg, ok := repo.registrationFor(c.admin)
@@ -184,6 +203,36 @@ func discoverDir(ctx context.Context, root string, depth int) ([]*Worktree, []*R
 		rows = append(rows, registeredRow(repo, reg))
 	}
 	return rows, order, skipped, nil
+}
+
+type loadedRepo struct {
+	repo *Repo
+	err  error
+}
+
+// loadRepos loads the repos commons[key] concurrently, keyed like commons.
+func loadRepos(ctx context.Context, keys []string, commons map[string]string, progress func(Progress)) map[string]loadedRepo {
+	loaded := map[string]loadedRepo{}
+	if len(keys) == 0 {
+		return loaded
+	}
+	progress(Progress{Phase: PhaseLoading, Total: len(keys)})
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, workers)
+	for _, key := range keys {
+		wg.Go(func() {
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			repo, err := loadRepo(ctx, commons[key])
+			mu.Lock()
+			loaded[key] = loadedRepo{repo: repo, err: err}
+			progress(Progress{Phase: PhaseLoading, Done: len(loaded), Total: len(keys)})
+			mu.Unlock()
+		})
+	}
+	wg.Wait()
+	return loaded
 }
 
 // isLinkedWorktreeGitFile reports whether dir/.git is a gitdir file pointing

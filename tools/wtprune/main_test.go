@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"context"
+	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -119,5 +121,62 @@ func TestInterruptedScanExits130Quietly(t *testing.T) {
 	code, stdout, stderr := runCLI(t, ctx, "--repo", filepath.Join(root, "repo"))
 	if code != exitInterrupted || stderr != "" || stdout != "" {
 		t.Errorf("exit %d, stdout %q, stderr %q; want 130 and no output", code, stdout, stderr)
+	}
+}
+
+func TestListColumnsStayAlignedAfterARowWithoutBranchAction(t *testing.T) {
+	root := gitRepoWithWorktree(t)
+	repo := filepath.Join(root, "repo")
+	if out, err := exec.Command("git", "-C", repo, "worktree", "add", "-q", "--detach", filepath.Join(root, "wts", "detached")).CombinedOutput(); err != nil {
+		t.Fatalf("%v\n%s", err, out)
+	}
+	// The detached row (no BRANCH ACTION) is listed first: it is idle longer.
+	longAgo := time.Now().Add(-48 * time.Hour)
+	if err := os.Chtimes(filepath.Join(repo, ".git", "worktrees", "detached", "logs", "HEAD"), longAgo, longAgo); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chtimes(filepath.Join(repo, ".git", "worktrees", "feat", "logs", "HEAD"), time.Now(), time.Now()); err != nil {
+		t.Fatal(err)
+	}
+
+	code, stdout, stderr := runCLI(t, context.Background(), "--dir", filepath.Join(root, "wts"), "--list")
+	if code != exitOK {
+		t.Fatalf("exit %d, stderr %q", code, stderr)
+	}
+
+	lines := strings.Split(stdout, "\n")
+	header := slices.IndexFunc(lines, func(l string) bool { return strings.Contains(l, "BRANCH ACTION") })
+	if header < 0 || len(lines) < header+3 || !strings.Contains(lines[header+1], "(detached)") {
+		t.Fatalf("want the header, then the detached row, then feat:\n%s", stdout)
+	}
+	if got, want := strings.Index(lines[header+2], "--      merged"), strings.Index(lines[header], "BRANCH ACTION"); got != want {
+		t.Errorf("feat's BRANCH ACTION at column %d, header at %d:\n%s", got, want, stdout)
+	}
+	if strings.HasSuffix(lines[header+1], " ") {
+		t.Errorf("detached row has trailing spaces: %q", lines[header+1])
+	}
+}
+
+func TestProgressLinesFitTheTerminal(t *testing.T) {
+	root := gitRepoWithWorktree(t)
+	deep := filepath.Join(root, "wts", "a-rather-long-folder-name", "and-another-one-to-wrap")
+	if err := os.MkdirAll(deep, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	var out, errOut bytes.Buffer
+
+	code := run(context.Background(), func() {}, []string{"--dir", deep, "--list"}, streams{out: &out, err: &errOut, progress: true, width: 40})
+
+	if code != exitOK {
+		t.Fatalf("exit %d, stderr %q", code, errOut.String())
+	}
+	lines := strings.Split(errOut.String(), "\r\033[K")
+	if len(lines) < 2 || !strings.HasPrefix(lines[1], "finding worktrees under ") {
+		t.Fatalf("stderr %q, want progress lines", errOut.String())
+	}
+	for _, line := range lines {
+		if n := len([]rune(line)); n > 39 {
+			t.Errorf("progress line %q is %d wide, want at most 39 in 40 columns", line, n)
+		}
 	}
 }

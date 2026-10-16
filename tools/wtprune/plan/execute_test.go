@@ -3,6 +3,7 @@ package plan_test
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"path/filepath"
 	"strings"
@@ -23,7 +24,7 @@ func TestExecute_RemovesCleanWorktree(t *testing.T) {
 
 	sum := plan.Execute(context.Background(), p, &out, opts)
 
-	want := "removed   " + w.Path + "\n---\n1 removed, 0 trashed, 0 branches deleted, 0 skipped, 0 failed   log: " + opts.LogPath + "\n"
+	want := "removing 1 worktree...\nremoved   " + w.Path + "\n---\n1 removed, 0 trashed, 0 branches deleted, 0 skipped, 0 failed   log: " + opts.LogPath + "\n"
 	if out.String() != want {
 		t.Errorf("output:\n%s\nwant:\n%s", out.String(), want)
 	}
@@ -51,7 +52,7 @@ func TestExecute_TrashesAtRiskWorktree(t *testing.T) {
 	sum := plan.Execute(context.Background(), p, &out, opts)
 
 	trashed := filepath.Join(opts.TrashDir, "wtprune-wt-20261017-0912")
-	if want := "trashed   " + w.Path + " -> " + trashed + "\n"; !strings.HasPrefix(out.String(), want) {
+	if want := "removing 1 worktree...\ntrashed   " + w.Path + " -> " + trashed + "\n"; !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
 	if got := read(t, filepath.Join(trashed, "notes.md")); got != "precious\n" {
@@ -117,7 +118,7 @@ func TestExecute_NoTrashForcesRemoval(t *testing.T) {
 
 	plan.Execute(context.Background(), p, &out, opts)
 
-	if want := "removed   " + w.Path + " (forced)\n"; !strings.HasPrefix(out.String(), want) {
+	if want := "removing 1 worktree...\nremoved   " + w.Path + " (forced)\n"; !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
 	if exists(w.Path) || exists(opts.TrashDir) {
@@ -137,7 +138,7 @@ func TestExecute_SkipsWorktreeChangedSinceScan(t *testing.T) {
 
 	sum := plan.Execute(context.Background(), p, &out, testOptions(t))
 
-	if want := "skipped   " + w.Path + ": changed since scan (now DIRTY 1?)\n"; !strings.HasPrefix(out.String(), want) {
+	if want := "removing 1 worktree and 1 branch...\nskipped   " + w.Path + ": changed since scan (now DIRTY 1?)\n"; !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
 	if !exists(filepath.Join(root, "wt", "late.txt")) {
@@ -163,7 +164,7 @@ func TestExecute_SkipsWorktreeLockedSinceScan(t *testing.T) {
 
 	plan.Execute(context.Background(), p, &out, testOptions(t))
 
-	if want := "skipped   " + w.Path + ": changed since scan (now locked)\n"; !strings.HasPrefix(out.String(), want) {
+	if want := "removing 1 worktree...\nskipped   " + w.Path + ": changed since scan (now locked)\n"; !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
 	if !exists(w.Path) {
@@ -185,7 +186,7 @@ func TestExecute_SkipsWorktreeNewlyInUse(t *testing.T) {
 
 	plan.Execute(context.Background(), p, &out, opts)
 
-	if want := "skipped   " + w.Path + ": changed since scan (now IN USE zsh)\n"; !strings.HasPrefix(out.String(), want) {
+	if want := "removing 1 worktree...\nskipped   " + w.Path + ": changed since scan (now IN USE zsh)\n"; !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
 }
@@ -225,7 +226,7 @@ func TestExecute_DeletesPointerBranchAfterRemoval(t *testing.T) {
 
 	sum := plan.Execute(context.Background(), p, &out, testOptions(t))
 
-	want := "removed   " + w.Path + "\ndeleted   branch review-818 in repo (was " + w.Head[:7] + ")\n"
+	want := "removing 1 worktree and 1 branch...\nremoved   " + w.Path + "\ndeleted   branch review-818 in repo (was " + w.Head[:7] + ")\n"
 	if !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
@@ -248,7 +249,7 @@ func TestExecute_SkipsBranchWhoseTipMoved(t *testing.T) {
 
 	plan.Execute(context.Background(), p, &out, testOptions(t))
 
-	want := "removed   " + w.Path + "\nskipped   branch feat in repo: tip moved since scan\n"
+	want := "removing 1 worktree and 1 branch...\nremoved   " + w.Path + "\nskipped   branch feat in repo: tip moved since scan\n"
 	if !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
@@ -304,8 +305,8 @@ func TestExecute_FailureDoesNotStopTheRest(t *testing.T) {
 
 	sum := plan.Execute(context.Background(), p, &out, opts)
 
-	if !strings.HasPrefix(out.String(), "FAILED    "+dirty.Path+": move to Trash (nothing removed): ") {
-		t.Errorf("output:\n%s\nwant the at-risk worktree to fail first", out.String())
+	if !strings.Contains(out.String(), "\nFAILED    "+dirty.Path+": move to Trash (nothing removed): ") {
+		t.Errorf("output:\n%s\nwant the at-risk worktree to fail", out.String())
 	}
 	if !exists(filepath.Join(root, "dirty", "notes.md")) || exists(clean.Path) {
 		t.Error("want dirty untouched and clean removed")
@@ -315,13 +316,16 @@ func TestExecute_FailureDoesNotStopTheRest(t *testing.T) {
 	}
 }
 
-type cancelOnWrite struct {
+// cancelOnRemoved cancels once a "removed" line is written.
+type cancelOnRemoved struct {
 	w      io.Writer
 	cancel context.CancelFunc
 }
 
-func (c cancelOnWrite) Write(p []byte) (int, error) {
-	c.cancel()
+func (c cancelOnRemoved) Write(p []byte) (int, error) {
+	if strings.HasPrefix(string(p), "removed") {
+		c.cancel()
+	}
 	return c.w.Write(p)
 }
 
@@ -332,17 +336,55 @@ func TestExecute_CancelFinishesCurrentActionThenStops(t *testing.T) {
 	res := scanRepo(t, repo)
 	ids := []string{row(t, res, "a").ID, row(t, res, "b").ID}
 	p := plan.Build(res.Rows, plan.Selection{Worktrees: ids}, false)
+	opts := testOptions(t)
+	opts.Workers = 1
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	var out bytes.Buffer
 
-	sum := plan.Execute(ctx, p, cancelOnWrite{w: &out, cancel: cancel}, testOptions(t))
+	sum := plan.Execute(ctx, p, cancelOnRemoved{w: &out, cancel: cancel}, opts)
 
 	if sum.Removed != 1 || sum.NotAttempted != 1 || !strings.Contains(out.String(), "1 not attempted (interrupted)") {
 		t.Errorf("summary %+v, output:\n%s\nwant 1 removed then stop", sum, out.String())
 	}
+	if notice := strings.Index(out.String(), "\ninterrupted: "); notice < 0 || notice > strings.Index(out.String(), "\n---\n") {
+		t.Errorf("output:\n%s\nwant an interrupted notice before the summary", out.String())
+	}
 	if sum.ExitCode() != 1 {
 		t.Errorf("exit code = %d, want 1 when items were not attempted", sum.ExitCode())
+	}
+}
+
+func TestExecute_CancelFinishesInFlightActionsInParallel(t *testing.T) {
+	root, repo := newRepo(t)
+	var ids, paths []string
+	for _, name := range []string{"a", "b", "c", "d", "e", "f"} {
+		run(t, repo, "git", "worktree", "add", "-q", filepath.Join(root, name), "-b", name)
+		paths = append(paths, filepath.Join(root, name))
+	}
+	res := scanRepo(t, repo)
+	for _, w := range res.Rows {
+		ids = append(ids, w.ID)
+	}
+	p := plan.Build(res.Rows, plan.Selection{Worktrees: ids}, false)
+	opts := testOptions(t)
+	opts.Workers = 2
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	var out bytes.Buffer
+
+	sum := plan.Execute(ctx, p, cancelOnRemoved{w: &out, cancel: cancel}, opts)
+
+	left := 0
+	for _, path := range paths {
+		if exists(path) {
+			left++
+		}
+	}
+	// The cancel lands while both workers are busy: each finishes its
+	// worktree, then nothing new starts.
+	if sum.Removed < 1 || sum.Removed > 2 || sum.Removed+sum.NotAttempted != 6 || left != sum.NotAttempted || sum.Failed != 0 {
+		t.Errorf("summary %+v with %d worktrees left, output:\n%s\nwant the in-flight removals done and the rest not attempted", sum, left, out.String())
 	}
 }
 
@@ -363,5 +405,153 @@ func TestExecute_LogUnwritableDoesNothing(t *testing.T) {
 	}
 	if want := "could not open log " + opts.LogPath + ": "; !strings.HasPrefix(out.String(), want) || !strings.HasSuffix(out.String(), "; nothing done\n") || strings.Contains(out.String(), "interrupted") {
 		t.Errorf("output = %q, want %q...; nothing done", out.String(), want)
+	}
+}
+
+func TestExecute_ParallelAcrossReposAndWorktrees(t *testing.T) {
+	root, repoA := newRepo(t)
+	repoB := filepath.Join(root, "repo-b")
+	run(t, root, "git", "clone", "-q", repoA, repoB)
+	var rows []*scan.Worktree
+	var ids []string
+	for _, repo := range []string{repoA, repoB} {
+		for _, name := range []string{"one", "two", "three"} {
+			wt := filepath.Join(root, filepath.Base(repo)+"-"+name)
+			run(t, repo, "git", "worktree", "add", "-q", wt, "-b", name)
+			run(t, wt, "git", "commit", "-q", "--allow-empty", "-m", name)
+			run(t, repo, "git", "merge", "-q", "--ff-only", name)
+		}
+		write(t, filepath.Join(root, filepath.Base(repo)+"-two", "notes.md"), "precious\n")
+		for _, w := range scanRepo(t, repo).Rows {
+			rows = append(rows, w)
+			ids = append(ids, w.ID)
+		}
+	}
+	p := plan.Build(rows, plan.Selection{Worktrees: ids, Branches: ids}, false)
+	opts := testOptions(t)
+	opts.Workers = 4
+	var out bytes.Buffer
+
+	sum := plan.Execute(context.Background(), p, &out, opts)
+
+	if sum.Removed != 4 || sum.Trashed != 2 || sum.BranchesDeleted != 6 || sum.Failed+sum.Skipped+sum.NotAttempted != 0 {
+		t.Errorf("summary %+v, output:\n%s\nwant 4 removed, 2 trashed, 6 branches deleted", sum, out.String())
+	}
+	lines := strings.Split(strings.TrimSpace(out.String()), "\n")
+	if len(lines) != 1+6+6+2 || lines[0] != "removing 6 worktrees and 6 branches, 4 at a time..." {
+		t.Errorf("output:\n%s\nwant a header, one line per action, and the summary", out.String())
+	}
+	for _, repo := range []string{repoA, repoB} {
+		if got := run(t, repo, "git", "branch", "--list", "one", "two", "three"); got != "" {
+			t.Errorf("%s still has branches %q", repo, got)
+		}
+		if got := run(t, repo, "git", "worktree", "list", "--porcelain"); strings.Count(got, "worktree ") != 1 {
+			t.Errorf("%s still has linked worktrees:\n%s", repo, got)
+		}
+	}
+	if log := read(t, opts.LogPath); strings.Count(log, "\n") != 6+6+2 {
+		t.Errorf("log has %d lines, want 14 (6 removals, 6 branches, 2 trashing intents):\n%s", strings.Count(log, "\n"), log)
+	}
+}
+
+// The batch check under concurrency: three branches share one unique
+// commit, so at least one must survive, whichever order the workers run in.
+func TestExecute_ParallelBatchCheckKeepsSharedCommit(t *testing.T) {
+	root, repo := newRepo(t)
+	run(t, repo, "git", "switch", "-q", "-c", "tmp")
+	run(t, repo, "git", "commit", "-q", "--allow-empty", "-m", "only on a, b and c")
+	shared := run(t, repo, "git", "rev-parse", "HEAD")
+	for _, name := range []string{"a", "b", "c"} {
+		run(t, repo, "git", "branch", name)
+	}
+	run(t, repo, "git", "switch", "-q", "main")
+	run(t, repo, "git", "branch", "-q", "-D", "tmp")
+	for _, name := range []string{"a", "b", "c"} {
+		run(t, repo, "git", "worktree", "add", "-q", filepath.Join(root, name), name)
+	}
+	res := scanRepo(t, repo)
+	var ids []string
+	for _, w := range res.Rows {
+		ids = append(ids, w.ID)
+	}
+	p := plan.Build(res.Rows, plan.Selection{Worktrees: ids}, false)
+	// Bypass Build's own batch check, as if refs changed after planning.
+	for _, w := range res.Rows {
+		p.Branches = append(p.Branches, plan.BranchAction{Repo: w.Repo, Name: w.Branch.Name, Tip: w.Branch.Tip, Tier: w.Branch.Tier, WorktreeID: w.ID})
+	}
+	opts := testOptions(t)
+	opts.Workers = 3
+	var out bytes.Buffer
+
+	sum := plan.Execute(context.Background(), p, &out, opts)
+
+	if run(t, repo, "git", "branch", "--contains", shared) == "" {
+		t.Fatalf("every branch holding %s was deleted; output:\n%s", shared, out.String())
+	}
+	if sum.Removed != 3 || sum.BranchesDeleted+sum.Skipped != 3 || sum.Skipped < 1 {
+		t.Errorf("summary %+v, output:\n%s\nwant 3 removed and at least one branch kept", sum, out.String())
+	}
+}
+
+// Branches of several repos are abandoned at once (every worktree is
+// skipped): run with -race.
+func TestExecute_AbandonsBranchesAcrossReposConcurrently(t *testing.T) {
+	root, repoA := newRepo(t)
+	var rows []*scan.Worktree
+	var ids []string
+	for i := range 4 {
+		repo := repoA
+		if i > 0 {
+			repo = filepath.Join(root, fmt.Sprintf("repo%d", i))
+			run(t, root, "git", "clone", "-q", repoA, repo)
+		}
+		for _, name := range []string{"one", "two", "three"} {
+			run(t, repo, "git", "worktree", "add", "-q", filepath.Join(root, filepath.Base(repo)+"-"+name), "-b", name)
+		}
+		for _, w := range scanRepo(t, repo).Rows {
+			rows = append(rows, w)
+			ids = append(ids, w.ID)
+		}
+		for _, name := range []string{"one", "two", "three"} {
+			run(t, repo, "git", "worktree", "lock", filepath.Join(root, filepath.Base(repo)+"-"+name))
+		}
+	}
+	p := plan.Build(rows, plan.Selection{Worktrees: ids, Branches: ids}, false)
+	opts := testOptions(t)
+	opts.Workers = 4
+
+	sum := plan.Execute(context.Background(), p, io.Discard, opts)
+
+	if len(p.Branches) != 12 || sum.Skipped != 12 || sum.BranchesDeleted != 0 {
+		t.Errorf("summary %+v with %d planned branches, want all 12 worktrees skipped and no branch deleted", sum, len(p.Branches))
+	}
+}
+
+// Many worktrees of one repo removed 4 at a time, each with its branch,
+// some via the Trash: git commands racing in one repo must not turn into
+// FAILED or skipped lines.
+func TestExecute_ParallelWithinOneRepo(t *testing.T) {
+	root, repo := newRepo(t)
+	for i := range 16 {
+		wt := filepath.Join(root, fmt.Sprintf("b%02d", i))
+		run(t, repo, "git", "worktree", "add", "-q", wt, "-b", fmt.Sprintf("b%02d", i))
+		if i%3 == 0 {
+			write(t, filepath.Join(wt, ".env"), "x\n")
+		}
+	}
+	res := scanRepo(t, repo)
+	var ids []string
+	for _, w := range res.Rows {
+		ids = append(ids, w.ID)
+	}
+	p := plan.Build(res.Rows, plan.Selection{Worktrees: ids, Branches: ids}, false)
+	opts := testOptions(t)
+	opts.Workers = 4
+	var out bytes.Buffer
+
+	sum := plan.Execute(context.Background(), p, &out, opts)
+
+	if sum.Failed+sum.Skipped > 0 || sum.Removed != 10 || sum.Trashed != 6 || sum.BranchesDeleted != 16 {
+		t.Errorf("summary %+v, output:\n%s\nwant 10 removed, 6 trashed, 16 branches deleted", sum, out.String())
 	}
 }

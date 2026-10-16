@@ -2,9 +2,11 @@ package scan_test
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 	"time"
@@ -454,15 +456,44 @@ func TestScan_ProgressReportsEveryRow(t *testing.T) {
 	for _, name := range []string{"a", "b", "c"} {
 		run(t, repo, "git", "worktree", "add", "-q", filepath.Join(root, name), "-b", name)
 	}
-	var calls [][2]int
-	progress := func(done, total int) { calls = append(calls, [2]int{done, total}) }
+	var calls []scan.Progress
+	progress := func(p scan.Progress) { calls = append(calls, p) }
 
 	_, err := scan.Scan(context.Background(), scan.Options{Repo: repo, Cwd: "/", Processes: noProcesses, Progress: progress})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if want := [][2]int{{1, 3}, {2, 3}, {3, 3}}; !reflect.DeepEqual(calls, want) {
+	want := []scan.Progress{
+		{Phase: scan.PhaseScanning, Done: 0, Total: 3},
+		{Phase: scan.PhaseScanning, Done: 1, Total: 3},
+		{Phase: scan.PhaseScanning, Done: 2, Total: 3},
+		{Phase: scan.PhaseScanning, Done: 3, Total: 3},
+	}
+	if !reflect.DeepEqual(calls, want) {
+		t.Errorf("progress calls = %v, want %v", calls, want)
+	}
+}
+
+func TestScan_ProgressReportsPhasesInDirMode(t *testing.T) {
+	root, repo := newRepo(t)
+	run(t, repo, "git", "worktree", "add", "-q", filepath.Join(root, "a"), "-b", "a")
+	var calls []scan.Progress
+	progress := func(p scan.Progress) { calls = append(calls, p) }
+
+	_, err := scan.Scan(context.Background(), scan.Options{Dir: root, Cwd: "/", Processes: noProcesses, Progress: progress})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := []scan.Progress{
+		{Phase: scan.PhaseFinding},
+		{Phase: scan.PhaseLoading, Done: 0, Total: 1},
+		{Phase: scan.PhaseLoading, Done: 1, Total: 1},
+		{Phase: scan.PhaseScanning, Done: 0, Total: 1},
+		{Phase: scan.PhaseScanning, Done: 1, Total: 1},
+	}
+	if !reflect.DeepEqual(calls, want) {
 		t.Errorf("progress calls = %v, want %v", calls, want)
 	}
 }
@@ -489,5 +520,131 @@ func TestScan_ScanDoesNotTouchIndex(t *testing.T) {
 	}
 	if !info.ModTime().Equal(longAgo) {
 		t.Errorf("index mtime = %v, want untouched %v", info.ModTime(), longAgo)
+	}
+}
+
+// lsof must not run alongside our own git in a worktree: it would see that
+// git's cwd and report the worktree IN USE. --repo here is a worktree, so
+// even resolving the repo runs git inside one.
+func TestScan_ListsProcessesWhileNoGitRunsInWorktrees(t *testing.T) {
+	root, repo := newRepo(t)
+	for _, name := range []string{"a", "b", "c"} {
+		run(t, repo, "git", "worktree", "add", "-q", filepath.Join(root, name), "-b", name)
+	}
+	trace := filepath.Join(root, "trace.json")
+	t.Setenv("GIT_TRACE2_EVENT", trace)
+	var listStart, listEnd time.Time
+	slowLister := func(context.Context) ([]scan.Process, error) {
+		listStart = time.Now()
+		time.Sleep(200 * time.Millisecond)
+		listEnd = time.Now()
+		return nil, nil
+	}
+
+	_, err := scan.Scan(context.Background(), scan.Options{Repo: filepath.Join(root, "a"), Cwd: "/", Processes: slowLister})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	data, err := os.ReadFile(trace)
+	if err != nil {
+		t.Fatal(err)
+	}
+	type span struct {
+		argv        []string
+		start, exit time.Time
+	}
+	spans := map[string]*span{}
+	for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
+		var e struct {
+			Event string
+			SID   string
+			Time  time.Time
+			Argv  []string
+		}
+		if err := json.Unmarshal([]byte(line), &e); err != nil {
+			t.Fatal(err)
+		}
+		switch e.Event {
+		case "start":
+			spans[e.SID] = &span{argv: e.Argv, start: e.Time}
+		case "exit":
+			spans[e.SID].exit = e.Time
+		}
+	}
+	inWorktrees := 0
+	for _, sp := range spans {
+		i := slices.Index(sp.argv, "-C")
+		if i < 0 || !slices.Contains([]string{"a", "b", "c"}, filepath.Base(sp.argv[i+1])) {
+			continue
+		}
+		inWorktrees++
+		if sp.exit.After(listStart) && sp.start.Before(listEnd) {
+			t.Errorf("git %v ran %v-%v, during the process listing %v-%v", sp.argv, sp.start, sp.exit, listStart, listEnd)
+		}
+	}
+	if inWorktrees < 4 {
+		t.Errorf("saw %d git runs in worktrees, want the repo lookup and 3 inspections at least", inWorktrees)
+	}
+}
+
+func TestRescan_ListsProcessesWhileNoGitRunsInTheWorktree(t *testing.T) {
+	root, repo := newRepo(t)
+	run(t, repo, "git", "worktree", "add", "-q", filepath.Join(root, "a"), "-b", "a")
+	w := row(t, scanRepo(t, repo), "a")
+	trace := filepath.Join(root, "trace.json")
+	t.Setenv("GIT_TRACE2_EVENT", trace)
+	var listStart, listEnd time.Time
+	slowLister := func(context.Context) ([]scan.Process, error) {
+		listStart = time.Now()
+		time.Sleep(200 * time.Millisecond)
+		listEnd = time.Now()
+		return nil, nil
+	}
+
+	_, _, err := scan.Rescan(context.Background(), w, scan.Options{Cwd: "/", Processes: slowLister})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	data, err := os.ReadFile(trace)
+	if err != nil {
+		t.Fatal(err)
+	}
+	type span struct {
+		argv        []string
+		start, exit time.Time
+	}
+	spans := map[string]*span{}
+	for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
+		var e struct {
+			Event string
+			SID   string
+			Time  time.Time
+			Argv  []string
+		}
+		if err := json.Unmarshal([]byte(line), &e); err != nil {
+			t.Fatal(err)
+		}
+		switch e.Event {
+		case "start":
+			spans[e.SID] = &span{argv: e.Argv, start: e.Time}
+		case "exit":
+			spans[e.SID].exit = e.Time
+		}
+	}
+	inWorktree := 0
+	for _, sp := range spans {
+		i := slices.Index(sp.argv, "-C")
+		if i < 0 || filepath.Base(sp.argv[i+1]) != "a" {
+			continue
+		}
+		inWorktree++
+		if sp.exit.After(listStart) && sp.start.Before(listEnd) {
+			t.Errorf("git %v ran %v-%v, during the process listing %v-%v", sp.argv, sp.start, sp.exit, listStart, listEnd)
+		}
+	}
+	if inWorktree == 0 {
+		t.Error("saw no git run in the worktree")
 	}
 }

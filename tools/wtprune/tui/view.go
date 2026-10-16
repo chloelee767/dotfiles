@@ -797,7 +797,17 @@ func (m *Model) reviewLines() []string {
 	if n := len(dropped); n > 0 {
 		add(styleBold.Render(fmt.Sprintf("NOT INCLUDED %d", n)))
 		for _, d := range dropped {
-			add(text.Printable(fmt.Sprintf("  %s %s: %s", d.Kind, text.Tilde(d.Name), d.Reason)))
+			name := text.Tilde(d.Name)
+			if d.Kind == "worktree" {
+				name = filepath.Base(d.Name) // as REMOVE shows it
+			}
+			line := text.Printable(fmt.Sprintf("%s %s: %s", d.Kind, name, d.Reason))
+			for i, wl := range strings.Split(ansi.Wrap(line, max(20, m.width-4), " "), "\n") {
+				if i > 0 {
+					wl = "  " + wl
+				}
+				add("  " + wl)
+			}
 		}
 	}
 	return lines

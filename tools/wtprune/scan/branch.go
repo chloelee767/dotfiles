@@ -45,16 +45,22 @@ func classifyBranch(ctx context.Context, w *Worktree) error {
 		return nil
 	}
 
-	unique, err := git.CountUnreachable(ctx, repo.CommonDir, b.Tip, []string{b.Name})
-	if err != nil {
-		return err
-	}
-	if unique > 0 {
-		b.KeepReason = fmt.Sprintf("%d unique", unique)
-		return squashed(ctx, repo, b)
+	// A default branch containing the tip settles both the unique count (0)
+	// and the tier, so check it once, before any full-ref walk.
+	exclude := []string{b.Name}
+	merged := repo.defaultContaining(ctx, repo.CommonDir, b.Tip, exclude)
+	if merged == "" && repo.pointingRef(b.Tip, exclude, allNamespaces...) == "" {
+		unique, err := git.CountUnreachable(ctx, repo.CommonDir, b.Tip, exclude)
+		if err != nil {
+			return err
+		}
+		if unique > 0 {
+			b.KeepReason = fmt.Sprintf("%d unique", unique)
+			return squashed(ctx, repo, b)
+		}
 	}
 
-	tier, ref, sameTip, err := containment(ctx, repo, b)
+	tier, ref, sameTip, err := containment(ctx, repo, b, merged)
 	if err != nil {
 		return err
 	}
@@ -229,16 +235,18 @@ func commitsChangingExactly(ctx context.Context, dir string, commits, files []st
 }
 
 // containment finds one ref containing the tip of a candidate branch, and
-// the tier that implies: merged (a default branch), contained (another
-// local branch or a tag) or pointer (only remote-tracking refs; the caller
-// splits that into pointer/pushed). Cheap checks first: ref scans with
-// --contains are slow in repos with thousands of refs.
-func containment(ctx context.Context, repo *Repo, b *Branch) (tier Tier, ref string, sameTip bool, err error) {
+// the tier that implies: merged (merged is the default branch containing
+// it, if any), contained (another local branch or a tag) or pointer (only
+// remote-tracking refs; the caller splits that into pointer/pushed). Cheap
+// checks first: ref scans with --contains are slow in repos with thousands
+// of refs.
+func containment(ctx context.Context, repo *Repo, b *Branch, merged string) (tier Tier, ref string, sameTip bool, err error) {
 	dir := repo.CommonDir
-	for _, ref := range repo.defaultBranches {
-		if ok, err := git.IsAncestor(ctx, dir, b.Tip, ref); err == nil && ok {
-			return TierMerged, ref, false, nil
-		}
+	if merged != "" {
+		return TierMerged, merged, false, nil
+	}
+	if ref := repo.pointingRef(b.Tip, []string{b.Name}, headsNS, tagsNS); ref != "" {
+		return TierContained, ref, true, nil
 	}
 	out, err := git.Run(ctx, dir, "rev-list", "--count", b.Tip, "--not", "--exclude="+b.Name, "--branches", "--tags")
 	if err != nil {
@@ -300,15 +308,24 @@ func firstContainingRef(ctx context.Context, dir, tip string, args ...string) (c
 // authored: we can't prove it's a pointer.
 func authoredHere(ctx context.Context, w *Worktree) (bool, error) {
 	b, repo := w.Branch, w.Repo
-	out, err := git.Run(ctx, repo.CommonDir, "reflog", "show", "--format=%gs", "refs/heads/"+b.Name, "--")
-	if err != nil {
-		return false, err
+	var msgs []string
+	if entries, ok := w.readReflog("refs/heads/" + b.Name); ok {
+		for _, e := range entries {
+			msgs = append(msgs, e.msg)
+		}
+	} else {
+		out, err := git.Run(ctx, repo.CommonDir, "reflog", "show", "--format=%gs", "refs/heads/"+b.Name, "--")
+		if err != nil {
+			return false, err
+		}
+		if out = strings.TrimSpace(out); out != "" {
+			msgs = strings.Split(out, "\n")
+		}
 	}
-	lines := strings.Split(strings.TrimSpace(out), "\n")
-	if len(lines) == 1 && lines[0] == "" {
+	if len(msgs) == 0 {
 		return true, nil
 	}
-	for _, msg := range lines {
+	for _, msg := range msgs {
 		if authoredEntry(msg) {
 			return true, nil
 		}
@@ -323,7 +340,7 @@ func authoredHere(ctx context.Context, w *Worktree) (bool, error) {
 		return false, err
 	}
 	args := []string{"log", "--format=%ae%n%ce", b.Tip, "--not", "--tags"}
-	out, err = git.Run(ctx, repo.CommonDir, append(append(args, repo.defaultBranches...), "--")...)
+	out, err := git.Run(ctx, repo.CommonDir, append(append(args, repo.defaultBranches...), "--")...)
 	if err != nil {
 		return false, err
 	}

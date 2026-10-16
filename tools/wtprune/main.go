@@ -4,6 +4,7 @@
 package main
 
 import (
+	"bytes"
 	"cmp"
 	"context"
 	"errors"
@@ -15,11 +16,13 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"text/tabwriter"
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/term"
 
 	"wtprune/git"
@@ -74,20 +77,28 @@ const (
 // review screen; the rest are listed by count.
 const maxLostSubjects = 50
 
+// lostWorkers bounds the concurrent lostCommits walks.
+const lostWorkers = 8
+
 type streams struct {
 	out, err    io.Writer
 	interactive bool // stdin and stdout are terminals
 	progress    bool // stderr is a terminal
+	width       int  // stderr's columns, for cutting progress lines; 0 if unknown
 }
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	code := run(ctx, stop, os.Args[1:], streams{
+	s := streams{
 		out:         os.Stdout,
 		err:         os.Stderr,
 		interactive: isTerminal(os.Stdin) && isTerminal(os.Stdout),
 		progress:    isTerminal(os.Stderr),
-	})
+	}
+	if s.progress {
+		s.width, _, _ = term.GetSize(os.Stderr.Fd())
+	}
+	code := run(ctx, stop, os.Args[1:], s)
 	stop()
 	os.Exit(code)
 }
@@ -146,7 +157,14 @@ func run(ctx context.Context, stop func(), args []string, s streams) int {
 
 	opts := scan.Options{Repo: repo, Dir: dir, Depth: depth}
 	if s.progress {
-		opts.Progress = func(done, total int) { fmt.Fprintf(s.err, "\rscanning %d/%d...", done, total) }
+		opts.Progress = func(p scan.Progress) {
+			line := progressText(p, dir)
+			if s.width > 1 {
+				// A wrapped line can't be cleared by \r\033[K.
+				line = ansi.Truncate(line, s.width-1, "…")
+			}
+			fmt.Fprint(s.err, "\r\033[K"+line)
+		}
 	}
 	res, err := scan.Scan(ctx, opts)
 	if opts.Progress != nil {
@@ -200,14 +218,24 @@ func run(ctx context.Context, stop func(), args []string, s streams) int {
 		return exitOK
 	}
 
-	// The first Ctrl-C lets the current action finish and stops; restoring
+	// The first Ctrl-C lets the in-flight actions finish and stops; restoring
 	// the default handler then lets a second one kill the process.
 	context.AfterFunc(ctx, stop)
 	sum := plan.Execute(ctx, p, s.out, plan.Options{TrashDir: trashDir, LogPath: logPath})
 	if sum.Trashed > 0 {
-		fmt.Fprintf(s.out, "restore: see \"Recovering\" in tools/wtprune/README.md; log: %s\n", text.Tilde(sum.LogPath))
+		fmt.Fprintln(s.out, `restore: see "Recovering" in tools/wtprune/README.md`)
 	}
 	return sum.ExitCode()
+}
+
+func progressText(p scan.Progress, dir string) string {
+	switch p.Phase {
+	case scan.PhaseFinding:
+		return fmt.Sprintf("finding worktrees under %s...", text.Printable(text.Tilde(dir)))
+	case scan.PhaseLoading:
+		return fmt.Sprintf("loading repos %d/%d...", p.Done, p.Total)
+	}
+	return fmt.Sprintf("scanning %d/%d...", p.Done, p.Total)
 }
 
 // filterByAge keeps rows idle at least minIdle, and rows whose idle time is
@@ -227,35 +255,57 @@ func filterByAge(rows []*scan.Worktree, minIdle time.Duration) []*scan.Worktree 
 // counts still mark it at risk.
 func lostCommits(ctx context.Context, rows []*scan.Worktree) map[string][]scan.Commit {
 	lost := map[string][]scan.Commit{}
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+	sem := make(chan struct{}, lostWorkers)
 	for _, w := range rows {
 		if !w.Selectable() || (w.DetachedLost == 0 && w.InProgress == "") {
 			continue
 		}
-		shas, err := scan.LostCommits(ctx, w)
-		if err != nil || len(shas) == 0 {
-			continue
-		}
-		subjects := map[string]string{}
-		args := append([]string{"log", "--no-walk=unsorted", "--format=%H%x00%s"}, shas[:min(len(shas), maxLostSubjects)]...)
-		if out, err := git.Run(ctx, w.Repo.CommonDir, args...); err == nil {
-			for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
-				if sha, subject, ok := strings.Cut(line, "\x00"); ok {
-					subjects[sha] = subject
-				}
+		wg.Go(func() {
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			if commits := lostCommitsOf(ctx, w); len(commits) > 0 {
+				mu.Lock()
+				lost[w.ID] = commits
+				mu.Unlock()
+			}
+		})
+	}
+	wg.Wait()
+	return lost
+}
+
+func lostCommitsOf(ctx context.Context, w *scan.Worktree) []scan.Commit {
+	shas, err := scan.LostCommits(ctx, w, nil)
+	if err != nil || len(shas) == 0 {
+		return nil
+	}
+	subjects := map[string]string{}
+	args := append([]string{"log", "--no-walk=unsorted", "--format=%H%x00%s"}, shas[:min(len(shas), maxLostSubjects)]...)
+	if out, err := git.Run(ctx, w.Repo.CommonDir, args...); err == nil {
+		for _, line := range strings.Split(strings.TrimSpace(out), "\n") {
+			if sha, subject, ok := strings.Cut(line, "\x00"); ok {
+				subjects[sha] = subject
 			}
 		}
-		for _, sha := range shas {
-			lost[w.ID] = append(lost[w.ID], scan.Commit{SHA: sha, Subject: subjects[sha]})
-		}
 	}
-	return lost
+	var commits []scan.Commit
+	for _, sha := range shas {
+		commits = append(commits, scan.Commit{SHA: sha, Subject: subjects[sha]})
+	}
+	return commits
 }
 
 func printList(out io.Writer, res *scan.Result, rows []*scan.Worktree) {
 	fmt.Fprintf(out, "wtprune  %s  ·  %s\n", text.Printable(text.Tilde(res.Target)), countLine(res, rows))
 	if len(rows) > 0 {
 		fmt.Fprintln(out)
-		tw := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
+		// Every row keeps all its cells: a row ending early (eg. an empty
+		// BRANCH ACTION) would end tabwriter's column block and misalign the
+		// rows after it. Trailing padding is trimmed afterwards.
+		var table bytes.Buffer
+		tw := tabwriter.NewWriter(&table, 0, 0, 2, ' ', 0)
 		header := "WORKTREE\tBRANCH\tIDLE\tSTATUS\tBRANCH ACTION"
 		if res.DirMode {
 			header = "REPO\t" + header
@@ -273,9 +323,12 @@ func printList(out io.Writer, res *scan.Result, rows []*scan.Worktree) {
 			for i := range cells {
 				cells[i] = text.Printable(cells[i])
 			}
-			fmt.Fprintln(tw, strings.TrimRight(strings.Join(cells, "\t"), "\t"))
+			fmt.Fprintln(tw, strings.Join(cells, "\t"))
 		}
 		tw.Flush()
+		for _, line := range strings.Split(strings.TrimSuffix(table.String(), "\n"), "\n") {
+			fmt.Fprintln(out, strings.TrimRight(line, " "))
+		}
 	}
 
 	var blocked []*scan.Worktree

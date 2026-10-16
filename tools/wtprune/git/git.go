@@ -10,9 +10,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 )
 
@@ -47,10 +50,10 @@ func RunInput(ctx context.Context, dir, stdin string, args ...string) (string, e
 		full = append(full, "-C", dir)
 	}
 	full = append(full, args...)
-	cmd := exec.CommandContext(ctx, "git", full...)
+	cmd := exec.CommandContext(ctx, binary(), full...)
 	// Own process group: a terminal Ctrl-C (SIGINT to the foreground group)
-	// must not kill a git that is mid-action; Execute finishes the current
-	// action, and cancelling ctx still kills git during a scan.
+	// must not kill a git that is mid-action; Execute finishes the in-flight
+	// actions, and cancelling ctx still kills git during a scan.
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	if stdin != "" {
 		cmd.Stdin = strings.NewReader(stdin)
@@ -68,6 +71,21 @@ func RunInput(ctx context.Context, dir, stdin string, args ...string) (string, e
 	}
 	return stdout.String(), nil
 }
+
+// binary is the git that PATH's git runs, resolved once: on macOS
+// /usr/bin/git is an xcrun shim that costs a few ms per run, and a scan
+// runs hundreds. Anything unexpected falls back to plain "git".
+var binary = sync.OnceValue(func() string {
+	out, err := exec.Command("git", "--exec-path").Output()
+	if err != nil {
+		return "git"
+	}
+	path := filepath.Join(strings.TrimSpace(string(out)), "git")
+	if info, err := os.Stat(path); err != nil || !info.Mode().IsRegular() || info.Mode().Perm()&0o111 == 0 {
+		return "git"
+	}
+	return path
+})
 
 // ExitCode returns the exit code of a failed git command, or -1.
 func ExitCode(err error) int {

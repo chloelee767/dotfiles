@@ -155,6 +155,30 @@ func TestBuild_MutualContainmentDropsOneBranchAtPlanTime(t *testing.T) {
 	}
 }
 
+func TestBuild_DropsDetachedWorktreeWhoseCommitOnlyAPlannedBranchHolds(t *testing.T) {
+	root, repo := newRepo(t)
+	x := filepath.Join(root, "x")
+	run(t, repo, "git", "worktree", "add", "-q", x, "-b", "x")
+	write(t, filepath.Join(x, "f"), "one\n")
+	run(t, x, "git", "add", "f")
+	run(t, x, "git", "commit", "-qm", "c1")
+	c1 := run(t, x, "git", "rev-parse", "HEAD")
+	write(t, filepath.Join(x, "f"), "two\n")
+	run(t, x, "git", "commit", "-qam", "c2")
+	run(t, repo, "git", "merge", "-q", "--squash", "x")
+	run(t, repo, "git", "commit", "-qm", "squash x")
+	run(t, repo, "git", "worktree", "add", "-q", "--detach", filepath.Join(root, "w"), c1)
+	res := scanRepo(t, repo)
+	xRow, wRow := row(t, res, "x"), row(t, res, "w")
+
+	p := plan.Build(res.Rows, plan.Selection{Worktrees: []string{xRow.ID, wRow.ID}, Branches: []string{xRow.ID}}, false)
+
+	want := []plan.Dropped{{Kind: "worktree", Name: wRow.Path, Reason: "holds 1 commit only x has (being deleted); unflag it (b), or remove this worktree next run"}}
+	if !reflect.DeepEqual(p.Dropped, want) || len(p.Items()) != 1 || len(p.Branches) != 1 {
+		t.Errorf("dropped = %+v, items %d, branches %+v; want w dropped, x and its branch kept", p.Dropped, len(p.Items()), p.Branches)
+	}
+}
+
 func TestBuild_IgnoredDirsDecideTrash(t *testing.T) {
 	root, repo := newRepo(t)
 	write(t, filepath.Join(repo, ".git", "info", "exclude"), "data/\nnode_modules/\n")
@@ -170,5 +194,24 @@ func TestBuild_IgnoredDirsDecideTrash(t *testing.T) {
 
 	if len(p.Safe) != 2 || !slices.Contains(p.Safe, plan.Item{W: deps}) || !slices.Contains(p.Safe, plan.Item{W: data, Trash: true}) {
 		t.Errorf("safe = %+v, want deps removed plainly and data via Trash", p.Safe)
+	}
+}
+
+// A leftover ORIG_HEAD (here from a reset) is history, not an in-progress
+// operation's head: it must not hold the worktree back.
+func TestBuild_StaleOrigHeadDoesNotDropDetachedWorktree(t *testing.T) {
+	root, repo := newRepo(t)
+	w := filepath.Join(root, "w")
+	run(t, repo, "git", "worktree", "add", "-q", "--detach", w)
+	run(t, w, "git", "commit", "-q", "--allow-empty", "-m", "dropped by reset")
+	run(t, w, "git", "reset", "-q", "--hard", "HEAD~1")
+	run(t, repo, "git", "worktree", "add", "-q", filepath.Join(root, "x"), "-b", "x")
+	res := scanRepo(t, repo)
+	wRow, xRow := row(t, res, "w"), row(t, res, "x")
+
+	p := plan.Build(res.Rows, plan.Selection{Worktrees: []string{wRow.ID, xRow.ID}, Branches: []string{xRow.ID}}, false)
+
+	if len(p.Dropped) != 0 || len(p.Items()) != 2 || len(p.Branches) != 1 {
+		t.Errorf("dropped = %+v, items %d, branches %d; want both worktrees and x's branch", p.Dropped, len(p.Items()), len(p.Branches))
 	}
 }

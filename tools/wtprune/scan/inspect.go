@@ -2,6 +2,7 @@ package scan
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -14,10 +15,23 @@ import (
 
 // env is the per-run context shared by every inspection.
 type env struct {
-	cwds       []string // canonical: the tool's cwd and its git toplevel
-	procs      []Process
+	cwds       func() []string // canonical: the tool's cwd and its git toplevel
+	procs      func() ([]Process, error)
 	registered []string // canonical paths of all known worktrees
 	now        time.Time
+	rescan     bool // Execute's re-check: skip the branch tier, which it doesn't read
+}
+
+func (e env) inUse(dir string) []Process {
+	procs, _ := e.procs()
+	return processesWithin(procs, dir)
+}
+
+func (e env) warnings() []string {
+	if _, err := e.procs(); err != nil {
+		return []string{fmt.Sprintf("in-use detection unavailable: %v", err)}
+	}
+	return nil
 }
 
 // reflogDepth caps how many entries of each reflog are checked for
@@ -35,10 +49,13 @@ func inspect(ctx context.Context, w *Worktree, e env) {
 		w.Hint = "dir vanished during the scan"
 	}
 	if w.State == StateMissing || w.State == StateBroken || w.State == StateMoved {
-		w.LastCommit = lastCommit(ctx, w.Repo.CommonDir, w.Head)
+		w.LastCommit = w.Repo.lastCommit(ctx, w.Repo.CommonDir, w.Head)
 		w.setIdle(e.now)
 		return
 	}
+	// List processes before running git in w: our own git would show up as
+	// a process with its cwd inside.
+	inUse := e.inUse(w.ID)
 	embedded, err := inspectGit(ctx, w)
 	if err != nil {
 		if w.State == StateOK {
@@ -47,11 +64,11 @@ func inspect(ctx context.Context, w *Worktree, e env) {
 		}
 		return
 	}
-	w.InUse = processesWithin(e.procs, w.ID)
+	w.InUse = inUse
 	w.Nested = nestedWithin(w, e.registered)
 	if w.State == StateOK {
 		switch {
-		case anyWithin(e.cwds, w.ID):
+		case anyWithin(e.cwds(), w.ID):
 			w.State = StateCurrent
 		case exists(filepath.Join(w.AdminDir, "modules")):
 			w.State = StateSubmodules
@@ -64,9 +81,11 @@ func inspect(ctx context.Context, w *Worktree, e env) {
 			w.Hint = "remove the inner one first: " + strings.Join(w.Nested, ", ")
 		}
 	}
-	if err := classifyBranch(ctx, w); err != nil {
-		w.Branch.Tier = TierNone
-		w.Branch.KeepReason = "error: " + err.Error()
+	if !e.rescan {
+		if err := classifyBranch(ctx, w); err != nil {
+			w.Branch.Tier = TierNone
+			w.Branch.KeepReason = "error: " + err.Error()
+		}
 	}
 	w.setIdle(e.now)
 }
@@ -125,14 +144,14 @@ func inspectGit(ctx context.Context, w *Worktree) (embedded []string, err error)
 	w.InProgress = inProgress(w.AdminDir)
 
 	if w.Detached && w.Head != "" {
-		if w.DetachedLost, err = git.CountUnreachable(ctx, w.Path, w.Head, nil); err != nil {
+		if w.DetachedLost, err = countUnreachable(ctx, w.Repo, w.Path, w.Head, nil); err != nil {
 			return nil, err
 		}
 	}
 	if w.ReflogOnly, err = reflogOnly(ctx, w); err != nil {
 		return nil, err
 	}
-	w.LastCommit = lastCommit(ctx, w.Path, w.Head)
+	w.LastCommit = w.Repo.lastCommit(ctx, w.Path, w.Head)
 	return embedded, nil
 }
 
@@ -222,6 +241,12 @@ func reflogOnly(ctx context.Context, w *Worktree) ([]Commit, error) {
 	}
 	var tips []string
 	for _, ref := range refs {
+		if entries, ok := w.readReflog(ref); ok {
+			for _, e := range entries[:min(len(entries), reflogDepth)] {
+				tips = append(tips, e.newOID)
+			}
+			continue
+		}
 		// A missing or unreadable reflog only hides a note.
 		out, _ := git.Run(ctx, w.Path, "reflog", "show", "--format=%H", "-n", strconv.Itoa(reflogDepth), ref, "--")
 		tips = append(tips, strings.Fields(out)...)
@@ -257,28 +282,39 @@ func reflogOnly(ctx context.Context, w *Worktree) ([]Commit, error) {
 }
 
 // opHeads are files in an admin dir that name commits an in-progress
-// operation would need (eg. the pre-rebase tip).
-var opHeads = []string{"ORIG_HEAD", "MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD", "rebase-merge/orig-head", "rebase-apply/orig-head"}
+// operation would need: the pre-rebase tip, the stash of an --autostash.
+var opHeads = []string{
+	"ORIG_HEAD", "MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD", "MERGE_AUTOSTASH",
+	"rebase-merge/orig-head", "rebase-merge/autostash", "rebase-apply/orig-head", "rebase-apply/autostash",
+}
 
 // LostCommits lists every commit that removing the worktree would leave
-// unreachable from any branch, remote or tag: its HEAD (when detached) and
-// any in-progress operation's heads. Reflog-only commits are in ReflogOnly.
-func LostCommits(ctx context.Context, w *Worktree) ([]string, error) {
+// unreachable from any branch, remote or tag, ignoring the local branches in
+// exclude: its HEAD (when detached) and, while an operation is in progress,
+// its heads. With nothing in progress a leftover ORIG_HEAD is just history,
+// like the reflogs: those commits are in ReflogOnly.
+func LostCommits(ctx context.Context, w *Worktree, exclude []string) ([]string, error) {
 	var tips []string
 	if w.Head != "" {
 		tips = append(tips, w.Head)
 	}
-	for _, name := range opHeads {
-		data, err := os.ReadFile(filepath.Join(w.AdminDir, name))
-		if err == nil {
-			tips = append(tips, strings.Fields(string(data))...)
+	if w.InProgress != "" {
+		for _, name := range opHeads {
+			data, err := os.ReadFile(filepath.Join(w.AdminDir, name))
+			if err == nil {
+				tips = append(tips, strings.Fields(string(data))...)
+			}
 		}
 	}
 	if len(tips) == 0 {
 		return nil, nil
 	}
 	args := append([]string{"rev-list", "--ignore-missing"}, tips...)
-	out, err := git.Run(ctx, w.Repo.CommonDir, append(args, "--not", "--branches", "--remotes", "--tags", "--")...)
+	args = append(args, "--not")
+	for _, b := range exclude {
+		args = append(args, "--exclude="+b) // applies to --branches, without refs/heads/ (see git.CountUnreachable)
+	}
+	out, err := git.Run(ctx, w.Repo.CommonDir, append(args, "--branches", "--remotes", "--tags", "--")...)
 	if err != nil {
 		return nil, err
 	}
@@ -301,20 +337,38 @@ func inProgress(adminDir string) string {
 	return ""
 }
 
-func lastCommit(ctx context.Context, dir, sha string) Commit {
-	if sha == "" {
-		return Commit{}
+// lastCommit returns sha's commit, from the repo's batch of worktree HEADs
+// when it is there.
+func (r *Repo) lastCommit(ctx context.Context, dir, sha string) Commit {
+	if c, ok := r.headCommits[sha]; ok {
+		return c
 	}
-	out, err := git.Run(ctx, dir, "log", "-1", "--format=%H%x00%ct%x00%s", sha, "--")
+	commits := logCommits(ctx, dir, sha)
+	return commits[sha]
+}
+
+// logCommits looks up shas with one `git log`, by sha. A failure (eg. one
+// missing object) finds nothing.
+func logCommits(ctx context.Context, dir string, shas ...string) map[string]Commit {
+	commits := map[string]Commit{}
+	shas = slices.DeleteFunc(slices.Clone(shas), func(sha string) bool { return sha == "" })
+	if len(shas) == 0 {
+		return commits
+	}
+	args := append([]string{"log", "--no-walk=unsorted", "--format=%H%x00%ct%x00%s"}, shas...)
+	out, err := git.Run(ctx, dir, append(args, "--")...)
 	if err != nil {
-		return Commit{}
+		return commits
 	}
-	parts := strings.SplitN(strings.TrimSuffix(out, "\n"), "\x00", 3)
-	if len(parts) != 3 {
-		return Commit{}
+	for _, line := range strings.Split(strings.TrimSuffix(out, "\n"), "\n") {
+		parts := strings.SplitN(line, "\x00", 3)
+		if len(parts) != 3 {
+			continue
+		}
+		secs, _ := strconv.ParseInt(parts[1], 10, 64)
+		commits[parts[0]] = Commit{SHA: parts[0], Time: time.Unix(secs, 0), Subject: parts[2]}
 	}
-	secs, _ := strconv.ParseInt(parts[1], 10, 64)
-	return Commit{SHA: parts[0], Time: time.Unix(secs, 0), Subject: parts[2]}
+	return commits
 }
 
 // setIdle uses the newest of the HEAD commit, the worktree's HEAD reflog,

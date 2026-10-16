@@ -95,7 +95,7 @@ func TestExecute_SkipsWhenHeadMoved(t *testing.T) {
 
 	plan.Execute(context.Background(), p, &out, testOptions(t))
 
-	if want := "skipped   " + w.Path + ": changed since scan (HEAD moved to " + head + "; now clean)\n"; !strings.HasPrefix(out.String(), want) {
+	if want := "removing 1 worktree...\nskipped   " + w.Path + ": changed since scan (HEAD moved to " + head + "; now clean)\n"; !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
 	if !exists(wt) {
@@ -115,7 +115,7 @@ func TestExecute_SkipsWhenOperationStarted(t *testing.T) {
 
 	plan.Execute(context.Background(), p, &out, testOptions(t))
 
-	if want := "skipped   " + w.Path + ": changed since scan (now BISECTING)\n"; !strings.HasPrefix(out.String(), want) {
+	if want := "removing 1 worktree...\nskipped   " + w.Path + ": changed since scan (now BISECTING)\n"; !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
 }
@@ -132,7 +132,7 @@ func TestExecute_SkipsWhenIgnoredFileAdded(t *testing.T) {
 
 	plan.Execute(context.Background(), p, &out, testOptions(t))
 
-	if want := "skipped   " + w.Path + ": changed since scan (now clean +1 ignored)\n"; !strings.HasPrefix(out.String(), want) {
+	if want := "removing 1 worktree...\nskipped   " + w.Path + ": changed since scan (now clean +1 ignored)\n"; !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
 	if read(t, filepath.Join(wt, ".env")) != "SECRET=1\n" {
@@ -148,6 +148,7 @@ func TestExecute_ProcessesRelistedPerItem(t *testing.T) {
 	a, b := row(t, res, "a"), row(t, res, "b")
 	p := plan.Build(res.Rows, plan.Selection{Worktrees: []string{a.ID, b.ID}}, false)
 	opts := testOptions(t)
+	opts.Workers = 1
 	calls := 0
 	opts.Processes = func(context.Context) ([]scan.Process, error) {
 		calls++
@@ -185,7 +186,7 @@ func TestExecute_RenamedButDeregisterFailed(t *testing.T) {
 	sum := plan.Execute(context.Background(), p, &out, opts)
 
 	dest := filepath.Join(opts.TrashDir, "wtprune-wt-20261017-0912")
-	if want := "FAILED    " + w.Path + ": moved to " + dest + " but deregistering failed: "; !strings.HasPrefix(out.String(), want) {
+	if want := "removing 1 worktree and 1 branch...\nFAILED    " + w.Path + ": moved to " + dest + " but deregistering failed: "; !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
 	if read(t, filepath.Join(dest, "notes.md")) != "precious\n" || run(t, repo, "git", "branch", "--list", "feat") == "" {
@@ -215,7 +216,7 @@ func TestExecute_RemovalFailedKeepsBranch(t *testing.T) {
 
 	sum := plan.Execute(context.Background(), p, &out, testOptions(t))
 
-	if !strings.HasPrefix(out.String(), "FAILED    "+w.Path+": ") || sum.BranchesDeleted != 0 {
+	if !strings.HasPrefix(out.String(), "removing 1 worktree and 1 branch...\nFAILED    "+w.Path+": ") || sum.BranchesDeleted != 0 {
 		t.Errorf("summary %+v output:\n%s\nwant the removal to fail and no branch deleted", sum, out.String())
 	}
 	if run(t, repo, "git", "branch", "--list", "feat") == "" {
@@ -234,7 +235,7 @@ func TestExecute_SkipsBranchThatNoLongerExists(t *testing.T) {
 
 	sum := plan.Execute(context.Background(), p, &out, testOptions(t))
 
-	if want := "removed   " + w.Path + "\nskipped   branch gone in repo: no longer exists\n"; !strings.HasPrefix(out.String(), want) {
+	if want := "removing 1 worktree and 1 branch...\nremoved   " + w.Path + "\nskipped   branch gone in repo: no longer exists\n"; !strings.HasPrefix(out.String(), want) {
 		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
 	}
 	if sum.Skipped != 1 || sum.ExitCode() != 0 {
@@ -254,7 +255,7 @@ func TestExecute_NoTrashRemovesIgnoredOnlyRowPlainly(t *testing.T) {
 
 	sum := plan.Execute(context.Background(), p, &out, opts)
 
-	if want := "removed   " + w.Path + "\n"; !strings.HasPrefix(out.String(), want) || sum.Removed != 1 {
+	if want := "removing 1 worktree...\nremoved   " + w.Path + "\n"; !strings.HasPrefix(out.String(), want) || sum.Removed != 1 {
 		t.Errorf("summary %+v output:\n%s\nwant a plain removal", sum, out.String())
 	}
 	if exists(w.Path) || exists(opts.TrashDir) {
@@ -358,5 +359,107 @@ func TestExecute_TrashedGitFileIsDisarmed(t *testing.T) {
 	cmd.Dir = dest
 	if out, err := cmd.CombinedOutput(); err == nil {
 		t.Errorf("git status in the trash dir succeeded, want not-a-repo:\n%s", out)
+	}
+}
+
+// A detached worktree at an intermediate commit of a squash-merged branch:
+// the scan counts the commit as safe in the branch, but this run deletes
+// the branch. Build drops such a worktree; Execute must still catch it if
+// handed both (eg. the refs changed between plan and execute), whichever
+// runs first.
+func TestExecute_DetachedHeadOnlyInBranchBeingDeletedIsKept(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		workers int
+		dirty   string // the dirty worktree goes first: at-risk items run before safe ones
+	}{
+		{"branch first, sequential", 1, "x"},
+		{"detached first, sequential", 1, "w"},
+		{"branch first, parallel", 4, "x"},
+		{"detached first, parallel", 4, "w"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			root, repo := newRepo(t)
+			x, w := filepath.Join(root, "x"), filepath.Join(root, "w")
+			run(t, repo, "git", "worktree", "add", "-q", x, "-b", "x")
+			write(t, filepath.Join(x, "f"), "one\n")
+			run(t, x, "git", "add", "f")
+			run(t, x, "git", "commit", "-qm", "c1")
+			c1 := run(t, x, "git", "rev-parse", "HEAD")
+			write(t, filepath.Join(x, "f"), "two\n")
+			run(t, x, "git", "commit", "-qam", "c2")
+			run(t, repo, "git", "merge", "-q", "--squash", "x")
+			run(t, repo, "git", "commit", "-qm", "squash x")
+			run(t, repo, "git", "worktree", "add", "-q", "--detach", w, c1)
+			write(t, filepath.Join(root, tc.dirty, "scratch.txt"), "at risk, so first\n")
+			res := scanRepo(t, repo)
+			if row(t, res, "x").Branch.Tier != scan.TierSquashed || row(t, res, "w").DetachedLost != 0 {
+				t.Fatalf("setup: x %+v, w lost %d", row(t, res, "x").Branch, row(t, res, "w").DetachedLost)
+			}
+			xRow := row(t, res, "x")
+			p := plan.Build(res.Rows, plan.Selection{Worktrees: []string{xRow.ID, row(t, res, "w").ID}}, false)
+			p.Branches = append(p.Branches, plan.BranchAction{
+				Repo: xRow.Repo, Name: "x", Tip: xRow.Branch.Tip, Tier: xRow.Branch.Tier, WorktreeID: xRow.ID,
+				SquashCommit: xRow.Branch.SquashCommit, SquashRef: xRow.Branch.SquashRef,
+			})
+			opts := testOptions(t)
+			opts.Workers = tc.workers
+			var out bytes.Buffer
+
+			plan.Execute(context.Background(), p, &out, opts)
+
+			if !exists(w) || run(t, w, "git", "rev-parse", "HEAD") != c1 {
+				t.Errorf("output:\n%s\nwant the detached worktree kept at %s", out.String(), c1)
+			}
+			if !strings.Contains(out.String(), "skipped   "+row(t, res, "w").Path+": ") {
+				t.Errorf("output:\n%s\nwant the detached worktree skipped", out.String())
+			}
+		})
+	}
+}
+
+func TestExecute_SkipsDetachedHeadOnlyInBranchBeingDeleted(t *testing.T) {
+	root, repo := newRepo(t)
+	x, w := filepath.Join(root, "x"), filepath.Join(root, "w")
+	run(t, repo, "git", "worktree", "add", "-q", x, "-b", "x")
+	run(t, x, "git", "commit", "-q", "--allow-empty", "-m", "c1")
+	c1 := run(t, x, "git", "rev-parse", "HEAD")
+	run(t, x, "git", "commit", "-q", "--allow-empty", "-m", "c2")
+	run(t, repo, "git", "branch", "y", "x")
+	run(t, repo, "git", "worktree", "add", "-q", "--detach", w, c1)
+	res := scanRepo(t, repo)
+	wRow := row(t, res, "w")
+	p := plan.Build(res.Rows, plan.Selection{Worktrees: []string{wRow.ID}}, false)
+	// As if x and y were planned too: only they hold c1.
+	for _, name := range []string{"x", "y"} {
+		p.Branches = append(p.Branches, plan.BranchAction{Repo: wRow.Repo, Name: name, Tip: c1, WorktreeID: "elsewhere-" + name})
+	}
+	opts := testOptions(t)
+	var out bytes.Buffer
+
+	sum := plan.Execute(context.Background(), p, &out, opts)
+
+	want := "removing 1 worktree and 2 branches...\nskipped   " + wRow.Path + ": holds 1 commit only x, y have (being deleted); remove it next run\n"
+	if !strings.HasPrefix(out.String(), want) || sum.Skipped != 1 || !exists(w) {
+		t.Errorf("output:\n%s\nwant prefix:\n%s", out.String(), want)
+	}
+}
+
+func TestExecute_StaleOrigHeadDoesNotSkipDetachedWorktree(t *testing.T) {
+	root, repo := newRepo(t)
+	w := filepath.Join(root, "w")
+	run(t, repo, "git", "worktree", "add", "-q", "--detach", w)
+	run(t, w, "git", "commit", "-q", "--allow-empty", "-m", "dropped by reset")
+	run(t, w, "git", "reset", "-q", "--hard", "HEAD~1")
+	run(t, repo, "git", "worktree", "add", "-q", filepath.Join(root, "x"), "-b", "x")
+	res := scanRepo(t, repo)
+	ids := []string{row(t, res, "w").ID, row(t, res, "x").ID}
+	p := plan.Build(res.Rows, plan.Selection{Worktrees: ids, Branches: ids}, false)
+	var out bytes.Buffer
+
+	sum := plan.Execute(context.Background(), p, &out, testOptions(t))
+
+	if sum.Removed != 2 || sum.BranchesDeleted != 1 || sum.Skipped != 0 || exists(w) {
+		t.Errorf("summary %+v, output:\n%s\nwant both worktrees removed and x deleted", sum, out.String())
 	}
 }

@@ -1,10 +1,12 @@
 package scan_test
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 
@@ -138,6 +140,26 @@ func TestScan_ReflogOnlyAfterResetHard(t *testing.T) {
 	}
 }
 
+// Reflogs are read from files, except in reftable repos, which keep none.
+func TestScan_ReflogOnlyInReftableRepo(t *testing.T) {
+	isolateGit(t)
+	root := t.TempDir()
+	repo := filepath.Join(root, "repo")
+	run(t, root, "git", "init", "-q", "-b", "main", "--ref-format=reftable", repo)
+	run(t, repo, "git", "commit", "-q", "--allow-empty", "-m", "init")
+	wt := filepath.Join(root, "wt")
+	run(t, repo, "git", "worktree", "add", "-q", wt, "-b", "feat")
+	run(t, wt, "git", "commit", "-q", "--allow-empty", "-m", "dropped by reset")
+	dropped := run(t, wt, "git", "rev-parse", "HEAD")
+	run(t, wt, "git", "reset", "-q", "--hard", "HEAD~1")
+
+	w := row(t, scanRepo(t, repo), "wt")
+
+	if want := []scan.Commit{{SHA: dropped, Subject: "dropped by reset"}}; !reflect.DeepEqual(w.ReflogOnly, want) {
+		t.Errorf("reflog only = %+v, want %+v", w.ReflogOnly, want)
+	}
+}
+
 func TestScan_ReflogOnlyAfterDetachingAway(t *testing.T) {
 	root, repo := newRepo(t)
 	wt := filepath.Join(root, "wt")
@@ -251,5 +273,28 @@ func TestParseLsof(t *testing.T) {
 	want := []scan.Process{{PID: 101, Command: "zsh", Cwd: "/Users/me/wt"}, {PID: 202, Command: "claude code", Cwd: "/tmp/a b"}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %+v\nwant %+v", got, want)
+	}
+}
+
+func TestLostCommits_IncludeRebaseAutostash(t *testing.T) {
+	root, repo := newRepo(t)
+	wt := filepath.Join(root, "wt")
+	run(t, repo, "git", "worktree", "add", "-q", wt, "-b", "feat")
+	write(t, filepath.Join(wt, "README"), "feat\n")
+	run(t, wt, "git", "commit", "-qam", "feat")
+	write(t, filepath.Join(repo, "README"), "main\n")
+	run(t, repo, "git", "commit", "-qam", "main")
+	write(t, filepath.Join(wt, ".gitignore"), "uncommitted, so autostashed\n")
+	tryRun(t, wt, "git", "rebase", "-q", "--autostash", "main") // stops on the README conflict
+	w := row(t, scanRepo(t, repo), "wt")
+	stash, err := os.ReadFile(filepath.Join(w.AdminDir, "rebase-merge", "autostash"))
+	if err != nil || w.InProgress != "REBASING" {
+		t.Fatalf("setup: in progress %q, autostash %v", w.InProgress, err)
+	}
+
+	lost, err := scan.LostCommits(context.Background(), w, nil)
+
+	if err != nil || !slices.Contains(lost, strings.TrimSpace(string(stash))) {
+		t.Errorf("lost = %v, %v; want the autostash commit %s", lost, err, stash)
 	}
 }
